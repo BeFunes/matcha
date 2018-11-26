@@ -4,10 +4,15 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import {BrowserRouter} from 'react-router-dom';
+import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
+import theme from './theme';
+
 
 const app = (
 	<BrowserRouter>
-		<App/>
+		<MuiThemeProvider theme={theme}>
+			<App />
+		</MuiThemeProvider>
 	</BrowserRouter>
 );
 

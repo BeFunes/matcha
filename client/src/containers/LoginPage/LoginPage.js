@@ -1,42 +1,48 @@
 import React, {Component} from 'react';
 import styles from './LoginPage.module.css'
-import Button from '@material-ui/core/Button';
 import LoginDialog from './LoginDialog/LoginDialog'
-
-const divStyle = {
-	// margin: '40px',
-	// border: '5px solid pink',
-	backgroundColor: 'green',
-	alignItems: 'center',
-	justifyContent: 'center',
-	display: 'flex',
-	flexGrow: '1'
-};
+import Button from "@material-ui/core/es/Button/Button";
+import SignupDialog from "./SignupDialog/SignupDialog";
 
 class LoginPage extends Component {
 	state = {
-		dialogOpen: false
+		loginDialogOpen: false,
+		signupDialogOpen: false
 	};
 
-
-
-	handleClickOpen = () => {
-		this.setState({ dialogOpen: true });
+	openLoginHandler = () => {
+		this.setState({ loginDialogOpen: true });
 	};
 
-	handleClose = () => {
-		this.setState({ dialogOpen: false });
+	closeLoginHandler = () => {
+		this.setState({ loginDialogOpen: false });
 	};
+
+	openSignupHandler = () => {
+		this.setState({ signupDialogOpen: true });
+	};
+
+	closeSignupHandler = () => {
+		this.setState({ signupDialogOpen: false });
+	};
+
 
 	render() {
 		const { onLogin } = this.props
 		return (
 			<div className={styles.component}>
-				<Button  variant="extendedFab" color="secondary" onClick={this.handleClickOpen}>SIGN IN</Button>
-				<LoginDialog
-					maxWidth='lg'
-					open={this.state.dialogOpen}
-					onClose={this.handleClose}
+				<div className={styles.buttons}>
+				<Button style={{ margin: '15px', width: '200px'}} variant="extendedFab" color="secondary" onClick={this.openLoginHandler}>LOG IN</Button>
+				<Button style={{ margin: '15px', width: '200px'}} variant="extendedFab" color="secondary" onClick={this.openSignupHandler}>SIGN UP</Button>
+				</div>
+					<LoginDialog
+					open={this.state.loginDialogOpen}
+					onClose={this.closeLoginHandler}
+					onLogin={onLogin}
+				/>
+				<SignupDialog
+					open={this.state.signupDialogOpen}
+					onClose={this.closeSignupHandler}
 				/>
 			</div>
 		)

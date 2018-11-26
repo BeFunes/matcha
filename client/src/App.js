@@ -2,11 +2,8 @@ import React, {Component} from 'react';
 import {Route, Switch} from 'react-router-dom';
 
 import './App.css';
-import SignUpForm from "./containers/SignUpForm/SignUpForm";
-import SignInForm from "./containers/SignInForm/SignInForm";
 import Browse from "./containers/Browse/Browse";
 import LoginPage from "./containers/LoginPage/LoginPage";
-
 
 
 class App extends Component {
@@ -17,8 +14,21 @@ class App extends Component {
 		userId: null
 	}
 
-	loginHandler = (event, authData) => {
-		event.preventDefault()
+	componentDidMount() {
+		const token = localStorage.getItem('token')
+		const expiryDate = localStorage.getItem('expiryDate')
+		if (!token || !expiryDate) { return }
+		if (new Date(expiryDate) <= new Date()) {
+			this.logoutHandler()
+			return
+		}
+		const userId = localStorage.getItem('userId')
+		const remainingTime = new Date(expiryDate).getTime() - new Date().getTime()
+		this.setState({isAuth: true, token: token, userId: userId})
+		this.setAutoLogout(remainingTime)
+	}
+
+	loginHandler = (authData) => {
 		console.log("LOGIN HANDLER")
 		const query = {
 			query: `
@@ -83,28 +93,19 @@ class App extends Component {
 	};
 
 
-
-
-
-
-
-
-
-
 	render() {
 		let routes
 		if (this.state.isAuth) {
 			routes = (
-				<Switch> /* with switch, the route will consider only the first match rather than cascading down!*/
+				<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
 					<Route path="/" exact component={Browse}/>
 				</Switch>
 			)
 		}
 		else {
 			routes = (
-			<Switch> /* with switch, the route will consider only the first match rather than cascading down!*/
-				<Route path="/signup" component={SignUpForm}/>
-				<Route path="/" exact render={props => ( <LoginPage onLogin={this.loginHandler} {...props}/>)}/>
+			<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}å
+				<Route path="/" exact render={() => ( <LoginPage onLogin={this.loginHandler} />)}/>
 			</Switch>
 			)
 		}
@@ -112,8 +113,7 @@ class App extends Component {
 
 		return (
 			<div className="App">
-				{/*{routes}*/}
-				<LoginPage onLogin={this.loginHandler}/>
+				{routes}
 				</div>
 
 		);
