@@ -11,6 +11,6 @@ module.exports = {
         const hashedPw = await bcrypt.hash(userInput.password, 12);
         await db.query('Insert into users (email, password) VALUES (?, ?)', [userInput.email, hashedPw])
         console.log(row)
-        return {id: '1', email: userInput.email, password: userInput.password}
+        return {email: userInput.email}
     }
 };
