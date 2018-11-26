@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import { validator, sanitise } from '../../utils/string'
-class SignUpForm extends Component {
+
+class SignInForm extends Component {
     state = {
         email: {
             value: '',
@@ -13,49 +14,10 @@ class SignUpForm extends Component {
         isAuth: false
     };
 
-    signupHandler = (event) => {
+    signinHandler = (event) => {
         event.preventDefault()
-        const query = {
-            query: `
-            mutation {
-                createUser(userInput: {
-                    email: "${this.state.email.value}", 
-                    password: "${this.state.password.value}"
-                    }) { email }
-               }`
-        }
-        fetch('http://localhost:3001/graphql', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json'},
-            body: JSON.stringify(query)
-        })
-            .then(res => {
-                console.log("AUTH OK")
-                return res.json() })
-            .then(resData => {
-                if (resData.errors && resData.errors[0].status === 422) {
-                    throw new Error(
-                        "Validation failed. Make sure the email address isn't used yet!"
-                    );
-                }
-                if (resData.errors) {
-                    throw new Error('User creation failed!');
-                }
-                console.log(resData)
-                this.props.history.push('/')
-                // this.setState({isAuth: false})
-            })
-            .catch(err => {
-                console.log(err)
-                this.setState ({
-                    isAuth: false,
-                    authLoading: false,
-                    error: err
-                })
-            })
+        console.log("SIGN IN")
     }
-
-
 
     inputChangeHandler = ({target}) => {
         const sanitisedValue = sanitise(target.value)
@@ -63,12 +25,15 @@ class SignUpForm extends Component {
             this.setState({[target.type]: {...this.state[target.type], value: sanitisedValue}});
     }
 
+    goToSignUpHandler = () => {
+        this.props.history.push('/signup')
+    }
 
     render() {
         return (
             <div>
-                SIGN UP
-            <form onSubmit={this.signupHandler}>
+                SIGN IN
+            <form onSubmit={this.signinHandler}>
                 <input
                     id="email"
                     // label="Your E-Mail"
@@ -92,9 +57,10 @@ class SignUpForm extends Component {
                 </button>
 
             </form>
+                <button type='submit' onClick={this.goToSignUpHandler}>go to sign up</button>
             </div>
         )
     }
 }
 
-export default SignUpForm
+export default SignInForm
