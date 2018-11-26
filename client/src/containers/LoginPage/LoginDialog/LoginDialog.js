@@ -32,11 +32,6 @@ class LoginDialog extends React.Component {
 
 		return (
 			<Dialog onClose={onClose} open={open}>
-				{/*<DialogTitle*/}
-					{/*className={styles.dialogTitle}*/}
-					{/*style={{ fontSize: '15px'}}>*/}
-					{/*Welcome*/}
-				{/*</DialogTitle>*/}
 				<form  noValidate autoComplete="off">
 					<div><TextField
 						// id="outlined-name"
@@ -47,6 +42,7 @@ class LoginDialog extends React.Component {
 						value={this.state.email.value}
 						onChange={this.inputChangeHandler.bind(this, 'email')}
 						margin="normal"
+						autoComplete="email"
 						variant="outlined"
 						style={{
 							margin: '10px 15px',

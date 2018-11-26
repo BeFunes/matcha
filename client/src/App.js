@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
 import {Route, Switch} from 'react-router-dom';
 
-import './App.css';
+import styles from './App.module.css';
 import Browse from "./containers/Browse/Browse";
 import LoginPage from "./containers/LoginPage/LoginPage";
+import Toolbar from "./components/Navigation/Toolbar/Toolbar";
 
 
 class App extends Component {
@@ -94,27 +95,21 @@ class App extends Component {
 
 
 	render() {
-		let routes
-		if (this.state.isAuth) {
-			routes = (
+		const main = (
+			<aux>
+				<Toolbar />
+				<main className={styles.content}>
 				<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
 					<Route path="/" exact component={Browse}/>
 				</Switch>
+				</main>
+			</aux>
 			)
-		}
-		else {
-			routes = (
-			<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}å
-				<Route path="/" exact render={() => ( <LoginPage onLogin={this.loginHandler} />)}/>
-			</Switch>
-			)
-		}
-
 
 		return (
-			<div className="App">
-				{routes}
-				</div>
+			<div className={styles.app}>
+				{this.state.isAuth ? main : <LoginPage onLogin={this.loginHandler} /> }
+			</div>
 
 		);
 	}
