@@ -5,6 +5,7 @@ import './App.css';
 import SignUpForm from "./containers/SignUpForm/SignUpForm";
 import SignInForm from "./containers/SignInForm/SignInForm";
 import Browse from "./containers/Browse/Browse";
+import LoginPage from "./containers/LoginPage/LoginPage";
 
 
 
@@ -103,15 +104,18 @@ class App extends Component {
 			routes = (
 			<Switch> /* with switch, the route will consider only the first match rather than cascading down!*/
 				<Route path="/signup" component={SignUpForm}/>
-				<Route path="/" exact render={() => ( <SignInForm onLogin={this.loginHandler}/>)}/>
+				<Route path="/" exact render={props => ( <LoginPage onLogin={this.loginHandler} {...props}/>)}/>
 			</Switch>
 			)
 		}
 
+
 		return (
 			<div className="App">
-				{routes}
-			</div>
+				{/*{routes}*/}
+				<LoginPage onLogin={this.loginHandler}/>
+				</div>
+
 		);
 	}
 }
