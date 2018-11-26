@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import Dialog from "@material-ui/core/es/Dialog/Dialog";
 import DialogTitle from "@material-ui/core/es/DialogTitle/DialogTitle";
 
-import styles from './LoginDialog.css'
+import styles from './LoginDialog.module.css'
 import {sanitise} from "../../../utils/string";
 import TextField from "@material-ui/core/es/TextField/TextField";
 
@@ -41,6 +41,7 @@ class LoginDialog extends React.Component {
 					<div><TextField
 						// id="outlined-name"
 						label="Email"
+
 						className={styles.textField}
 						placeholder="example@gmail.com"
 						type="email"

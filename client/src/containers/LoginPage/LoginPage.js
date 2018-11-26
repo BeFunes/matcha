@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import styles from './LoginPage.css'
+import styles from './LoginPage.module.css'
 import Button from '@material-ui/core/Button';
 import LoginDialog from './LoginDialog/LoginDialog'
 
@@ -31,12 +31,10 @@ class LoginPage extends Component {
 	render() {
 		const { onLogin } = this.props
 		return (
-			<div className={divStyle}>
-				<div className={styles.test}>
-					something
-					     </div>
+			<div className={styles.component}>
 				<Button  variant="extendedFab" color="secondary" onClick={this.handleClickOpen}>SIGN IN</Button>
 				<LoginDialog
+					maxWidth='lg'
 					open={this.state.dialogOpen}
 					onClose={this.handleClose}
 				/>

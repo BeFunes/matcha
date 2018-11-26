@@ -1,11 +1,6 @@
 .component {
-    background-color: green;
     align-items: center;
     justify-content: center;
     display: flex;
     flex-grow: 1;
-}
-
-.test {
-    font-size: 100px;
 }
