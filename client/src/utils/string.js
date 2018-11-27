@@ -1,12 +1,25 @@
-export const validator = (value, type) => {
+const validatorAux = (value, type) => {
 	switch (type) {
 		case 'email':
-			return value && value.length > 100 && value.includes('@')
+			const patternEmail = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+			return patternEmail.test(value)
 		case 'password':
-			return value && value.length > 8
+			const patternPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/   /// must contain one lowercase, one uppercase, one digit. To add a symbol: (?=.*[!@#\$%\^&\*])
+			return patternPassword.test(value)
 		default:
-			return false
+			return true
 	}
+}
+
+export const validator = (value, rules, type) => {
+	let isValid = true
+	if (rules.minLength) {
+		isValid = value.length >= rules.minLength && isValid
+	}
+	if (rules.maxLength) {
+		isValid = value.length <= rules.maxLength && isValid
+	}
+	return validatorAux(value, type) && isValid
 }
 
 export const sanitise = (value) => value && value.trim();

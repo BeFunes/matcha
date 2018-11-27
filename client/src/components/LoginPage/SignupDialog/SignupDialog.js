@@ -1,7 +1,7 @@
 import React from 'react';
 
 import styles from './SignupDialog.module.css'
-import {sanitise} from "../../../utils/string";
+import {sanitise, validator} from "../../../utils/string";
 import Dialog from "@material-ui/core/es/Dialog/Dialog";
 import Button from "@material-ui/core/es/Button/Button";
 import TextInput from "../../UI/TextInput/TextInput";
@@ -14,21 +14,33 @@ class SignupDialog extends React.Component {
 			label: 'Email',
 			type: 'email',
 			value: '',
-			error: false,
+			valid: true,
 			placeholder: 'example@matcha.com',
-			autoComplete: 'email'
+			autoComplete: 'email',
+			rules: {
+				minLength: 8,
+				maxLength: 40,
+			}
 		},
 		password: {
 			label: 'Password',
 			type: 'password',
 			value: '',
-			error: true
+			valid: true,
+			rules: {
+				minLength: 8,
+				maxLength: 40,
+			}
 		},
 		password2: {
 			label: 'Repeat password',
 			type: 'password',
 			value: '',
-			error: false
+			valid: true,
+			rules: {
+				minLength: 8,
+				maxLength: 40,
+			}
 		},
 	};
 
@@ -77,8 +89,17 @@ class SignupDialog extends React.Component {
 
 	inputChangeHandler = (type, {target}) => {
 		const sanitisedValue = sanitise(target.value)
-		if (this.state[type] !== sanitisedValue)
-			this.setState({[type]: {...this.state[type], value: sanitisedValue}});
+		const valid = validator(sanitisedValue, this.state[type].rules, target.type)
+
+		const checkConfirmationPassword = () => {
+			if (type === 'password2' || type === 'password') {
+				const pass2valid = (type === 'password2') ? valid : this.state.password2.valid
+				const equal = this.state.password.value === this.state.password2.value
+				this.setState({password2: {...this.state.password2, valid: pass2valid && equal}})
+			}
+		}
+		if (this.state[type] !== sanitisedValue) {}
+			this.setState({[type]: {...this.state[type], value: sanitisedValue, valid: valid}}, checkConfirmationPassword);
 	}
 
 	render() {
@@ -89,6 +110,7 @@ class SignupDialog extends React.Component {
 				...this.state[key],
 				id: key});
 		}
+		const allValid = elementsArray.every((x) => x.valid && x.value !== '')
 
 		return (
 			<Dialog onClose={onClose} open={open}>
@@ -101,12 +123,12 @@ class SignupDialog extends React.Component {
 							value={element.value}
 							placeholder={element.placeholder}
 							onChange={this.inputChangeHandler.bind(this, element.id)}
-							error={element.error}
+							error={!element.valid}
 							autoComplete={element.autoComplete}
 						/>
 					</div> ))}
 					<div className={styles.buttons}>
-						<Button variant="contained" color="secondary" onClick={this.signupHandler}>
+						<Button variant={allValid ? "contained" : "outlined"} color="secondary" onClick={allValid ? this.signupHandler : null}>
 							Sign Up
 						</Button>
 					</div>

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import styles from './LoginDialog.module.css'
-import {sanitise} from "../../../utils/string";
+import {sanitise, validator} from "../../../utils/string";
 import Dialog from "@material-ui/core/es/Dialog/Dialog";
 import Button from "@material-ui/core/es/Button/Button";
 import TextInput from "../../UI/TextInput/TextInput";
@@ -14,21 +14,30 @@ class LoginDialog extends React.Component {
 			label: 'Email',
 			type: 'email',
 			value: '',
-			error: false,
-			autoComplete: 'email'
+			valid: true,
+			autoComplete: 'email',
+			rules: {
+				minLength: 8,
+				maxLength: 40,
+			}
 		},
 		password: {
 			label: 'Password',
 			type: 'password',
 			value: '',
-			error: true
+			valid: true,
+			rules: {
+				minLength: 8,
+				maxLength: 40,
+			}
 		},
 	};
 
 	inputChangeHandler = (type, {target}) => {
 		const sanitisedValue = sanitise(target.value)
+		const valid = validator(target.value, this.state[type].rules, type)
 		if (this.state[type] !== sanitisedValue)
-			this.setState({[type]: {...this.state[type], value: sanitisedValue}});
+			this.setState({[type]: {...this.state[type], value: sanitisedValue, valid: valid}});
 	}
 
 	render() {
@@ -39,6 +48,7 @@ class LoginDialog extends React.Component {
 				...this.state[key],
 				id: key});
 		}
+		const allValid = elementsArray.every((x) => x.valid && x.value !== '')
 
 		return (
 			<Dialog onClose={onClose} open={open}>
@@ -51,12 +61,14 @@ class LoginDialog extends React.Component {
 								value={element.value}
 								placeholder={element.placeholder}
 								onChange={this.inputChangeHandler.bind(this, element.id)}
-								error={element.error}
+								error={!element.valid}
 								autoComplete={element.autoComplete}
 							/>
 						</div> ))}
 					<div className={styles.buttons}>
-						<Button variant="contained" color="secondary" onClick={() => onLogin({email: this.state.email.value, password: this.state.password.value})}>
+						<Button variant={allValid ? "contained" : "outlined"}
+						        color="secondary"
+						        onClick={allValid ? () => onLogin({email: this.state.email.value, password: this.state.password.value}) : null}>
 							Login
 						</Button>
 					</div>
