@@ -49,6 +49,7 @@ class LoginDialog extends React.Component {
 				id: key});
 		}
 		const allValid = elementsArray.every((x) => x.valid && x.value !== '')
+		const login = () => onLogin({email: this.state.email.value, password: this.state.password.value})
 
 		return (
 			<Dialog onClose={onClose} open={open}>
@@ -61,6 +62,7 @@ class LoginDialog extends React.Component {
 								value={element.value}
 								placeholder={element.placeholder}
 								onChange={this.inputChangeHandler.bind(this, element.id)}
+								onKeyPress={e => { if (e.key === 'Enter' && allValid) { login() }}}
 								error={!element.valid}
 								autoComplete={element.autoComplete}
 							/>
@@ -68,7 +70,7 @@ class LoginDialog extends React.Component {
 					<div className={styles.buttons}>
 						<Button variant={allValid ? "contained" : "outlined"}
 						        color="secondary"
-						        onClick={allValid ? () => onLogin({email: this.state.email.value, password: this.state.password.value}) : null}>
+						        onClick={allValid ? () => login() : null}>
 							Login
 						</Button>
 					</div>

@@ -102,6 +102,7 @@ class SignupDialog extends React.Component {
 			this.setState({[type]: {...this.state[type], value: sanitisedValue, valid: valid}}, checkConfirmationPassword);
 	}
 
+
 	render() {
 		const { open, onClose} = this.props;
 		const elementsArray = [];
@@ -111,7 +112,7 @@ class SignupDialog extends React.Component {
 				id: key});
 		}
 		const allValid = elementsArray.every((x) => x.valid && x.value !== '')
-
+		const onClick = allValid ? this.signupHandler : null
 		return (
 			<Dialog onClose={onClose} open={open}>
 				<form  noValidate autoComplete="on">
@@ -121,6 +122,7 @@ class SignupDialog extends React.Component {
 							label={element.label}
 							type={element.type}
 							value={element.value}
+							onKeyPress={e => { if (e.key === 'Enter' && allValid) { this.signupHandler() }}}
 							placeholder={element.placeholder}
 							onChange={this.inputChangeHandler.bind(this, element.id)}
 							error={!element.valid}
@@ -128,7 +130,7 @@ class SignupDialog extends React.Component {
 						/>
 					</div> ))}
 					<div className={styles.buttons}>
-						<Button variant={allValid ? "contained" : "outlined"} color="secondary" onClick={allValid ? this.signupHandler : null}>
+						<Button variant={allValid ? "contained" : "outlined"} color="secondary" onClick={onClick}>
 							Sign Up
 						</Button>
 					</div>
