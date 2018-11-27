@@ -74,7 +74,7 @@ class SignupDialog extends React.Component {
 				}
 				console.log(resData)
 				this.props.onClose()
-				this.props.history.push('/')
+				// this.props.history.push('/')
 				// this.setState({isAuth: false})
 			})
 			.catch(err => {
