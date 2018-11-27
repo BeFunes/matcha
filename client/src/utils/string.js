@@ -24,3 +24,5 @@ export const validator = (value, rules, type) => {
 }
 
 export const sanitise = (value) => value && value.trim();
+
+export const passwordCriteria = 'Password must have at least 8 characters, including at least one capital letter, one lower case letter and one number'

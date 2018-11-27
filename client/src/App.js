@@ -98,7 +98,7 @@ class App extends Component {
 
 	render() {
 		const main = (
-			<aux>
+			<div>
 				<Toolbar />
 				<main className={styles.content}>
 				<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
@@ -107,7 +107,7 @@ class App extends Component {
 					<Route path="/chat" component={Chat}/>
 				</Switch>
 				</main>
-			</aux>
+			</div>
 			)
 
 		return (

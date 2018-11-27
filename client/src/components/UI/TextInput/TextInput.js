@@ -1,11 +1,16 @@
 import React from 'react'
 import TextField from "@material-ui/core/es/TextField/TextField";
+import Tooltip from "@material-ui/core/es/Tooltip/Tooltip";
 
 class TextInput extends React.Component {
+
+
+
 	render () {
-		const { label, type, value, onChange, error, autoComplete, placeholder, onKeyPress, style} = this.props
+		const { label, type, value, onChange, error, autoComplete, placeholder, onKeyPress, style, tooltip } = this.props
 		return (
-			<TextField
+			<Tooltip title={!tooltip ? '' : tooltip}  placement="right" enterDelay={500} >
+				<TextField
 				// id="outlined-name"
 				label={label}
 				autoComplete={autoComplete}
@@ -21,6 +26,7 @@ class TextInput extends React.Component {
 				}}
 				error={error}
 			/>
+			</Tooltip>
 		)
 	}
 

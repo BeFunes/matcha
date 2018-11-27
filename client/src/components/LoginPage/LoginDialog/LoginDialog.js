@@ -1,7 +1,7 @@
 import React from 'react';
 
 import styles from './LoginDialog.module.css'
-import {sanitise, validator} from "../../../utils/string";
+import {passwordCriteria, sanitise, validator} from "../../../utils/string";
 import Dialog from "@material-ui/core/es/Dialog/Dialog";
 import Button from "@material-ui/core/es/Button/Button";
 import TextInput from "../../UI/TextInput/TextInput";
@@ -25,6 +25,7 @@ class LoginDialog extends React.Component {
 		password: {
 			label: 'Password',
 			type: 'password',
+			tooltip: passwordCriteria,
 			value: '',
 			valid: true,
 			rules: {
@@ -67,6 +68,7 @@ class LoginDialog extends React.Component {
 								onKeyPress={e => { if (e.key === 'Enter' && allValid) { login() }}}
 								error={!element.valid}
 								autoComplete={element.autoComplete}
+								tooltip={element.tooltip}
 							/>
 						</div> ))}
 					<div className={styles.buttons}>
