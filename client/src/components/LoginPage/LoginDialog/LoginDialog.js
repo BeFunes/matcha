@@ -43,7 +43,7 @@ class LoginDialog extends React.Component {
 	}
 
 	render() {
-		const { open, onClose, onLogin} = this.props;
+		const { open, onClose, onLogin, loginFail} = this.props;
 		const elementsArray = [];
 		for (let key in this.state) {
 			elementsArray.push({
@@ -55,7 +55,7 @@ class LoginDialog extends React.Component {
 
 		return (
 			<Dialog onClose={onClose} open={open}>
-				<form  noValidate autoComplete="off">
+				<form  noValidate autoComplete="off" className={styles.form}>
 					{elementsArray.map(element => (
 						<div key={element.id} >
 							<TextInput
@@ -71,6 +71,9 @@ class LoginDialog extends React.Component {
 								tooltip={element.tooltip}
 							/>
 						</div> ))}
+					{loginFail ? (<div className={styles.errorMessage}>
+							Incorrect email or password
+						</div>) : null}
 					<div className={styles.buttons}>
 						<Button variant={allValid ? "contained" : "outlined"}
 						        color="secondary"

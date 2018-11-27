@@ -7,6 +7,8 @@ import LoginPage from "./components/LoginPage/LoginPage";
 import Toolbar from "./components/Navigation/Toolbar/Toolbar";
 import Profile from "./components/Profile/Profile";
 import Chat from "./components/Chat/Chat";
+import Onboarding from "./components/Onboarding/Onboarding";
+import Redirect from "react-router-dom/es/Redirect";
 
 
 class App extends Component {
@@ -14,7 +16,9 @@ class App extends Component {
 	state = {
 		isAuth: false,
 		token: null,
-		userId: null
+		userId: null,
+		loginFail: false,
+		hasProfile: false
 	}
 
 	componentDidMount() {
@@ -60,6 +64,7 @@ class App extends Component {
 				// 	)
 				// }
 				if (resData.errors) {
+					this.setState({isAuth: false, loginFail: true})
 					throw new Error ("User login failed.")
 				}
 				console.log(resData)
@@ -99,20 +104,38 @@ class App extends Component {
 	render() {
 		const main = (
 			<div>
-				<Toolbar />
-				<main className={styles.content}>
+				{this.state.isAuth && this.state.hasProfile && <Toolbar />}
 				<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
 					<Route path="/" exact component={Browse}/>
 					<Route path="/profile" component={Profile}/>
 					<Route path="/chat" component={Chat}/>
+					<Route path="/onboarding" component={Onboarding}/>
 				</Switch>
-				</main>
 			</div>
 			)
 
+
+		const routeZero = () => {
+			if (this.state.isAuth && this.state.hasProfile)
+				return <Route path="/" exact component={Browse}/>
+			else if (this.state.isAuth && !this.state.hasProfile)
+				return <Route path="/" component={Onboarding}/>
+			else
+				return <Route path="/" exact render={() => <LoginPage onLogin={this.loginHandler} loginFail={this.state.loginFail}/>}/>
+	}
+
 		return (
 			<div className={styles.app}>
-				{this.state.isAuth ? main : <LoginPage onLogin={this.loginHandler} /> }
+				<div>
+					{this.state.isAuth && this.state.hasProfile && <Toolbar />}
+					<main className={this.state.hasProfile ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
+						<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
+							{routeZero()}
+							<Route path="/profile" component={Profile}/>
+							<Route path="/chat" component={Chat}/>
+						</Switch>
+					</main>
+				</div>
 			</div>
 
 		);

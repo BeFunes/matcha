@@ -3,6 +3,7 @@ import styles from './LoginPage.module.css'
 import LoginDialog from './LoginDialog/LoginDialog'
 import Button from "@material-ui/core/es/Button/Button";
 import SignupDialog from "./SignupDialog/SignupDialog";
+import Fab from "@material-ui/core/es/Fab/Fab";
 
 class LoginPage extends Component {
 	state = {
@@ -28,17 +29,18 @@ class LoginPage extends Component {
 
 
 	render() {
-		const { onLogin } = this.props
+		const { onLogin, loginFail } = this.props
 		return (
 			<div className={styles.component}>
 				<div className={styles.buttons}>
-				<Button style={{ margin: '15px', width: '200px'}} variant="extendedFab" color="secondary" onClick={this.openLoginHandler}>LOG IN</Button>
-				<Button style={{ margin: '15px', width: '200px'}} variant="extendedFab" color="secondary" onClick={this.openSignupHandler}>SIGN UP</Button>
+				<Fab style={{ margin: '15px', width: '200px'}} variant="extended" color="secondary" onClick={this.openLoginHandler}>LOG IN</Fab>
+				<Fab style={{ margin: '15px', width: '200px'}} variant="extended" color="secondary" onClick={this.openSignupHandler}>SIGN UP</Fab>
 				</div>
 					<LoginDialog
 					open={this.state.loginDialogOpen}
 					onClose={this.closeLoginHandler}
 					onLogin={onLogin}
+					loginFail={loginFail}
 				/>
 				<SignupDialog
 					open={this.state.signupDialogOpen}

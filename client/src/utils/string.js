@@ -1,4 +1,5 @@
 const validatorAux = (value, type) => {
+	// eslint-disable-next-line no-control-regex
 	const unicodePattern = /[^\x00-\x7F]/
 	switch (type) {
 		case 'email':
