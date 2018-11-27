@@ -16,6 +16,7 @@ class SignupDialog extends React.Component {
 			value: '',
 			valid: true,
 			placeholder: 'example@matcha.com',
+			style: {margin: '20px 15px 10px'},
 			autoComplete: 'email',
 			rules: {
 				minLength: 8,
@@ -115,6 +116,7 @@ class SignupDialog extends React.Component {
 					<div key={element.id} >
 						<TextInput
 							label={element.label}
+							style={element.style}
 							type={element.type}
 							value={element.value}
 							onKeyPress={e => { if (e.key === 'Enter' && allValid) { this.signupHandler() }}}

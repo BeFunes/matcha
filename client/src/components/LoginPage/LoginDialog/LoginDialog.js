@@ -15,6 +15,7 @@ class LoginDialog extends React.Component {
 			type: 'email',
 			value: '',
 			valid: true,
+			style: {margin: '20px 15px 10px'},
 			autoComplete: 'email',
 			rules: {
 				minLength: 8,
@@ -60,6 +61,7 @@ class LoginDialog extends React.Component {
 								label={element.label}
 								type={element.type}
 								value={element.value}
+								style={element.style}
 								placeholder={element.placeholder}
 								onChange={this.inputChangeHandler.bind(this, element.id)}
 								onKeyPress={e => { if (e.key === 'Enter' && allValid) { login() }}}
