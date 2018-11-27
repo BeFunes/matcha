@@ -1,13 +1,11 @@
 import React, {Component} from 'react';
-import Toolbar from "../../components/Navigation/Toolbar/Toolbar";
-
+import styles from './Browse.module.css'
 
 class Browse extends Component {
 	render() {
 		return (
 			<div>
-				MAIN PAGE.
-				YOU ARE LOGGED IN
+				BROWSING PAGE
 			</div>
 		)
 	}

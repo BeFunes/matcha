@@ -2,9 +2,11 @@ import React, {Component} from 'react';
 import {Route, Switch} from 'react-router-dom';
 
 import styles from './App.module.css';
-import Browse from "./containers/Browse/Browse";
-import LoginPage from "./containers/LoginPage/LoginPage";
+import Browse from "./components/Browse/Browse";
+import LoginPage from "./components/LoginPage/LoginPage";
 import Toolbar from "./components/Navigation/Toolbar/Toolbar";
+import Profile from "./components/Profile/Profile";
+import Chat from "./components/Chat/Chat";
 
 
 class App extends Component {
@@ -101,6 +103,8 @@ class App extends Component {
 				<main className={styles.content}>
 				<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
 					<Route path="/" exact component={Browse}/>
+					<Route path="/profile" component={Profile}/>
+					<Route path="/chat" component={Chat}/>
 				</Switch>
 				</main>
 			</aux>

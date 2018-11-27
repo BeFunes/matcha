@@ -1,23 +1,27 @@
 import React from 'react';
 
-
 import styles from './LoginDialog.module.css'
 import {sanitise} from "../../../utils/string";
-import TextField from "@material-ui/core/es/TextField/TextField";
 import Dialog from "@material-ui/core/es/Dialog/Dialog";
 import Button from "@material-ui/core/es/Button/Button";
+import TextInput from "../../UI/TextInput/TextInput";
 
 
 class LoginDialog extends React.Component {
 
 	state = {
 		email: {
+			label: 'Email',
+			type: 'email',
 			value: '',
-			valid: false
+			error: false,
+			autoComplete: 'email'
 		},
 		password: {
+			label: 'Password',
+			type: 'password',
 			value: '',
-			valid: false
+			error: true
 		},
 	};
 
@@ -29,41 +33,28 @@ class LoginDialog extends React.Component {
 
 	render() {
 		const { open, onClose, onLogin} = this.props;
+		const elementsArray = [];
+		for (let key in this.state) {
+			elementsArray.push({
+				...this.state[key],
+				id: key});
+		}
 
 		return (
 			<Dialog onClose={onClose} open={open}>
 				<form  noValidate autoComplete="off">
-					<div><TextField
-						// id="outlined-name"
-						label="Email"
-
-						placeholder="example@gmail.com"
-						type="email"
-						value={this.state.email.value}
-						onChange={this.inputChangeHandler.bind(this, 'email')}
-						margin="normal"
-						autoComplete="email"
-						variant="outlined"
-						style={{
-							margin: '10px 15px',
-							// height: '50px',
-						}}
-					/>
-					</div>
-					<div>
-					<TextField
-						// id="outlined-name"
-						label="Password"
-						type="password"
-						value={this.state.password.value}
-						onChange={this.inputChangeHandler.bind(this, 'password')}
-						margin="normal"
-						variant="outlined"
-						style={{
-							margin: '10px 15px'
-						}}
-					/>
-					</div>
+					{elementsArray.map(element => (
+						<div key={element.id} >
+							<TextInput
+								label={element.label}
+								type={element.type}
+								value={element.value}
+								placeholder={element.placeholder}
+								onChange={this.inputChangeHandler.bind(this, element.id)}
+								error={element.error}
+								autoComplete={element.autoComplete}
+							/>
+						</div> ))}
 					<div className={styles.buttons}>
 						<Button variant="contained" color="secondary" onClick={() => onLogin({email: this.state.email.value, password: this.state.password.value})}>
 							Login

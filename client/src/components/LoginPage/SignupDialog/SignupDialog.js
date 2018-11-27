@@ -1,27 +1,34 @@
 import React from 'react';
 
-
 import styles from './SignupDialog.module.css'
 import {sanitise} from "../../../utils/string";
-import TextField from "@material-ui/core/es/TextField/TextField";
 import Dialog from "@material-ui/core/es/Dialog/Dialog";
 import Button from "@material-ui/core/es/Button/Button";
+import TextInput from "../../UI/TextInput/TextInput";
 
 
-class LoginDialog extends React.Component {
+class SignupDialog extends React.Component {
 
 	state = {
 		email: {
+			label: 'Email',
+			type: 'email',
 			value: '',
-			valid: false
+			error: false,
+			placeholder: 'example@matcha.com',
+			autoComplete: 'email'
 		},
 		password: {
+			label: 'Password',
+			type: 'password',
 			value: '',
-			valid: false
+			error: true
 		},
 		password2: {
+			label: 'Repeat password',
+			type: 'password',
 			value: '',
-			valid: false
+			error: false
 		},
 	};
 
@@ -68,7 +75,6 @@ class LoginDialog extends React.Component {
 			})
 	}
 
-
 	inputChangeHandler = (type, {target}) => {
 		const sanitisedValue = sanitise(target.value)
 		if (this.state[type] !== sanitisedValue)
@@ -77,59 +83,28 @@ class LoginDialog extends React.Component {
 
 	render() {
 		const { open, onClose} = this.props;
+		const elementsArray = [];
+		for (let key in this.state) {
+			elementsArray.push({
+				...this.state[key],
+				id: key});
+		}
 
 		return (
 			<Dialog onClose={onClose} open={open}>
-				{/*<DialogTitle*/}
-				{/*className={styles.dialogTitle}*/}
-				{/*style={{ fontSize: '15px'}}>*/}
-				{/*Welcome*/}
-				{/*</DialogTitle>*/}
-				<form  noValidate autoComplete="off">
-					<div><TextField
-						// id="outlined-name"
-						label="Email"
-
-						placeholder="example@gmail.com"
-						type="email"
-						value={this.state.email.value}
-						onChange={this.inputChangeHandler.bind(this, 'email')}
-						margin="normal"
-						variant="outlined"
-						style={{
-							margin: '10px 15px',
-							// height: '50px',
-						}}
-					/>
-					</div>
-					<div>
-						<TextField
-							// id="outlined-name"
-							label="Password"
-							type="password"
-							value={this.state.password.value}
-							onChange={this.inputChangeHandler.bind(this, 'password')}
-							margin="normal"
-							variant="outlined"
-							style={{
-								margin: '10px 15px'
-							}}
+				<form  noValidate autoComplete="on">
+					{elementsArray.map(element => (
+					<div key={element.id} >
+						<TextInput
+							label={element.label}
+							type={element.type}
+							value={element.value}
+							placeholder={element.placeholder}
+							onChange={this.inputChangeHandler.bind(this, element.id)}
+							error={element.error}
+							autoComplete={element.autoComplete}
 						/>
-					</div>
-					<div>
-						<TextField
-							// id="outlined-name"
-							label="Repeat password"
-							type="password"
-							value={this.state.password2.value}
-							onChange={this.inputChangeHandler.bind(this, 'password2')}
-							margin="normal"
-							variant="outlined"
-							style={{
-								margin: '10px 15px'
-							}}
-						/>
-					</div>
+					</div> ))}
 					<div className={styles.buttons}>
 						<Button variant="contained" color="secondary" onClick={this.signupHandler}>
 							Sign Up
@@ -141,4 +116,4 @@ class LoginDialog extends React.Component {
 	}
 }
 
-export default LoginDialog
+export default SignupDialog
