@@ -2,7 +2,8 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    /*justify-content: space-between;*/
+    align-items: stretch;
 }
 
 .form {
@@ -15,7 +16,8 @@
 .navigation {
     display: flex;
     flex-direction: column;
-    margin-bottom: 20;
+    width: 100%;
+    /*margin-bottom: 20;*/
 }
 
 .buttons {
@@ -26,7 +28,7 @@
 .header {
     color: #ed4b82;
     text-align: center;
-    font-size: 30px;
+    font-size: 25px;
     margin: 30px;
 }
 .progress {

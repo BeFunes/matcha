@@ -45,9 +45,17 @@ class OnboardingProfile extends React.Component {
 
 		return (
 			<div className={styles.component}>
-				<header className={styles.header}>
-					Tell us something about yourself
-				</header>
+				<div className={styles.navigation}>
+					<LinearProgress color="primary" className={styles.progress} variant="determinate" value={completedProgress}/>
+					<div className={styles.buttons}>
+						<Fab onClick={nextPage} color="secondary" variant="extended" >
+							<NavigateNextIcon/>
+						</Fab>
+					</div>
+				</div>
+				{/*<header className={styles.header}>*/}
+					{/*Tell us something about yourself*/}
+				{/*</header>*/}
 				<div className={styles.form}>
 					<form noValidate autoComplete="on" className={styles.basicInfo}>
 						{elementsArray.map(element => (
@@ -69,14 +77,14 @@ class OnboardingProfile extends React.Component {
 						<FormSelector options={['Any', 'Woman', 'Man']} formName={"Looking for"}/>
 					</div>
 				</div>
-				<div className={styles.navigation}>
-					<div className={styles.buttons}>
-						<Fab onClick={nextPage} color="secondary" variant="extended" >
-							<NavigateNextIcon/>
-						</Fab>
-					</div>
-					<LinearProgress color="primary" className={styles.progress} variant="determinate" value={completedProgress}/>
-				</div>
+				{/*<div className={styles.navigation}>*/}
+					{/*<LinearProgress color="primary" className={styles.progress} variant="determinate" value={completedProgress}/>*/}
+					{/*<div className={styles.buttons}>*/}
+						{/*<Fab onClick={nextPage} color="secondary" variant="extended" >*/}
+							{/*<NavigateNextIcon/>*/}
+						{/*</Fab>*/}
+					{/*</div>*/}
+				{/*</div>*/}
 			</ div>
 		)
 	}
