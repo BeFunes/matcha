@@ -29,24 +29,24 @@ const getData = async function (gender, orient) {
 	const genderCode = gender === 'M' ? 0 : 1
 	const firstName = faker.name.firstName(genderCode);
 	const lastName = faker.name.lastName(genderCode); // Kassandra.Haley@erich.biz
-	const email = `${firstName}.${lastName}@hotmail.com`
+	const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@hotmail.com`
 	const password = dummyPassword
-	const birthDate = '1970-01-01';
+	const dob = '1970-01-01';
 	const orientation = getOrientation(gender, orient)
 	const occupation = faker.name.jobTitle() //
 	const bio = faker.lorem.paragraph()
 	const profilePicture = faker.image.avatar()
-	return [firstName, lastName, email, password, birthDate, gender, orientation, occupation, bio, profilePicture]
+	return [firstName, lastName, email, password, dob, gender, orientation, occupation, bio, profilePicture]
 }
 
 
-const createTableQuery = `CREATE TABLE users (
+const createUsersTableQuery = `CREATE TABLE users (
     id int(11) unsigned NOT NULL AUTO_INCREMENT,
     first_name varchar(20),
     last_name varchar(30),
     email varchar(70)  NOT NULL,
     password varchar(70)  NOT NULL,
-    birthDate date DEFAULT NULL,
+    dob date DEFAULT NULL,
     gender char(1),
     orientation char(1),
     occupation varchar(50),
@@ -60,12 +60,17 @@ const createTableQuery = `CREATE TABLE users (
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
 
+const createInterestsTableQuery = `CREATE TABLE interests (
+    title varchar(20) NOT NULL,
+    user int
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
+
 const populateTableQuery = `INSERT INTO users (first_name, last_name, email, password,
-birthDate, gender, orientation, occupation, bio, profilePic, 
+dob, gender, orientation, occupation, bio, profilePic, 
 picture2, picture3, picture4, picture5, isOnboarded)
 VALUES
 (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, 1)`
-// const data = [firstName, lastName, email, password, birthDate, gender, orientation, occupation, bio, profilePicture];
+// const data = [firstName, lastName, email, password, dob, gender, orientation, occupation, bio, profilePicture];
 
 
 const getRandomUser = () => {
@@ -80,9 +85,9 @@ db.connect(async function (err) {
  console.log("Connected!");
 	db.query("DROP TABLE IF EXISTS users", function (err, result) {
 		if (err) throw err;
-		console.log("Table deleted");
+		console.log("Table users deleted");
 	});
-	db.query(createTableQuery, function (err, result) {
+	db.query(createUsersTableQuery, function (err, result) {
 		if (err) throw err;
 		console.log("Table users created");
 	});
@@ -93,8 +98,15 @@ db.connect(async function (err) {
 			if (err) throw err;
 		});
 	}
-	console.log("Data Inserted");
-
+	console.log("User data Inserted");
+	db.query("DROP TABLE IF EXISTS interests", function (err, result) {
+		if (err) throw err;
+		console.log("Table interests deleted");
+	});
+	db.query(createInterestsTableQuery, function (err, result) {
+		if (err) throw err;
+		console.log("Table interests created");
+	});
 	db.end()
 });
 
