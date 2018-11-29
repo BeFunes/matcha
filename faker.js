@@ -2,6 +2,7 @@ const faker = require('faker/locale/fr');
 const mysql = require('mysql2');
 const datesBetween = require('dates-between')
 const bcrypt = require('bcryptjs');
+const listName = require('./nameList')
 
 const db = mysql.createConnection({
  host: "localhost",
@@ -27,7 +28,7 @@ const dummyPassword = "$2a$12$rZHGfYxrMBjazgmd.OXq3OiH5wiocqYo6QB5Mxp6I2msv/JnGQ
 
 const getData = async function (gender, orient) {
 	const genderCode = gender === 'M' ? 0 : 1
-	const firstName = faker.name.firstName(genderCode);
+	const firstName = listName.fakeFirstName(genderCode);
 	const lastName = faker.name.lastName(genderCode); // Kassandra.Haley@erich.biz
 	const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@hotmail.com`
 	const password = dummyPassword

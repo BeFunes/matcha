@@ -231,3 +231,13 @@ interests = [
 	"drinking",
 	"bacon"
 ]
+
+
+module.exports = {
+    fakeFirstName: function(gender) {
+        if (gender == 0) {
+            return boysName[(Math.floor(Math.random()*boysName.length))]
+        }
+        return girlName[(Math.floor(Math.random()*girlName.length))]
+    }
+}
