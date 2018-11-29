@@ -12,6 +12,7 @@
   "author": "bdal-can/rghirell",
   "license": "ISC",
   "devDependencies": {
-    "concurrently": "^3.5.1"
+    "concurrently": "^3.5.1",
+    "faker": "^4.1.0"
   }
 }
