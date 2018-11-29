@@ -203,3 +203,31 @@ const boysName = [
     "Sasha",
     "Maria",
     ]
+
+interests = [
+	"food",
+	"rock climbing",
+	"football",
+	"basketball",
+	"cooking",
+	"hiking",
+	"cinema",
+	"dancing",
+	"singing",
+	"movies",
+	"theater",
+	"finance",
+	"reading",
+	"fishing",
+	"drawing",
+	"photography",
+	"boxing",
+	"handball",
+	"volleyball",
+	"music",
+	"friends",
+	"restaurants",
+	"bars",
+	"drinking",
+	"bacon"
+]

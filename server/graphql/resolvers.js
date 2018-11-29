@@ -11,7 +11,8 @@ module.exports = {
 		}
 		const hashedPw = await bcrypt.hash(userInput.password, 12);
 		await db.query('Insert into users (email, password) VALUES (?, ?)', [userInput.email, hashedPw])
-		console.log(row)
+		// check return value and send error if appropriate
+		// console.log(row)
 		return {email: userInput.email}
 	},
 	login: async function ({email, password}) {
@@ -21,6 +22,7 @@ module.exports = {
 			error.code = 401
 			throw error
 		}
+		console.log(password, user[0].password)
 		const isEqual = await bcrypt.compare(password, user[0].password)
 		if (!isEqual) {
 			const error = new Error('Password is incorrect.')
@@ -33,5 +35,21 @@ module.exports = {
 			{expiresIn: '1h'}
 		)
 		return {token: token, userId: user[0].id}
+	},
+	insertProfileInfo: async function({info}, req) {
+		// if (!req.isAuth) {
+		// 	const error = new Error('Not authenticated!');
+		// 	error.code = 401;
+		// 	throw error;
+		// }
+		/////////// ADD VALIDATION
+		const query = `UPDATE users SET first_name = ?, last_name = ?, dob = ?, gender = ?, orientation = ? WHERE email = ?`;
+
+		req.userId = 'something@email.com'
+		// const query = 'Insert into users (first_name, last_name, dob, gender, orientation) VALUES (?, ?, ?, ?, ?)'
+		const [row] = await db.query(query, [info.firstName, info.lastName, info.dob, info.gender, info.orientation, req.userId])
+
+		console.log(row)
+		return {content: "ok"}
 	}
 };

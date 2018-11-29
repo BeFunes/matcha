@@ -8,16 +8,38 @@ module.exports = buildSchema(`
         password: String
         name: String
     }
-
+	
+		type Message {
+				content: String
+		}
+		
     input UserInputData {
         email: String!
         password: String!
     }
-
-    type RootMutation {
-        createUser(userInput: UserInputData) : User!
-    }
-    
+		
+		input UserProfileInfo {
+				firstName: String!
+				lastName: String!
+				dob: String!
+				gender: String!
+				orientation: String!
+		}
+		
+		input UserPictureInfo {
+				profilePic: String!
+				picture2: String
+				picture3: String
+				picture4: String
+				picture5: String
+		}
+		
+		input UserBioInfo {
+				job: String!
+				interests: [String!]!
+				bio: String!
+		}
+		
     type AuthData {
         token: String!
         userId: String!
@@ -26,6 +48,15 @@ module.exports = buildSchema(`
     type RootQuery {
         login(email: String!, password: String!): AuthData!
     }
+    
+    
+    type RootMutation {
+        createUser(userInput: UserInputData) : User!
+        insertProfileInfo(info: UserProfileInfo) : Message 
+        insertPictureInfo(info: UserPictureInfo) : Message
+        insertBioInfo(info: UserBioInfo) : Message
+    }
+ 
 
     schema {
         query: RootQuery
