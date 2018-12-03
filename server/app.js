@@ -14,7 +14,9 @@ const app = express();
 
 
 // app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
-app.use(bodyParser.json()); // application/json
+app.use(bodyParser.json());// application/json
+// app.use(bodyParser.text({ type: 'application/graphql' }));
+
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
