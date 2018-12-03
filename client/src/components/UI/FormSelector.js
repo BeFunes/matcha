@@ -10,8 +10,12 @@ class FormSelector extends React.Component {
 		value: this.props.options[0],
 	}
 
+	componentWillMount () {
+		this.setState({value: this.props.value})
+	}
 	handleChange = event => {
-		this.setState({ value: event.target.value });
+		this.setState({ value: event.target.value })
+		this.props.onChange(event.target.value)
 	}
 
 	render() {
@@ -25,7 +29,7 @@ class FormSelector extends React.Component {
 					onChange={this.handleChange}
 				>
 					{options.map((option) => (
-						<FormControlLabel value={option} control={<Radio/>} label={option}/>
+						<FormControlLabel key={option} value={option} control={<Radio/>} label={option}/>
 						))}
 				</RadioGroup>
 			</FormControl>

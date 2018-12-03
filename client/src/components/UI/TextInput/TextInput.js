@@ -7,7 +7,7 @@ class TextInput extends React.Component {
 
 
 	render () {
-		const { label, type, value, onChange, error, autoComplete, placeholder, onKeyPress, style, tooltip, defaultValue } = this.props
+		const { label, type, value, onChange, error, autoComplete, placeholder, onKeyPress, style, tooltip, defaultValue, multiline, rows } = this.props
 		return (
 			<Tooltip title={!tooltip ? '' : tooltip}  placement="right" enterDelay={500} >
 				<TextField
@@ -26,6 +26,8 @@ class TextInput extends React.Component {
 				}}
 				defaultValue={defaultValue}
 				error={error}
+				multiline={multiline}
+				rows={rows}
 			/>
 			</Tooltip>
 		)

@@ -8,7 +8,6 @@ import Toolbar from "./components/Navigation/Toolbar/Toolbar";
 import Profile from "./components/Profile/Profile";
 import Chat from "./components/Chat/Chat";
 import Onboarding from "./components/Onboarding/Onboarding";
-import Redirect from "react-router-dom/es/Redirect";
 
 
 class App extends Component {
@@ -36,16 +35,14 @@ class App extends Component {
 	}
 
 	loginHandler = (authData) => {
-		console.log("LOGIN HANDLER")
+		console.log("LOGIN HANDLER")  ////////////////////REMOVE
 		const query = {
-			query: `
-            {
+			query: `{
                 login(email: "${authData.email}", password: "${authData.password}") {
                     token
                     userId
                 }
-            }
-            `
+            } `
 		}
 		fetch('http://localhost:3001/graphql', {
 			method: 'POST',
@@ -119,7 +116,7 @@ class App extends Component {
 			if (this.state.isAuth && this.state.hasProfile)
 				return <Route path="/" exact component={Browse}/>
 			else if (this.state.isAuth && !this.state.hasProfile)
-				return <Route path="/" component={Onboarding}/>
+				return <Route path="/" render={() => <Onboarding token={this.state.token}/>} />
 			else
 				return <Route path="/" exact render={() => <LoginPage onLogin={this.loginHandler} loginFail={this.state.loginFail}/>}/>
 	}

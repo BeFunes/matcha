@@ -95,9 +95,10 @@ class SignupDialog extends React.Component {
 				this.setState({password2: {...this.state.password2, valid: pass2valid && equal}})
 			}
 		}
-		if (this.state[type] !== sanitisedValue) {}
+		if (this.state[type] !== sanitisedValue) {
 			this.setState({[type]: {...this.state[type], value: sanitisedValue, valid: valid}}, checkConfirmationPassword);
-	}
+			}
+		}
 
 
 	render() {

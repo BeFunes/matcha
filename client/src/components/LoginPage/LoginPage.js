@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import styles from './LoginPage.module.css'
 import LoginDialog from './LoginDialog/LoginDialog'
-import Button from "@material-ui/core/es/Button/Button";
 import SignupDialog from "./SignupDialog/SignupDialog";
 import Fab from "@material-ui/core/es/Fab/Fab";
 

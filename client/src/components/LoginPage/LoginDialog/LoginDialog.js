@@ -36,7 +36,7 @@ class LoginDialog extends React.Component {
 	};
 
 	inputChangeHandler = (type, {target}) => {
-		const sanitisedValue = sanitise(target.value)
+		const sanitisedValue = sanitise(target.value, type)
 		const valid = validator(target.value, this.state[type].rules, type)
 		if (this.state[type] !== sanitisedValue)
 			this.setState({[type]: {...this.state[type], value: sanitisedValue, valid: valid}});

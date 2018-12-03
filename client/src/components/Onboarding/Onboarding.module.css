@@ -9,3 +9,15 @@
     flex-direction: column;
 
 }
+
+.header {
+    background-color: #DD0E52;
+    /*margin: 80px;*/
+    padding: 20px 0;
+    margin-bottom: 20px;
+    font-size: 18px;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    color: white;
+}

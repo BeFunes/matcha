@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import styles from './Browse.module.css'
+// import styles from './Browse.module.css'
 
 class Browse extends Component {
 	render() {

@@ -38,18 +38,14 @@ module.exports = {
 		return {token: token, userId: user[0].id}
 	},
 	insertProfileInfo: async function({info}, req) {
-		// console.log("something")
 		console.log("INSERT PROFILE INFO");
-		// if (!req.isAuth) {
-		// 	const error = new Error('Not authenticated!');
-		// 	error.code = 401;`
-		// 	throw error;
-		// }
-		/////////// ADD VALIDATION
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!');
+			error.code = 401;
+			throw error;
+		}
+		///////// ADD VALIDATION
 		const query = `UPDATE users SET first_name = ?, last_name = ?, dob = ?, gender = ?, orientation = ? WHERE email = ?`;
-		console.log("GENDER ", info.gender)
-		console.log("ORIENT", info.orientation)
-		console.log(req.email)
 		// req.userId  = 'david.david@hotmail.com'
 		// const query = 'Insert into users (first_name, last_name, dob, gender, orientation) VALUES (?, ?, ?, ?, ?)'
 		const [row] = await db.query(query, [info.firstName, info.lastName, info.dob, info.gender, info.orientation, req.email])
