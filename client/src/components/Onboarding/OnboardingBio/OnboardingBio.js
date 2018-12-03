@@ -122,7 +122,7 @@ class OnboardingBio extends React.Component {
 								onBlur={this.interestsBlurHandler}
 								onKeyDown={e => {
 									if (e.key === 'Enter' || e.key === 'Tab') {
-										e.preventDefault()
+										if (this.state.currentTag.value) { e.preventDefault() }
 										this.addTag()
 									}
 								}}
