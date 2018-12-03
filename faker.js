@@ -1,8 +1,6 @@
-const faker = require('faker/locale/fr');
+const faker = require('faker');
 const mysql = require('mysql2');
-const datesBetween = require('dates-between')
-const bcrypt = require('bcryptjs');
-const listName = require('./nameList')
+const lists = require('./nameList')
 
 const db = mysql.createConnection({
  host: "localhost",
@@ -27,7 +25,8 @@ const dummyPassword = "$2a$12$rZHGfYxrMBjazgmd.OXq3OiH5wiocqYo6QB5Mxp6I2msv/JnGQ
 
 const getData = async function (gender, orient) {
 	const genderCode = gender === 'M' ? 0 : 1
-	const firstName = listName.fakeFirstName(genderCode);
+	faker.locale = "fr";
+	const firstName = lists.getFakeFirstName(genderCode);
 	const lastName = faker.name.lastName(genderCode); // Kassandra.Haley@erich.biz
 	const email = `${firstName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()}.${lastName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()}@hotmail.com`
 	const password = dummyPassword
@@ -63,18 +62,19 @@ const createUsersTableQuery = `CREATE TABLE users (
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
 
-const createInterestsTableQuery = `CREATE TABLE interests (
-    title varchar(20) NOT NULL,
-    user int
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
 
-const populateTableQuery = `INSERT INTO users (first_name, last_name, email, password,
+const populateUsersTableQuery = `INSERT INTO users (first_name, last_name, email, password,
 dob, gender, orientation, occupation, bio, profilePic, 
 picture2, picture3, picture4, picture5, isOnboarded)
-VALUES
-(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, 1)`
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, 1)`
 // const data = [firstName, lastName, email, password, dob, gender, orientation, occupation, bio, profilePicture];
 
+const createInterestsTableQuery = `CREATE TABLE interests (
+    title varchar(20) NOT NULL,
+    user_id int(11) unsigned
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
+
+const populateInterestsTableQuery = `INSERT INTO interests (title, user_id) VALUES (?, ?)`
 
 const getRandomUser = () => {
 	const sex = ['M', 'F']
@@ -97,7 +97,7 @@ db.connect(async function (err) {
 	for (let i = 0; i < 300; i++) {
 		let user = getRandomUser()
 		const data = await getData(user.gender, user.orientation)
-		db.query(populateTableQuery, data,  function (err, result) {
+		db.query(populateUsersTableQuery, data,  function (err, result) {
 			if (err) throw err;
 		});
 	}
@@ -110,6 +110,19 @@ db.connect(async function (err) {
 		if (err) throw err;
 		console.log("Table interests created");
 	});
+
+	for (let i = 0; i < 300; i++) {
+		let interests = lists.get5fakeInterest()
+		for (let interest of interests) {
+			db.query(populateInterestsTableQuery, [interest, i], function(err, result) {
+				if (err) throw err
+			})
+		}
+	}
+	console.log("Interests data inserted");
+
+
+
 	db.end()
 });
 
