@@ -7,7 +7,7 @@ const db = mysql.createConnection({
  user: "root",
  password: "Apple123",
  database: "matchadb"
-});
+}).promise()
 
 const getOrientation = (gender, orientation) => {
 	const oppositeSex = gender === 'M' ? 'F' : 'M'
@@ -23,7 +23,7 @@ const getOrientation = (gender, orientation) => {
 
 const dummyPassword = "$2a$12$rZHGfYxrMBjazgmd.OXq3OiH5wiocqYo6QB5Mxp6I2msv/JnGQL2K"
 
-const getData = async function (gender, orient) {
+const getData = (gender, orient) => {
 	const genderCode = gender === 'M' ? 0 : 1
 	faker.locale = "fr";
 	const firstName = lists.getFakeFirstName(genderCode);
@@ -83,46 +83,38 @@ const getRandomUser = () => {
 }
 
 
-db.connect(async function (err) {
- if (err) throw err;
- console.log("Connected!");
-	db.query("DROP TABLE IF EXISTS users", function (err, result) {
-		if (err) throw err;
-		console.log("Table users deleted");
-	});
-	db.query(createUsersTableQuery, function (err, result) {
-		if (err) throw err;
+
+db.connect()
+	.then( () => {
+		console.log("Connected!")
+		return db.query("DROP TABLE IF EXISTS users") })
+	.then( () => {
+		console.log("Table users deleted")
+		return db.query(createUsersTableQuery) })
+	.then( async function () {
 		console.log("Table users created");
-	});
-	for (let i = 0; i < 300; i++) {
-		let user = getRandomUser()
-		const data = await getData(user.gender, user.orientation)
-		db.query(populateUsersTableQuery, data,  function (err, result) {
-			if (err) throw err;
-		});
-	}
-	console.log("User data Inserted");
-	db.query("DROP TABLE IF EXISTS interests", function (err, result) {
-		if (err) throw err;
+		for (let i = 0; i < 300; i++) {
+			let user = getRandomUser()
+			const data = getData(user.gender, user.orientation)
+			await db.query(populateUsersTableQuery, data)
+			}
+		console.log("User data inserted")
+		return db.query("DROP TABLE IF EXISTS interests") })
+	.then(() => {
 		console.log("Table interests deleted");
-	});
-	db.query(createInterestsTableQuery, function (err, result) {
-		if (err) throw err;
+		return db.query(createInterestsTableQuery) })
+	.then(async function () {
 		console.log("Table interests created");
-	});
-
-	for (let i = 0; i < 300; i++) {
-		let interests = lists.get5fakeInterest()
-		for (let interest of interests) {
-			db.query(populateInterestsTableQuery, [interest, i], function(err, result) {
-				if (err) throw err
-			})
+		for (let i = 0; i < 300; i++) {
+			let interests = lists.get5fakeInterest()
+			for (let interest of interests) {
+				await db.query(populateInterestsTableQuery, [interest, i])
+			}
 		}
-	}
-	console.log("Interests data inserted");
-
-
-
-	db.end()
-});
-
+		console.log("Interests data inserted")
+		db.end()
+	})
+	.catch((err) => {
+		console.log(err)
+		db.end()
+	})
