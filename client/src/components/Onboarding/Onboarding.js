@@ -6,7 +6,7 @@ import OnboardingPics from "./OnboardingPics/OnboardingPics";
 
 const defaultState = {
 	completed: 40,
-	currentPage: 2,
+	currentPage: 0,
 	firstName: '',
 	lastName: '',
 	dob: "1990-01-01",
