@@ -1,7 +1,7 @@
 import React from 'react';
 
 import styles from './SignupDialog.module.css'
-import {passwordCriteria, sanitise, validator} from "../../../utils/string";
+import {passwordCriteria, validator} from "../../../utils/string";
 import Dialog from "@material-ui/core/es/Dialog/Dialog";
 import Button from "@material-ui/core/es/Button/Button";
 import TextInput from "../../UI/TextInput/TextInput";
@@ -85,7 +85,7 @@ class SignupDialog extends React.Component {
 	}
 
 	inputChangeHandler = (type, {target}) => {
-		const sanitisedValue = sanitise(target.value)
+		const sanitisedValue = target.value.trim()
 		const valid = validator(sanitisedValue, this.state[type].rules, target.type)
 
 		const checkConfirmationPassword = () => {

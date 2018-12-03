@@ -35,10 +35,10 @@ const getData = (gender, orient) => {
 	const dob = year.toString() + date.substr(4)
 	const orientation = getOrientation(gender, orient)
 	faker.locale = "en";
-	const occupation = faker.name.jobTitle()
+	const job = faker.name.jobTitle()
 	const bio = faker.lorem.paragraph()
 	const profilePicture = faker.image.avatar()
-	return [firstName, lastName, email, password, dob, gender, orientation, occupation, bio, profilePicture]
+	return [firstName, lastName, email, password, dob, gender, orientation, job, bio, profilePicture]
 }
 
 
@@ -51,7 +51,7 @@ const createUsersTableQuery = `CREATE TABLE users (
     dob date DEFAULT NULL,
     gender char(1),
     orientation char(1),
-    occupation varchar(50),
+    job varchar(50),
     bio varchar(3000),
     profilePic varchar(255),
     picture2 varchar(255),
@@ -64,10 +64,10 @@ const createUsersTableQuery = `CREATE TABLE users (
 
 
 const populateUsersTableQuery = `INSERT INTO users (first_name, last_name, email, password,
-dob, gender, orientation, occupation, bio, profilePic, 
+dob, gender, orientation, job, bio, profilePic, 
 picture2, picture3, picture4, picture5, isOnboarded)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, 1)`
-// const data = [firstName, lastName, email, password, dob, gender, orientation, occupation, bio, profilePicture];
+// const data = [firstName, lastName, email, password, dob, gender, orientation, job, bio, profilePicture];
 
 const createInterestsTableQuery = `CREATE TABLE interests (
     title varchar(20) NOT NULL,

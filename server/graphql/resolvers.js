@@ -46,11 +46,25 @@ module.exports = {
 		}
 		///////// ADD VALIDATION
 		const query = `UPDATE users SET first_name = ?, last_name = ?, dob = ?, gender = ?, orientation = ? WHERE email = ?`;
-		// req.userId  = 'david.david@hotmail.com'
-		// const query = 'Insert into users (first_name, last_name, dob, gender, orientation) VALUES (?, ?, ?, ?, ?)'
 		const [row] = await db.query(query, [info.firstName, info.lastName, info.dob, info.gender, info.orientation, req.email])
-
 		console.log(row)
+		return {content: "Data updated successfully"}
+	},
+	insertBioInfo: async function({info}, req) {
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!');
+			error.code = 401;
+			throw error;
+		}
+		///// ADD VALIDATION
+		const query = `UPDATE users SET job = ?, bio = ? WHERE email = ?`
+		const [row] = await db.query(query, [info.job, info.bio, req.email])
+		console.log(`Update job=${info.job} and bio=${info.bio}\n`, row)
+		const interestQuery = `INSERT INTO interests (title, user_id) values (?, ?)`
+		for (let i in info.interests) {
+			const [row] = await db.query(interestQuery, [info.interests[i], req.userId])
+			console.log(`insert new interest ${info.interests[i]} for user ${req.userId}\n`, row)
+		}
 		return {content: "Data updated successfully"}
 	}
 };

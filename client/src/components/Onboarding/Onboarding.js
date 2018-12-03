@@ -11,7 +11,10 @@ const defaultState = {
 	lastName: '',
 	dob: "1990-01-01",
 	gender: 'Woman',
-	orientation: 'Any'
+	orientation: 'Any',
+	job: '',
+	bio: '',
+	tags: []
 }
 
 class Onboarding extends React.Component {
@@ -25,8 +28,7 @@ class Onboarding extends React.Component {
 		this.setState({ currentPage: this.state.currentPage - 1 })
 	}
 
-	submitProfileInfo = (data) => {
-		console.log(data)
+	localSaveProfileInfo = data => {
 		this.setState({
 			firstName: data.firstName,
 			lastName: data.lastName,
@@ -34,6 +36,10 @@ class Onboarding extends React.Component {
 			gender: data.gender,
 			orientation: data.orientation
 		})
+	}
+
+	submitProfileInfo = (data) => {
+		this.localSaveProfileInfo(data)
 		const gender = data.gender === "Woman" ? "F" : "M"
 		const orientation = (function (orient) {
 			switch (orient) {
@@ -42,8 +48,6 @@ class Onboarding extends React.Component {
 				default: return 'B'
 			}
 		})(data.orientation)
-		console.log(orientation)
-		console.log(gender)
 		const mutation = {
 			query: ` mutation {
 				insertProfileInfo (info: {firstName: "${data.firstName}", lastName:"${data.lastName}", dob:"${data.dob}", gender: "${gender}", orientation:"${orientation}"}) {
@@ -51,8 +55,6 @@ class Onboarding extends React.Component {
 				}
 			}`
 		}
-		console.log(mutation)
-		console.log(this.props.token)
 		fetch('http://localhost:3001/graphql', {
 			method: 'POST',
 			body: JSON.stringify(mutation),
@@ -77,15 +79,67 @@ class Onboarding extends React.Component {
 			})
 			.catch(err => {
 				console.log(err)
-				// this.setState(defaultState)
-
+				this.setState(defaultState)
 			})
-
 		this.nextPage()
 	}
 
+	localSaveBioInfo = (data) => {
+		console.log(data)
+		this.setState({
+			job: data.job,
+			bio: data.bio,
+			tags: data.tags
+		})
+	}
+
+	submitBioInfo = (data) => {
+		this.localSaveBioInfo(data)
+		const interestsString = '"' + data.tags.join('", "') + '"'
+		console.log(data.job)
+		console.log(data.bio)
+		console.log(`[${interestsString}]`)
+		const mutation = {
+			query: ` mutation {
+				 insertBioInfo(info: {
+            job: "${data.job}", 
+            bio:"${data.bio}", 
+            interests: [${interestsString}]}) {
+               content
+          }	}`
+		}
+		fetch('http://localhost:3001/graphql', {
+			method: 'POST',
+			body: JSON.stringify(mutation),
+			headers: {
+				Authorization: 'Bearer ' + this.props.token,
+				'Content-Type': 'application/json'
+			}
+		})
+			.then(res => {
+				return res.json();
+			})
+			.then(resData => {
+				if (resData.errors && resData.errors[0].status === 422) {
+					throw new Error(
+						"Validation failed. Make sure the email address isn't used yet!"
+					);
+				}
+				if (resData.errors) {
+					throw new Error('PROBLEM');
+				}
+				console.log(resData);
+			})
+			.catch(err => {
+				console.log(err)
+				this.setState(defaultState)
+			})
+		this.nextPage()
+	}
+
+
 	render () {
-		console.log(this.state)
+		console.log("STATE", this.state)
 		return (
 			<div className={styles.component}>
 				<header className={styles.header}>
@@ -95,6 +149,7 @@ class Onboarding extends React.Component {
 					nextPage={this.nextPage}
 					completedProgress={0}
 					save={this.submitProfileInfo}
+					tempSave={this.localSaveProfileInfo}
 					firstName={this.state.firstName}
 					lastName={this.state.lastName}
 					dob={this.state.dob}
@@ -107,7 +162,15 @@ class Onboarding extends React.Component {
 					completedProgress={33} />}
 				{this.state.currentPage === 2 && <OnboardingBio
 					previousPage={this.previousPage}
-					completedProgress={66} />}
+					completedProgress={66}
+					tempSave={this.localSaveBioInfo}
+					save={this.submitBioInfo}
+					bio={this.state.bio}
+					job={this.state.job}
+					tags={this.state.tags}
+				/>
+
+				}
 			</div>
 		)
 	}

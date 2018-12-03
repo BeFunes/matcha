@@ -5,7 +5,7 @@ import Fab from "@material-ui/core/es/Fab/Fab";
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import LinearProgress from "@material-ui/core/es/LinearProgress/LinearProgress";
 import FormSelector from "../../UI/FormSelector";
-import {validator} from "../../../utils/string";
+import {capitalise, sanitise, validator} from "../../../utils/string";
 
 
 class OnboardingProfile extends React.Component {
@@ -72,7 +72,6 @@ class OnboardingProfile extends React.Component {
 		}
 
 	componentWillMount () {
-		console.log(this.props.firstName)
 		this.setState({
 			textFields: {
 				firstName: {...this.state.textFields.firstName, value: this.props.firstName},
@@ -94,8 +93,8 @@ class OnboardingProfile extends React.Component {
 		}
 		const allValid = elementsArray.every((x) => x.valid && x.value !== '')
 		const save = () => this.props.save({
-			firstName: this.state.textFields.firstName.value.trim().replace(/\s\s+/g, ' '),
-			lastName: this.state.textFields.lastName.value.trim().replace(/\s\s+/g, ' '),
+			firstName: capitalise(sanitise(this.state.textFields.firstName.value)),
+			lastName: capitalise(sanitise(this.state.textFields.lastName.value)),
 			dob: this.state.textFields.dob.value,
 			gender: this.state.gender.value,
 			orientation: this.state.orientation.value
@@ -110,7 +109,7 @@ class OnboardingProfile extends React.Component {
 							<TextInput
 								label={element.label}
 								value={element.value}
-								defaultValue={element.value}
+								// defaultValue={element.value}
 								style={element.style}
 								type={element.type}
 								onChange={this.inputChangeHandler.bind(this, element.id)}

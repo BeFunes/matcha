@@ -11,8 +11,9 @@
 .upperPart {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    /*justify-conte*/
     align-items: stretch;
+    /*width: 90%;*/
 }
 
 .navigation {
@@ -26,7 +27,7 @@
 .buttons {
     display: flex;
     width: 95%;
-    justify-content: flex-start;
+    justify-content: space-between;
 }
 
 .progress {
@@ -34,13 +35,21 @@
     margin: 30px 0 ;
 }
 
-.gender {
-    display: flex;
-    justify-content: space-around;
-
+.chip {
+    margin: 0 10px 0 0;
 }
 
-.basicInfo {
-    text-align: center;
-    margin-bottom: 30px;
+.chips {
+    margin: 0 15px 10px;
+}
+
+.interests {
+    margin:10px 15px;
+    border: 1px solid #b7b7b7;
+    border-radius: 4px;
+}
+
+.interestsLabel {
+    color: #757575;
+    margin: 14px 0 10px 15px;
 }

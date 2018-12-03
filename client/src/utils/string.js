@@ -18,22 +18,25 @@ const validatorAux = (value, type, rules) => {
 
 export const validator = (value, rules, type) => {
 	let isValid = true
-	if (rules.minLength) {
+	if (rules && rules.minLength) {
 		isValid = value.length >= rules.minLength && isValid
 	}
-	if (rules.maxLength) {
+	if (rules && rules.maxLength) {
 		isValid = value.length <= rules.maxLength && isValid
 	}
-	if (rules.isAlpha) {
+	if (rules && rules.isAlpha) {
 		const isAlpha = str => str.match(/^[a-z àáâãäçèéêëìíîïñòóôõöšùúûüýÿž]+$/i) !== null
 		isValid = isAlpha(value) && isValid
 	}
 	return validatorAux(value, type, rules) && isValid
 }
 
-export const sanitise = (value) => value && value.trim()
+export const sanitise = (value) => value && value.replace(/\s\s+/g, ' ').trim()
 
 export const passwordCriteria = 'Password must have at least 8 characters, including at least one capital letter, one lower case letter and one number'
 
-
-
+export const capitalise = (text) =>
+	text.toLowerCase()
+		.split(' ')
+		.map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+		.join(' ')
