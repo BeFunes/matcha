@@ -23,7 +23,6 @@ const getOrientation = (gender, orientation) => {
 	}
 }
 
-
 const dummyPassword = "$2a$12$rZHGfYxrMBjazgmd.OXq3OiH5wiocqYo6QB5Mxp6I2msv/JnGQL2K"
 
 const getData = async function (gender, orient) {
@@ -32,9 +31,12 @@ const getData = async function (gender, orient) {
 	const lastName = faker.name.lastName(genderCode); // Kassandra.Haley@erich.biz
 	const email = `${firstName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()}.${lastName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()}@hotmail.com`
 	const password = dummyPassword
-	const dob = '1970-01-01';
+	const year = Math.floor(Math.random() * (2000-1970)) + 1970
+	const date = faker.date.past().toLocaleDateString('zh-Hans-CN').replace(/\//g, "-")
+	const dob = year.toString() + date.substr(4)
 	const orientation = getOrientation(gender, orient)
-	const occupation = faker.name.jobTitle() //
+	faker.locale = "en";
+	const occupation = faker.name.jobTitle()
 	const bio = faker.lorem.paragraph()
 	const profilePicture = faker.image.avatar()
 	return [firstName, lastName, email, password, dob, gender, orientation, occupation, bio, profilePicture]
