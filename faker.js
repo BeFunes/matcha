@@ -29,7 +29,7 @@ const getData = async function (gender, orient) {
 	const genderCode = gender === 'M' ? 0 : 1
 	const firstName = faker.name.firstName(genderCode);
 	const lastName = faker.name.lastName(genderCode); // Kassandra.Haley@erich.biz
-	const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@hotmail.com`
+	const email = `${firstName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()}.${lastName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()}@hotmail.com`
 	const password = dummyPassword
 	const dob = '1970-01-01';
 	const orientation = getOrientation(gender, orient)
