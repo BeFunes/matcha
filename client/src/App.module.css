@@ -12,11 +12,17 @@
 
 
 .contentWithToolbar {
-    margin-top: 72px;
+    /*margin-top: 142px;*/
     height: 100vh;
+    width: 100%;
     display: flex;
-    justify-content: center;
-    align-items: stretch;
+    position: fixed;
+    top: 72px;
+    left: 0;
+    bottom: 0;
+    flex-direction: column;
+    /*justify-content: center;*/
+    align-items: center;
 
 }
 
