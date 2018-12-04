@@ -35,58 +35,73 @@ class App extends Component {
 		this.setAutoLogout(remainingTime)
 	}
 
-	loginHandler = (authData) => {
-		console.log("LOGIN HANDLER")  ////////////////////REMOVE
-		const query = {
-			query: `{
-                login(email: "${authData.email}", password: "${authData.password}") {
-                    token
-                    userId
-                    isOnboarded
-                }
-            } `
-		}
-		fetch('http://localhost:3001/graphql', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(query)
-		})
-			.then(res => {
-				return res.json()
-			})
-			.then(resData => {
-				if (resData.errors && resData.errors[0].status === 422) {
-					throw new Error(
-						"Validation failed."
-					)
-				}
-				if (resData.errors) {
-					this.setState({isAuth: false, loginFail: true})
-					throw new Error ("User login failed.")
-				}
-				console.log(resData)
+	// loginHandler = (authData) => {
+	// 	console.log("LOGIN HANDLER")  ////////////////////REMOVE
+	// 	const query = {
+	// 		query: `{
+   //              login(email: "${authData.email}", password: "${authData.password}") {
+   //                  token
+   //                  userId
+   //                  isOnboarded
+   //              }
+   //          } `
+	// 	}
+	// 	fetch('http://localhost:3001/graphql', {
+	// 		method: 'POST',
+	// 		headers: {
+	// 			'Content-Type': 'application/json'
+	// 		},
+	// 		body: JSON.stringify(query)
+	// 	})
+	// 		.then(res => {
+	// 			return res.json()
+	// 		})
+	// 		.then(resData => {
+	// 			if (resData.errors && resData.errors[0].status === 422) {
+	// 				throw new Error(
+	// 					"Validation failed."
+	// 				)
+	// 			}
+	// 			if (resData.errors) {
+	// 				this.setState({isAuth: false, loginFail: true})
+	// 				throw new Error ("User login failed.")
+	// 			}
+	// 			console.log(resData)
+	//
+	// 			this.setState({
+	// 				isAuth: true,
+	// 				token: resData.data.login.token,
+	// 				userId: resData.data.login.userId,
+	// 				isOnboarded: resData.data.login.isOnboarded,
+	// 			})
+	// 			const expiryDate = new Date (new Date().getTime() + 60*60*1000)
+	// 			localStorage.setItem('token', resData.data.login.token)
+	// 			localStorage.setItem('userId', resData.data.login.userId)
+	// 			localStorage.setItem('expiryDate', expiryDate.toISOString())
+	// 			localStorage.setItem('isOnboarded', resData.data.login.isOnboarded)
+	// 			this.setAutoLogout(60*60*1000)
+	// 		})
+	// 		.catch(err => {
+	// 			console.log(err)
+	// 			this.setState({
+	// 				isAuth: false,
+	// 			})
+	// 		})
+	// }
 
-				this.setState({
-					isAuth: true,
-					token: resData.data.login.token,
-					userId: resData.data.login.userId,
-					isOnboarded: resData.data.login.isOnboarded,
-				})
-				const expiryDate = new Date (new Date().getTime() + 60*60*1000)
-				localStorage.setItem('token', resData.data.login.token)
-				localStorage.setItem('userId', resData.data.login.userId)
-				localStorage.setItem('expiryDate', expiryDate.toISOString())
-				localStorage.setItem('isOnboarded', resData.data.login.isOnboarded)
-				this.setAutoLogout(60*60*1000)
-			})
-			.catch(err => {
-				console.log(err)
-				this.setState({
-					isAuth: false,
-				})
-			})
+	loginHandler = (data) => {
+		this.setState({
+			isAuth: true,
+			token: data.token,
+			userId: data.userId,
+			isOnboarded: data.isOnboarded,
+		})
+		const expiryDate = new Date (new Date().getTime() + 60*60*1000)
+		localStorage.setItem('token', data.token)
+		localStorage.setItem('userId', data.userId)
+		localStorage.setItem('expiryDate', expiryDate.toISOString())
+		localStorage.setItem('isOnboarded', data.isOnboarded)
+		this.setAutoLogout(60*60*1000)
 	}
 
 	logoutHandler = () => {
@@ -125,7 +140,7 @@ class App extends Component {
 			if (this.state.isAuth && this.state.isOnboarded)
 				return <Route path="/" exact component={Browse}/>
 			else if (this.state.isAuth && !this.state.isOnboarded)
-				return <Route path="/" render={() => <Onboarding token={this.state.token} onboardingHandler={this.onboardingHandler}/>} />
+				return <Route path="/" render={(props) => <Onboarding token={this.state.token} onboardingHandler={this.onboardingHandler} {...props}/>} />
 			else
 				return <Route path="/" exact render={() => <LoginPage onLogin={this.loginHandler} loginFail={this.state.loginFail}/>}/>
 	}
