@@ -133,6 +133,7 @@ module.exports = {
 			picture3: user[0].picture3,
 			picture4: user[0].picture4,
 			picture5: user[0].picture5,
+			isOnboarded: user[0].isOnboarded
 		}
 		return data
 	}

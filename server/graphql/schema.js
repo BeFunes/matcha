@@ -61,6 +61,7 @@ module.exports = buildSchema(`
         picture3: String
         picture4: String
         picture5: String
+        isOnboarded: Boolean!
     }
     
     type RootQuery {

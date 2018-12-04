@@ -29,13 +29,13 @@ class App extends Component {
 			return
 		}
 		const userId = localStorage.getItem('userId')
-		const isOnboarded = localStorage.getItem('isOnboarded')
 		const remainingTime = new Date(expiryDate).getTime() - new Date().getTime()
-		this.setState({isAuth: true, token: token, userId: userId, isOnboarded: isOnboarded})
+		this.setState({isAuth: true, token: token, userId: userId})
 		this.setAutoLogout(remainingTime)
+		this.getUserData(token)
 	}
 
-	getUserData = () => {
+	getUserData = (token) => {
 		const query = {
 			query: `{
                 getUserData(info: "") {
@@ -53,13 +53,14 @@ class App extends Component {
 										picture3
 										picture4
 										picture5
+										isOnboarded
                 }
             } `
 		}
 		fetch('http://localhost:3001/graphql', {
 			method: 'POST',
 			headers: {
-				Authorization: 'Bearer ' + this.state.token,
+				Authorization: 'Bearer ' + token,
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify(query)
@@ -71,8 +72,7 @@ class App extends Component {
 				if (resData.errors) {
 					throw new Error ("User data retrieval failed .")
 				}
-				console.log(resData)
-				// this.setState({...})
+				this.setState({...resData.data.getUserData})
 			})
 			.catch(err => {
 				console.log(err)
@@ -84,15 +84,13 @@ class App extends Component {
 			isAuth: true,
 			token: data.token,
 			userId: data.userId,
-			isOnboarded: data.isOnboarded,
 		})
 		const expiryDate = new Date (new Date().getTime() + 60*60*1000)
 		localStorage.setItem('token', data.token)
 		localStorage.setItem('userId', data.userId)
 		localStorage.setItem('expiryDate', expiryDate.toISOString())
-		localStorage.setItem('isOnboarded', data.isOnboarded)
 		this.setAutoLogout(60*60*1000)
-		this.getUserData()
+		this.getUserData(data.token)
 	}
 
 	logoutHandler = () => {
@@ -100,7 +98,6 @@ class App extends Component {
 		localStorage.removeItem('token');
 		localStorage.removeItem('expiryDate');
 		localStorage.removeItem('userId');
-		localStorage.removeItem('isOnboarded');
 	};
 
 	setAutoLogout = milliseconds => {
@@ -111,13 +108,13 @@ class App extends Component {
 
 	onboardingHandler = () => {
 		this.setState({ isOnboarded: true})
-		localStorage.setItem('isOnboarded', true)
 	}
 
 	render() {
-
+		console.log(this.state)
+		const hasAccess = this.state.isAuth && this.state.isOnboarded
 		const routeZero = () => {
-			if (this.state.isAuth && this.state.isOnboarded)
+			if (hasAccess)
 				return <Route path="/" exact component={Browse}/>
 			else if (this.state.isAuth && !this.state.isOnboarded)
 				return <Route path="/" render={(props) => <Onboarding token={this.state.token} onboardingHandler={this.onboardingHandler} {...props}/>} />
@@ -128,12 +125,12 @@ class App extends Component {
 		return (
 			<div className={styles.app}>
 				<div>
-					{this.state.isAuth && this.state.isOnboarded && <Toolbar />}
-					<main className={this.state.isOnboarded ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
+					{hasAccess && <Toolbar />}
+					<main className={hasAccess ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
 						<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
 							{routeZero()}
-							<Route path="/profile" component={Profile}/>
-							<Route path="/chat" component={Chat}/>
+							{hasAccess && <Route path="/profile" component={Profile}/> }
+							{hasAccess && <Route path="/chat" component={Chat}/> }
 						</Switch>
 					</main>
 				</div>
