@@ -17,7 +17,7 @@ class App extends Component {
 		token: null,
 		userId: null,
 		loginFail: false,
-		hasProfile: false
+		isOnboarded: false
 	}
 
 	componentDidMount() {
@@ -29,8 +29,9 @@ class App extends Component {
 			return
 		}
 		const userId = localStorage.getItem('userId')
+		const isOnboarded = localStorage.getItem('isOnboarded')
 		const remainingTime = new Date(expiryDate).getTime() - new Date().getTime()
-		this.setState({isAuth: true, token: token, userId: userId})
+		this.setState({isAuth: true, token: token, userId: userId, isOnboarded: isOnboarded})
 		this.setAutoLogout(remainingTime)
 	}
 
@@ -41,6 +42,7 @@ class App extends Component {
                 login(email: "${authData.email}", password: "${authData.password}") {
                     token
                     userId
+                    isOnboarded
                 }
             } `
 		}
@@ -55,25 +57,28 @@ class App extends Component {
 				return res.json()
 			})
 			.then(resData => {
-				// if (resData.errors && resData.errors[0].status === 422) {
-				// 	throw new Error(
-				// 		"Validation failed."
-				// 	)
-				// }
+				if (resData.errors && resData.errors[0].status === 422) {
+					throw new Error(
+						"Validation failed."
+					)
+				}
 				if (resData.errors) {
 					this.setState({isAuth: false, loginFail: true})
 					throw new Error ("User login failed.")
 				}
 				console.log(resData)
+
 				this.setState({
 					isAuth: true,
 					token: resData.data.login.token,
-					userId: resData.data.login.userId
+					userId: resData.data.login.userId,
+					isOnboarded: resData.data.login.isOnboarded,
 				})
 				const expiryDate = new Date (new Date().getTime() + 60*60*1000)
 				localStorage.setItem('token', resData.data.login.token)
 				localStorage.setItem('userId', resData.data.login.userId)
 				localStorage.setItem('expiryDate', expiryDate.toISOString())
+				localStorage.setItem('isOnboarded', resData.data.login.isOnboarded)
 				this.setAutoLogout(60*60*1000)
 			})
 			.catch(err => {
@@ -98,13 +103,13 @@ class App extends Component {
 	};
 
 	onboardingHandler = () => {
-		this.setState({ hasProfile: true})
+		this.setState({ isOnboarded: true})
 	}
 
 	render() {
 		const main = (
 			<div>
-				{this.state.isAuth && this.state.hasProfile && <Toolbar />}
+				{this.state.isAuth && this.state.isOnboarded && <Toolbar />}
 				<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
 					<Route path="/" exact component={Browse}/>
 					<Route path="/profile" component={Profile}/>
@@ -116,9 +121,9 @@ class App extends Component {
 
 
 		const routeZero = () => {
-			if (this.state.isAuth && this.state.hasProfile)
+			if (this.state.isAuth && this.state.isOnboarded)
 				return <Route path="/" exact component={Browse}/>
-			else if (this.state.isAuth && !this.state.hasProfile)
+			else if (this.state.isAuth && !this.state.isOnboarded)
 				return <Route path="/" render={() => <Onboarding token={this.state.token} onboardingHandler={this.onboardingHandler}/>} />
 			else
 				return <Route path="/" exact render={() => <LoginPage onLogin={this.loginHandler} loginFail={this.state.loginFail}/>}/>
@@ -127,8 +132,8 @@ class App extends Component {
 		return (
 			<div className={styles.app}>
 				<div>
-					{this.state.isAuth && this.state.hasProfile && <Toolbar />}
-					<main className={this.state.hasProfile ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
+					{this.state.isAuth && this.state.isOnboarded && <Toolbar />}
+					<main className={this.state.isOnboarded ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
 						<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
 							{routeZero()}
 							<Route path="/profile" component={Profile}/>

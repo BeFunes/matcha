@@ -43,6 +43,7 @@ module.exports = buildSchema(`
     type AuthData {
         token: String!
         userId: String!
+        isOnboarded: Boolean!
     }
     
     type RootQuery {

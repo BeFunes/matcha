@@ -28,13 +28,12 @@ module.exports = {
 			error.code = 422;
 			throw error;
 		}
-		const [user] = await db.query('SELECT * FROM users WHERE email=?', email)
+		const [user] = await db.query('SELECT isOnboarded, password, id FROM users WHERE email=?', email)
 		if (user.length === 0) {
 			const error = new Error('User not found.')
 			error.code = 401
 			throw error
 		}
-		// console.log(password, user[0].password)
 		const isEqual = await bcrypt.compare(password, user[0].password)
 		if (!isEqual) {
 			const error = new Error('Password is incorrect.')
@@ -46,7 +45,7 @@ module.exports = {
 			"👹",
 			{expiresIn: '1h'}
 		)
-		return {token: token, userId: user[0].id}
+		return {token: token, userId: user[0].id, isOnboarded: !!user[0].isOnboarded}
 	},
 	insertProfileInfo: async function({info}, req) {
 		console.log("INSERT PROFILE INFO");
