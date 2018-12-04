@@ -104,6 +104,7 @@ class App extends Component {
 
 	onboardingHandler = () => {
 		this.setState({ isOnboarded: true})
+		localStorage.setItem('isOnboarded', true)
 	}
 
 	render() {
