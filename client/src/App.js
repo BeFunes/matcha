@@ -38,18 +38,46 @@ class App extends Component {
 	getUserData = () => {
 		const query = {
 			query: `{
-                login(email: "${authData.email}", password: "${authData.password}") {
-                    token
-                    userId
-                    isOnboarded
+                getUserData(info: "") {
+                    firstName
+										lastName
+										password
+										email
+										dob
+										gender
+										orientation
+										job
+										bio
+										profilePic
+										picture2
+										picture3
+										picture4
+										picture5
                 }
             } `
 		}
-
-
-
+		fetch('http://localhost:3001/graphql', {
+			method: 'POST',
+			headers: {
+				Authorization: 'Bearer ' + this.state.token,
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(query)
+		})
+			.then(res => {
+				return res.json()
+			})
+			.then(resData => {
+				if (resData.errors) {
+					throw new Error ("User data retrieval failed .")
+				}
+				console.log(resData)
+				// this.setState({...})
+			})
+			.catch(err => {
+				console.log(err)
+			})
 	}
-
 
 	loginHandler = (data) => {
 		this.setState({
@@ -64,6 +92,7 @@ class App extends Component {
 		localStorage.setItem('expiryDate', expiryDate.toISOString())
 		localStorage.setItem('isOnboarded', data.isOnboarded)
 		this.setAutoLogout(60*60*1000)
+		this.getUserData()
 	}
 
 	logoutHandler = () => {

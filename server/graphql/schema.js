@@ -57,15 +57,15 @@ module.exports = buildSchema(`
         job: String!
         bio: String!
         profilePic: String!
-        picture2: String!
-        picture3: String!
-        picture4: String!
-        picture5: String!
+        picture2: String
+        picture3: String
+        picture4: String
+        picture5: String
     }
     
     type RootQuery {
         login(email: String!, password: String!): AuthData!
-        getUserData(info: String): UserData!
+        getUserData(info: String): UserData
     }
     
     type RootMutation {
