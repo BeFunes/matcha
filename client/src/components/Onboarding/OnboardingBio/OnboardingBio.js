@@ -144,7 +144,7 @@ class OnboardingBio extends React.Component {
 						<Fab onClick={saveAndPreviousPage} color="secondary" variant="extended">
 							<NavigateBeforeIcon/>
 						</Fab>
-						<Fab onClick={saveAndSubmit} color="secondary" variant="extended">
+						<Fab onClick={saveAndSubmit} disabled={!allValid} color="secondary" variant="extended">
 							Create your profile
 						</Fab>
 					</div>

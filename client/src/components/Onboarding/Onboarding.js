@@ -6,7 +6,7 @@ import OnboardingPics from "./OnboardingPics/OnboardingPics";
 
 const defaultState = {
 	completed: 40,
-	currentPage: 0,
+	currentPage: 2,
 	firstName: '',
 	lastName: '',
 	dob: "1990-01-01",
@@ -76,12 +76,12 @@ class Onboarding extends React.Component {
 					throw new Error('PROBLEM');
 				}
 				console.log(resData);
+				this.nextPage()
 			})
 			.catch(err => {
 				console.log(err)
 				this.setState(defaultState)
 			})
-		this.nextPage()
 	}
 
 	localSaveBioInfo = (data) => {
@@ -91,6 +91,36 @@ class Onboarding extends React.Component {
 			tags: data.tags
 		})
 	}
+
+	markOnboarded = () => {
+		const mutation = {
+			query: `mutation {
+				markOnboarded(info: "") {
+				content
+				} }	` }
+		fetch('http://localhost:3001/graphql', {
+			method: 'POST',
+			body: JSON.stringify(mutation),
+			headers: {
+				Authorization: 'Bearer ' + this.props.token,
+				'Content-Type': 'application/json'
+			}
+		})
+			.then(res => {
+				return res.json();
+			})
+			.then(resData => {
+				if (resData.errors) {
+					throw new Error('PROBLEM');
+				}
+				console.log(resData)
+				this.props.onboardingHandler()
+			})
+			.catch(err => {
+				console.log(err)
+			})
+		}
+
 
 	submitBioInfo = (data) => {
 		this.localSaveBioInfo(data)
@@ -124,13 +154,14 @@ class Onboarding extends React.Component {
 				if (resData.errors) {
 					throw new Error('PROBLEM');
 				}
-				console.log(resData);
+				console.log(resData)
+				this.markOnboarded()
 			})
 			.catch(err => {
 				console.log(err)
 				this.setState(defaultState)
 			})
-		this.nextPage()
+
 	}
 
 

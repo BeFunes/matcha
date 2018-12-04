@@ -88,5 +88,18 @@ module.exports = {
 			console.log(`insert new interest ${tag} for user ${req.userId}\n`, row)
 		})
 		return {content: "Bio data updated successfully"}
+	},
+	markOnboarded: async function(req) {
+		console.log("MARK ONBOARDED");
+		// if (!req.isAuth) {
+		// 	const error = new Error('Not authenticated!');
+		// 	error.code = 401;
+		// 	throw error;
+		// }
+		req.email = 'david.baron@hotmail.com'
+		const query = `UPDATE users SET isOnboarded = ? WHERE email = ?`
+		const [row] = await db.query(query, [1, req.email])
+		console.log(`User ${req.email} marked onboarded\n`, row)
+		return {content: "User successfully marked onboarded!"}
 	}
 };

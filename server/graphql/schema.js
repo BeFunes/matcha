@@ -49,12 +49,12 @@ module.exports = buildSchema(`
         login(email: String!, password: String!): AuthData!
     }
     
-    
     type RootMutation {
         createUser(userInput: UserInputData) : User!
         insertProfileInfo(info: UserProfileInfo) : Message 
         insertPictureInfo(info: UserPictureInfo) : Message
         insertBioInfo(info: UserBioInfo) : Message
+        markOnboarded(info: String) : Message
     }
  
 

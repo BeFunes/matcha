@@ -97,6 +97,9 @@ class App extends Component {
 		}, milliseconds);
 	};
 
+	onboardingHandler = () => {
+		this.setState({ hasProfile: true})
+	}
 
 	render() {
 		const main = (
@@ -116,7 +119,7 @@ class App extends Component {
 			if (this.state.isAuth && this.state.hasProfile)
 				return <Route path="/" exact component={Browse}/>
 			else if (this.state.isAuth && !this.state.hasProfile)
-				return <Route path="/" render={() => <Onboarding token={this.state.token}/>} />
+				return <Route path="/" render={() => <Onboarding token={this.state.token} onboardingHandler={this.onboardingHandler}/>} />
 			else
 				return <Route path="/" exact render={() => <LoginPage onLogin={this.loginHandler} loginFail={this.state.loginFail}/>}/>
 	}
