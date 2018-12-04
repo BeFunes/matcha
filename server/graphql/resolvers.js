@@ -1,11 +1,16 @@
 const db = require('../util/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
+const { validate } = require('./../util/validator')
 
 module.exports = {
 	createUser: async function ({userInput}) {
 		console.log("CREATE USER")
+		if (!validate(userInput.email, "email") || !validate(userInput.password, "password")) {
+			const error = new Error('Validation Error');
+			error.code = 422;
+			throw error;
+		}
 		const [row] = await db.query('SELECT * FROM users WHERE email=?', userInput.email)
 		if (row.length > 0) {
 			throw new Error('User exists already!')
@@ -17,6 +22,12 @@ module.exports = {
 		return {email: userInput.email}
 	},
 	login: async function ({email, password}) {
+		console.log("LOGIN")
+		if (!validate(email, "email") || !validate(password, "password")) {
+			const error = new Error('Validation Error');
+			error.code = 422;
+			throw error;
+		}
 		const [user] = await db.query('SELECT * FROM users WHERE email=?', email)
 		if (user.length === 0) {
 			const error = new Error('User not found.')
@@ -44,27 +55,38 @@ module.exports = {
 			error.code = 401;
 			throw error;
 		}
-		///////// ADD VALIDATION
+		if (!validate(info.firstName, "firstName") || !validate(info.lastName, "lastName")
+			|| !validate(info.gender, "gender") || !validate(info.orientation, "orientation")
+			|| !validate(info.dob, "dob")) {
+			const error = new Error('Validation Error');
+			error.code = 422;
+			throw error;
+		}
 		const query = `UPDATE users SET first_name = ?, last_name = ?, dob = ?, gender = ?, orientation = ? WHERE email = ?`;
 		const [row] = await db.query(query, [info.firstName, info.lastName, info.dob, info.gender, info.orientation, req.email])
 		console.log(row)
-		return {content: "Data updated successfully"}
+		return {content: "Profile data updated successfully"}
 	},
 	insertBioInfo: async function({info}, req) {
+		console.log("INSERT BIO INFO");
 		if (!req.isAuth) {
 			const error = new Error('Not authenticated!');
 			error.code = 401;
 			throw error;
 		}
-		///// ADD VALIDATION
+		if (!validate(info.job, "job"), !validate(info.bio, "bio"), !validate(info.interests, "tags")) {
+			const error = new Error('Validation Error');
+			error.code = 422;
+			throw error;
+		}
 		const query = `UPDATE users SET job = ?, bio = ? WHERE email = ?`
 		const [row] = await db.query(query, [info.job, info.bio, req.email])
 		console.log(`Update job=${info.job} and bio=${info.bio}\n`, row)
 		const interestQuery = `INSERT INTO interests (title, user_id) values (?, ?)`
-		for (let i in info.interests) {
-			const [row] = await db.query(interestQuery, [info.interests[i], req.userId])
-			console.log(`insert new interest ${info.interests[i]} for user ${req.userId}\n`, row)
-		}
-		return {content: "Data updated successfully"}
+		info.interests.forEach(async (tag) => {
+			const [row] = await db.query(interestQuery, [tag, req.userId])
+			console.log(`insert new interest ${tag} for user ${req.userId}\n`, row)
+		})
+		return {content: "Bio data updated successfully"}
 	}
 };

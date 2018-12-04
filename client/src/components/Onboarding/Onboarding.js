@@ -85,7 +85,6 @@ class Onboarding extends React.Component {
 	}
 
 	localSaveBioInfo = (data) => {
-		console.log(data)
 		this.setState({
 			job: data.job,
 			bio: data.bio,
@@ -96,9 +95,6 @@ class Onboarding extends React.Component {
 	submitBioInfo = (data) => {
 		this.localSaveBioInfo(data)
 		const interestsString = '"' + data.tags.join('", "') + '"'
-		console.log(data.job)
-		console.log(data.bio)
-		console.log(`[${interestsString}]`)
 		const mutation = {
 			query: ` mutation {
 				 insertBioInfo(info: {
@@ -139,7 +135,6 @@ class Onboarding extends React.Component {
 
 
 	render () {
-		console.log("STATE", this.state)
 		return (
 			<div className={styles.component}>
 				<header className={styles.header}>

@@ -20,7 +20,7 @@ class SignupDialog extends React.Component {
 			autoComplete: 'email',
 			rules: {
 				minLength: 8,
-				maxLength: 40,
+				maxLength: 70,
 			}
 		},
 		password: {
