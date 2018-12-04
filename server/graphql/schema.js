@@ -46,8 +46,26 @@ module.exports = buildSchema(`
         isOnboarded: Boolean!
     }
     
+    type UserData {
+        firstName: String!
+        lastName: String!
+        password: String!
+        email: String!
+        dob: String!
+        gender: String!
+        orientation: String!
+        job: String!
+        bio: String!
+        profilePic: String!
+        picture2: String!
+        picture3: String!
+        picture4: String!
+        picture5: String!
+    }
+    
     type RootQuery {
         login(email: String!, password: String!): AuthData!
+        getUserData(info: String): UserData!
     }
     
     type RootMutation {
@@ -57,7 +75,6 @@ module.exports = buildSchema(`
         insertBioInfo(info: UserBioInfo) : Message
         markOnboarded(info: String) : Message
     }
- 
 
     schema {
         query: RootQuery

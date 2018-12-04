@@ -35,6 +35,22 @@ class App extends Component {
 		this.setAutoLogout(remainingTime)
 	}
 
+	getUserData = () => {
+		const query = {
+			query: `{
+                login(email: "${authData.email}", password: "${authData.password}") {
+                    token
+                    userId
+                    isOnboarded
+                }
+            } `
+		}
+
+
+
+	}
+
+
 	loginHandler = (data) => {
 		this.setState({
 			isAuth: true,
