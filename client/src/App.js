@@ -156,7 +156,7 @@ class App extends Component {
 		const routeZero = () => {
 			if (hasAccess)
 				return <Route path="/" exact component={Browse}/>
-			else if (this.state.isAuth && !this.state.isOnboarded)
+			else if (this.state.isAuth && !this.state.isOnboarded && typeof this.state.isOnboarded !== 'undefined')
 				return <Route path="/" render={(props) => <Onboarding token={this.state.token} onboardingHandler={this.onboardingHandler} {...props}/>} />
 			else
 				return <Route path="/" exact render={() => <LoginPage onLogin={this.loginHandler} loginFail={this.state.loginFail}/>}/>
