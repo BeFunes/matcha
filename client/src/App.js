@@ -8,7 +8,7 @@ import Toolbar from "./components/Navigation/Toolbar/Toolbar";
 import Profile from "./components/Profile/Profile";
 import Chat from "./components/Chat/Chat";
 import Onboarding from "./components/Onboarding/Onboarding";
-import OpenApp from "./containers/OpenApp/OpenApp";
+
 
 
 class App extends Component {

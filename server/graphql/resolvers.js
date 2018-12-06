@@ -156,7 +156,6 @@ module.exports = {
 	},
 	match: async function({filters}, req) {
 		console.log("MATCH")
-		console.log(filters)
 		const today = new Date()
 		const maxDob = `${today.getFullYear() - filters.minAge}-${("0" + (today.getMonth() + 1)).slice(-2)}-${("0" + today.getDate()).slice(-2)}`
 		const minDob = `${today.getFullYear() - filters.maxAge}-${("0" + (today.getMonth() + 1)).slice(-2)}-${("0" + today.getDate()).slice(-2)}`
@@ -164,9 +163,20 @@ module.exports = {
 		console.log(maxDob)
 
 		const query = `SELECT * FROM users WHERE (gender = ?) AND (dob > ?) AND (dob < ?) AND (orientation = ?) ORDER BY id LIMIT 0,1000`
-		const [users] = await db.query(query, [filters.orientation, minDob, maxDob, filters.gender])
+		let users = []
+		if (filters.orientation == 'B') {
+			const [req1] = await db.query(query, ['M', minDob, maxDob, filters.gender])
+			const [req2] = await db.query(query, ['F', minDob, maxDob, filters.gender])
+			const [req3] = await db.query(query, ['M', minDob, maxDob, 'B'])
+			const [req4] = await db.query(query, ['F', minDob, maxDob, 'B'])
+			users = [...users, ...req1, ...req2, ...req3, ...req4]
+		} else { 
+			const [toto] = await db.query(query, [filters.orientation, minDob, maxDob, filters.gender])
+			users = [...users,...toto]
+		}
 
-		const result = users.map((x) => ({
+		const result = users.map((x) => (
+			{
 			firstName: x.first_name,
 			lastName: x.last_name,
 			// password: x.password,
@@ -185,28 +195,28 @@ module.exports = {
 			})
 		)
 
-		const fakeusers = [{
-			firstName: 'some',
-			lastName: 'name',
-			email: 'emaikl',
-			dob: "1999-04-02",
-			gender: "F",
-			orientation: "M",
-			job: "miner",
-			bio: "some stuff bio",
-			profilePic: "urlpic",
-		},
-			{
-				firstName: 'other',
-				lastName: 'name',
-				email: 'emaikl',
-				dob: "1999-04-02",
-				gender: "F",
-				orientation: "M",
-				job: "miner",
-				bio: "some stuff bio",
-				profilePic: "urlpic",
-			}]
+		// const fakeusers = [{
+		// 	firstName: 'some',
+		// 	lastName: 'name',
+		// 	email: 'emaikl',
+		// 	dob: "1999-04-02",
+		// 	gender: "F",
+		// 	orientation: "M",
+		// 	job: "miner",
+		// 	bio: "some stuff bio",
+		// 	profilePic: "urlpic",
+		// },
+		// 	{
+		// 		firstName: 'other',
+		// 		lastName: 'name',
+		// 		email: 'emaikl',
+		// 		dob: "1999-04-02",
+		// 		gender: "F",
+		// 		orientation: "M",
+		// 		job: "miner",
+		// 		bio: "some stuff bio",
+		// 		profilePic: "urlpic",
+		// 	}]
 		return result
 	}
 }
