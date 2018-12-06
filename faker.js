@@ -1,5 +1,6 @@
 const faker = require('faker')
 const mysql = require('mysql2')
+const randomLocation = require('random-location')
 const moment = require('moment')
 const lists = require('./nameList')
 
@@ -22,24 +23,47 @@ const getOrientation = (gender, orientation) => {
 	}
 }
 
+const paris = {
+	latitude: 48.8529717,
+	longitude: 2.3477134,
+}
+
+const london = {
+	latitude: 51.5074,
+	longitude: 0.1278,
+}
+
+const newYork = {
+	latitude: 40.7128,
+	longitude: 74.0060
+}
+
+const getLocation = () => {
+	const locations = [paris, london, newYork]
+	const radius = Math.floor(Math.random() * (10000-100)) + 100
+	const center = locations[Math.floor(Math.random() * locations.length)]
+	return randomLocation.randomCircumferencePoint(center, radius)
+}
+
 const dummyPassword = "$2a$12$rZHGfYxrMBjazgmd.OXq3OiH5wiocqYo6QB5Mxp6I2msv/JnGQL2K"
 
 const getData = (gender, orient) => {
 	const genderCode = gender === 'M' ? 0 : 1
 	faker.locale = "fr";
 	const firstName = lists.getFakeFirstName(genderCode);
-	const lastName = faker.name.lastName(genderCode); // Kassandra.Haley@erich.biz
+	const lastName = faker.name.lastName(genderCode);
 	const email = `${firstName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()}.${lastName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()}@hotmail.com`
 	const password = dummyPassword
 	const year = Math.floor(Math.random() * (2000-1970)) + 1970
 	const date = moment(faker.date.past()).format("YYYY-MM-DD")
 	const dob = year.toString() + date.substr(4)
 	const orientation = getOrientation(gender, orient)
+	const position = getLocation()
 	faker.locale = "en";
 	const job = faker.name.jobTitle()
 	const bio = faker.lorem.paragraph()
 	const profilePicture = faker.image.avatar()
-	return [firstName, lastName, email, password, dob, gender, orientation, job, bio, profilePicture]
+	return [firstName, lastName, email, password, dob, gender, orientation, job, bio, profilePicture, position.latitude, position.longitude]
 }
 
 
@@ -59,16 +83,17 @@ const createUsersTableQuery = `CREATE TABLE users (
     picture3 varchar(255),
     picture4 varchar(255),
     picture5 varchar(255),
+    latitude decimal(20,17),
+    longitude decimal(20,17),
     isOnboarded tinyint(1) NOT NULL DEFAULT 0,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
 
 
 const populateUsersTableQuery = `INSERT INTO users (first_name, last_name, email, password,
-dob, gender, orientation, job, bio, profilePic, 
+dob, gender, orientation, job, bio, profilePic, latitude, longitude,
 picture2, picture3, picture4, picture5, isOnboarded)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, 1)`
-// const data = [firstName, lastName, email, password, dob, gender, orientation, job, bio, profilePicture];
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, 1)`
 
 const createInterestsTableQuery = `CREATE TABLE interests (
     title varchar(20) NOT NULL,
