@@ -1,5 +1,6 @@
-const faker = require('faker');
-const mysql = require('mysql2');
+const faker = require('faker')
+const mysql = require('mysql2')
+const moment = require('moment')
 const lists = require('./nameList')
 
 const db = mysql.createConnection({
@@ -31,7 +32,7 @@ const getData = (gender, orient) => {
 	const email = `${firstName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()}.${lastName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()}@hotmail.com`
 	const password = dummyPassword
 	const year = Math.floor(Math.random() * (2000-1970)) + 1970
-	const date = faker.date.past().toLocaleDateString('zh-Hans-CN').replace(/\//g, "-")
+	const date = moment(faker.date.past()).format("YYYY-MM-DD")
 	const dob = year.toString() + date.substr(4)
 	const orientation = getOrientation(gender, orient)
 	faker.locale = "en";
