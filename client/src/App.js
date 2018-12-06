@@ -17,10 +17,10 @@ class App extends Component {
 		token: null,
 		userId: null,
 		loginFail: false,
-		isOnboarded: false
 	}
 
 	componentDidMount() {
+		console.log("COMP DID MOUNT")
 		const token = localStorage.getItem('token')
 		const expiryDate = localStorage.getItem('expiryDate')
 		if (!token || !expiryDate) { return }
@@ -32,10 +32,11 @@ class App extends Component {
 		const remainingTime = new Date(expiryDate).getTime() - new Date().getTime()
 		this.setState({isAuth: true, token: token, userId: userId})
 		this.setAutoLogout(remainingTime)
-		this.getUserData(token)
+		if (!this.state.firstName) { this.getUserData(token) }
 	}
 
 	getUserData = (token) => {
+		console.log("GET USER DATA")
 		const query = {
 			query: `{
                 getUserData(info: "") {
@@ -84,6 +85,7 @@ class App extends Component {
 			isAuth: true,
 			token: data.token,
 			userId: data.userId,
+			isOnboarded: data.isOnboarded
 		})
 		const expiryDate = new Date (new Date().getTime() + 60*60*1000)
 		localStorage.setItem('token', data.token)
@@ -128,9 +130,9 @@ class App extends Component {
 					{hasAccess && <Toolbar />}
 					<main className={hasAccess ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
 						<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
+							{hasAccess && <Route path="/profile" component={Profile}/>}
+							{hasAccess && <Route path="/chat" component={Chat}/>}
 							{routeZero()}
-							{hasAccess && <Route path="/profile" component={Profile}/> }
-							{hasAccess && <Route path="/chat" component={Chat}/> }
 						</Switch>
 					</main>
 				</div>
