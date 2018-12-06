@@ -95,7 +95,7 @@ class Onboarding extends React.Component {
 	markOnboarded = () => {
 		const mutation = {
 			query: `mutation {
-				markOnboarded(info: "") {
+				markOnboarded {
 				content
 				} }	` }
 		fetch('http://localhost:3001/graphql', {

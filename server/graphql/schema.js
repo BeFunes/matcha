@@ -64,9 +64,11 @@ module.exports = buildSchema(`
         isOnboarded: Boolean!
     }
     
+    
     type RootQuery {
         login(email: String!, password: String!): AuthData!
-        getUserData(info: String): UserData
+        getUserData: UserData
+        isOnboarded: Boolean!
     }
     
     type RootMutation {
@@ -74,7 +76,7 @@ module.exports = buildSchema(`
         insertProfileInfo(info: UserProfileInfo) : Message 
         insertPictureInfo(info: UserPictureInfo) : Message
         insertBioInfo(info: UserBioInfo) : Message
-        markOnboarded(info: String) : Message
+        markOnboarded : Message
     }
 
     schema {

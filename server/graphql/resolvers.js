@@ -94,6 +94,7 @@ module.exports = {
 
 	markOnboarded: async function(_, req) {
 		console.log("MARK ONBOARDED")
+		console.log(req)
 		if (!req.isAuth) {
 			const error = new Error('Not authenticated!')
 			error.code = 401
@@ -136,5 +137,21 @@ module.exports = {
 			isOnboarded: user[0].isOnboarded
 		}
 		return data
+	},
+	isOnboarded: async function(_, req) {
+		console.log("GET IS ONBOARDED")
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!')
+			error.code = 401
+			throw error
+		}
+		// req.email = "david.baron@hotmail.com"
+		const [user] = await db.query('SELECT isOnboarded FROM users WHERE email= ? ', req.email)
+		if (user.length === 0) {
+			const error = new Error('User not found.')
+			error.code = 401
+			throw error
+		}
+		return user[0].isOnboarded
 	}
 }

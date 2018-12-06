@@ -32,14 +32,16 @@ class App extends Component {
 		const remainingTime = new Date(expiryDate).getTime() - new Date().getTime()
 		this.setState({isAuth: true, token: token, userId: userId})
 		this.setAutoLogout(remainingTime)
-		if (!this.state.firstName) { this.getUserData(token) }
+		if (typeof this.state.isOnboarded === 'undefined') {
+			this.getIsOnboarded(token)
+		}
 	}
 
 	getUserData = (token) => {
 		console.log("GET USER DATA")
 		const query = {
 			query: `{
-                getUserData(info: "") {
+                getUserData {
                     firstName
 										lastName
 										password
@@ -80,6 +82,39 @@ class App extends Component {
 			})
 	}
 
+
+	getIsOnboarded = (token) => {
+		console.log("GET IS ONBOARDED")
+		const query = {
+			query: `{
+            isOnboarded
+            } `
+		}
+		fetch('http://localhost:3001/graphql', {
+			method: 'POST',
+			headers: {
+				Authorization: 'Bearer ' + token,
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(query)
+		})
+			.then(res => {
+				return res.json()
+			})
+			.then(resData => {
+				if (resData.errors) {
+					throw new Error ("User data retrieval failed .")
+				}
+				console.log("Fdsfs", resData.data.isOnboarded)
+				if (resData.data.isOnboarded) {
+					this.getUserData(token)
+				}
+			})
+			.catch(err => {
+				console.log(err)
+			})
+	}
+
 	loginHandler = (data) => {
 		this.setState({
 			isAuth: true,
@@ -92,7 +127,10 @@ class App extends Component {
 		localStorage.setItem('userId', data.userId)
 		localStorage.setItem('expiryDate', expiryDate.toISOString())
 		this.setAutoLogout(60*60*1000)
-		this.getUserData(data.token)
+		if (data.isOnboarded) {
+			this.getUserData(data.token)
+		}
+
 	}
 
 	logoutHandler = () => {
