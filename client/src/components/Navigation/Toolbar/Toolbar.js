@@ -3,15 +3,18 @@ import styles from './Toolbar.module.css'
 import Logo from "../../Logo/Logo";
 import NavigationItems from "../NavigationItems/NavigationItems";
 
-const toolbar = (props) => (
-	<header className={styles.toolbar}>
+const toolbar = (props) => {
+	const {onLogout} = props
+	return (
+		<header className={styles.toolbar}>
 
-		<div>MENU</div>
-		{/*<Logo />*/}
-		<nav>
-			<NavigationItems />
-		</nav>
-	</header>
-)
+			{/*<Logo />*/}
+			<nav>
+				<NavigationItems onLogout={onLogout} />
+			</nav>
+			<div onClick={onLogout}>Logout</div>
+		</header>
+	)
+}
 
 export default toolbar

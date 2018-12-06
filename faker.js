@@ -109,7 +109,6 @@ const getRandomUser = () => {
 }
 
 
-
 db.connect()
 	.then( () => {
 		console.log("Connected!")

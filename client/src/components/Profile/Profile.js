@@ -18,6 +18,7 @@ class Profile extends Component {
 			<div className={styles.component}>
 				<div className={styles.names}>
 					<TextInput/>
+					fdsoijfoisj
 				</div>
 			</div>
 		)

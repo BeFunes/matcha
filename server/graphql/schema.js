@@ -49,7 +49,7 @@ module.exports = buildSchema(`
     type UserData {
         firstName: String!
         lastName: String!
-        password: String!
+        password: String
         email: String!
         dob: String!
         gender: String!
@@ -64,11 +64,23 @@ module.exports = buildSchema(`
         isOnboarded: Boolean!
     }
     
+    input MatchFilter {
+        gender: String!
+        orientation: String!
+        minAge: Int!
+        maxAge: Int!
+        interests: [String]
+        latitude: Float
+        longitude: Float
+        radius: Int
+    }
+    
     
     type RootQuery {
         login(email: String!, password: String!): AuthData!
         getUserData: UserData
         isOnboarded: Boolean!
+        match(filters: MatchFilter) : [UserData]
     }
     
     type RootMutation {

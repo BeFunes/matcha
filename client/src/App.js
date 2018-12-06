@@ -8,6 +8,7 @@ import Toolbar from "./components/Navigation/Toolbar/Toolbar";
 import Profile from "./components/Profile/Profile";
 import Chat from "./components/Chat/Chat";
 import Onboarding from "./components/Onboarding/Onboarding";
+import OpenApp from "./containers/OpenApp/OpenApp";
 
 
 class App extends Component {
@@ -154,19 +155,26 @@ class App extends Component {
 		console.log(this.state)
 		const hasAccess = this.state.isAuth && this.state.isOnboarded
 		const routeZero = () => {
-			if (hasAccess)
-				return <Route path="/" exact component={Browse}/>
-			else if (this.state.isAuth && !this.state.isOnboarded && typeof this.state.isOnboarded !== 'undefined')
+			if (this.state.isAuth && !this.state.isOnboarded && typeof this.state.isOnboarded !== 'undefined')
 				return <Route path="/" render={(props) => <Onboarding token={this.state.token} onboardingHandler={this.onboardingHandler} {...props}/>} />
+			else if (!this.state.isAuth)
+				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler} loginFail={this.state.loginFail}/>}/>
 			else
-				return <Route path="/" exact render={() => <LoginPage onLogin={this.loginHandler} loginFail={this.state.loginFail}/>}/>
+				return (
+					<Route path="/" exact component={Browse} />
+					// 	<Route path="profile" component={Profile}/>
+					// 	<Route path="chat" component={Chat}/>
+				)
+
+
 	}
 
 		return (
 			<div className={styles.app}>
 				<div>
-					{hasAccess && <Toolbar />}
 					<main className={hasAccess ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
+
+						{hasAccess && <Toolbar onLogout={this.logoutHandler}/> }
 						<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
 							{hasAccess && <Route path="/profile" component={Profile}/>}
 							{hasAccess && <Route path="/chat" component={Chat}/>}
@@ -186,3 +194,4 @@ export default App;
 /// direct components that are accessed through routing have access to
 // special props 'history' and 'match'. Nested components don't.
 // If we need the special props in other places, look up 'withRouter'
+

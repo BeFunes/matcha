@@ -153,5 +153,60 @@ module.exports = {
 			throw error
 		}
 		return user[0].isOnboarded
+	},
+	match: async function({filters}, req) {
+		console.log("MATCH")
+		console.log(filters)
+		const today = new Date()
+		const maxDob = `${today.getFullYear() - filters.minAge}-${("0" + (today.getMonth() + 1)).slice(-2)}-${("0" + today.getDate()).slice(-2)}`
+		const minDob = `${today.getFullYear() - filters.maxAge}-${("0" + (today.getMonth() + 1)).slice(-2)}-${("0" + today.getDate()).slice(-2)}`
+
+		console.log(maxDob)
+
+		const query = `SELECT * FROM users WHERE (gender = ?) AND (dob > ?) AND (dob < ?) AND (orientation = ?) ORDER BY id LIMIT 0,1000`
+		const [users] = await db.query(query, [filters.orientation, minDob, maxDob, filters.gender])
+
+		const result = users.map((x) => ({
+			firstName: x.first_name,
+			lastName: x.last_name,
+			// password: x.password,
+			email: x.email,
+			dob: x.dob,
+			gender: x.gender,
+			orientation: x.orientation,
+			job: x.job,
+			bio: x.bio,
+			profilePic: x.profilePic,
+			// picture2: x.picture2,
+			// picture3: x.picture3,
+			// picture4: x.picture4,
+			// picture5: x.picture5,
+			// isOnboarded: x.isOnboarded
+			})
+		)
+
+		const fakeusers = [{
+			firstName: 'some',
+			lastName: 'name',
+			email: 'emaikl',
+			dob: "1999-04-02",
+			gender: "F",
+			orientation: "M",
+			job: "miner",
+			bio: "some stuff bio",
+			profilePic: "urlpic",
+		},
+			{
+				firstName: 'other',
+				lastName: 'name',
+				email: 'emaikl',
+				dob: "1999-04-02",
+				gender: "F",
+				orientation: "M",
+				job: "miner",
+				bio: "some stuff bio",
+				profilePic: "urlpic",
+			}]
+		return result
 	}
 }
