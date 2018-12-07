@@ -62,6 +62,7 @@ module.exports = buildSchema(`
         picture4: String
         picture5: String
         isOnboarded: Boolean!
+        interests: [String]
     }
     
     input MatchFilter {
