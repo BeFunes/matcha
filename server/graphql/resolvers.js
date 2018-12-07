@@ -159,9 +159,7 @@ module.exports = {
 		const today = new Date()
 		const maxDob = `${today.getFullYear() - filters.minAge}-${("0" + (today.getMonth() + 1)).slice(-2)}-${("0" + today.getDate()).slice(-2)}`
 		const minDob = `${today.getFullYear() - filters.maxAge}-${("0" + (today.getMonth() + 1)).slice(-2)}-${("0" + today.getDate()).slice(-2)}`
-
-		console.log(maxDob)
-
+		
 		const query = `SELECT * FROM users WHERE (gender = ?) AND (dob > ?) AND (dob < ?) AND (orientation = ?) ORDER BY id LIMIT 0,1000`
 		let users = []
 		if (filters.orientation == 'B') {
