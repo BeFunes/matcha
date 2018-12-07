@@ -63,7 +63,8 @@ const getData = (gender, orient) => {
 	const job = faker.name.jobTitle()
 	const bio = faker.lorem.paragraph()
 	const profilePicture = faker.image.avatar()
-	return [firstName, lastName, email, password, dob, gender, orientation, job, bio, profilePicture, position.latitude, position.longitude]
+	const hashToken = "ghjfhgdFGKVJghfhdfgd4535tdfdFDHfgcfgsegljnhikbjh"
+	return [firstName, lastName, email, password, dob, gender, orientation, job, bio, profilePicture, position.latitude, position.longitude, hashToken]
 }
 
 
@@ -84,16 +85,17 @@ const createUsersTableQuery = `CREATE TABLE users (
     picture4 varchar(255),
     picture5 varchar(255),
     latitude decimal(20,17),
-    longitude decimal(20,17),
-    isOnboarded tinyint(1) NOT NULL DEFAULT 0,
+	longitude decimal(20,17),
+	hashToken varchar(250) DEFAULT NULL,
+	isOnboarded tinyint(1) NOT NULL DEFAULT 0,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
 
 
 const populateUsersTableQuery = `INSERT INTO users (first_name, last_name, email, password,
-dob, gender, orientation, job, bio, profilePic, latitude, longitude,
+dob, gender, orientation, job, bio, profilePic, latitude, longitude, hashToken,
 picture2, picture3, picture4, picture5, isOnboarded)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, 1)`
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, 1)`
 
 const createInterestsTableQuery = `CREATE TABLE interests (
 		id int(11) unsigned NOT NULL AUTO_INCREMENT,

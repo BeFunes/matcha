@@ -7,6 +7,7 @@ import LoginPage from "./components/LoginPage/LoginPage";
 import Toolbar from "./components/Navigation/Toolbar/Toolbar";
 import Profile from "./components/Profile/Profile";
 import Chat from "./components/Chat/Chat";
+import Confirmation from "./components/Confirmation/Confirmation"
 import Onboarding from "./components/Onboarding/Onboarding";
 
 
@@ -131,7 +132,6 @@ class App extends Component {
 		if (data.isOnboarded) {
 			this.getUserData(data.token)
 		}
-
 	}
 
 	logoutHandler = () => {
@@ -148,7 +148,7 @@ class App extends Component {
 	};
 
 	onboardingHandler = () => {
-		this.setState({ isOnboarded: true})
+		this.setState({ isOnboarded: true })
 	}
 
 	render() {
@@ -165,8 +165,6 @@ class App extends Component {
 					// 	<Route path="profile" component={Profile}/>
 					// 	<Route path="chat" component={Chat}/>
 				)
-
-
 	}
 
 		return (
@@ -176,6 +174,7 @@ class App extends Component {
 
 						{hasAccess && <Toolbar onLogout={this.logoutHandler}/> }
 						<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
+							{<Route path="/confirmation/:token" component={Confirmation}/>}
 							{hasAccess && <Route path="/profile" component={Profile}/>}
 							{hasAccess && <Route path="/chat" component={Chat}/>}
 							{routeZero()}
