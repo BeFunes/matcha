@@ -1,12 +1,12 @@
 import React from 'react'
 import styles from './Onboarding.module.css'
-import OnboardingProfile from "./OnboardingProfile/OnboardingProfile";
-import OnboardingBio from "./OnboardingBio/OnboardingBio";
-import OnboardingPics from "./OnboardingPics/OnboardingPics";
+import OnboardingProfile from "./OnboardingProfile/OnboardingProfile"
+import OnboardingBio from "./OnboardingBio/OnboardingBio"
+import OnboardingPics from "./OnboardingPics/OnboardingPics"
 
 const defaultState = {
 	completed: 40,
-	currentPage: 0,
+	currentPage: 1,
 	firstName: '',
 	lastName: '',
 	dob: "1990-01-01",
@@ -45,7 +45,7 @@ class Onboarding extends React.Component {
 			switch (orient) {
 				case 'Woman': return 'F'
 				case 'Man': return 'M'
-				default: return 'B'
+				default: return 'FM'
 			}
 		})(data.orientation)
 		const mutation = {
@@ -64,18 +64,18 @@ class Onboarding extends React.Component {
 			}
 		})
 			.then(res => {
-				return res.json();
+				return res.json()
 			})
 			.then(resData => {
 				if (resData.errors && resData.errors[0].status === 422) {
 					throw new Error(
 						"Validation failed. Make sure the email address isn't used yet!"
-					);
+					)
 				}
 				if (resData.errors) {
-					throw new Error('PROBLEM');
+					throw new Error('PROBLEM')
 				}
-				console.log(resData);
+				console.log(resData)
 				this.nextPage()
 			})
 			.catch(err => {
@@ -107,11 +107,11 @@ class Onboarding extends React.Component {
 			}
 		})
 			.then(res => {
-				return res.json();
+				return res.json()
 			})
 			.then(resData => {
 				if (resData.errors) {
-					throw new Error('PROBLEM');
+					throw new Error('PROBLEM')
 				}
 				console.log(resData)
 				this.props.onboardingHandler()
@@ -121,6 +121,65 @@ class Onboarding extends React.Component {
 			})
 		}
 
+	submitPicInfo = (data) => {
+		console.log('submit pic info', data.profilePic)
+
+		const formData = new FormData();
+		formData.append('image', data.profilePic);
+		// if (this.state.profilePic) {
+		// 	formData.append('oldPath', this.state.editPost.imagePath);
+		// }
+		fetch('http://localhost:3001/post-image', {
+			method: 'PUT',
+			headers: {
+				Authorization: 'Bearer ' + this.props.token,
+			},
+			body: formData
+		})
+		.then(res => res.json())
+		.then(fileResData => {
+			console.log(fileResData)
+			const imageUrl = fileResData.filePath
+			let graphqlQuery = {
+				query: `
+	      mutation {
+	        insertPictureInfo(info: {profilePic: "${imageUrl}"}) {
+	          content
+	        } } `
+			}
+			return fetch('http://localhost:3001/graphql', {
+				method: 'POST',
+				body: JSON.stringify(graphqlQuery),
+				headers: {
+					Authorization: 'Bearer ' + this.props.token,
+					'Content-Type': 'application/json'
+				}
+			})
+		})
+			.then(res => {
+				return res.json()
+			})
+			.then(resData => {
+				if (resData.errors && resData.errors[0].status === 422) {
+					throw new Error(
+						"Validation failed"
+					)
+				}
+				if (resData.errors) {
+					throw new Error('Image upload failed')
+				}
+				console.log(resData)
+			})
+			.catch(err => {
+					console.log(err)
+					this.setState({
+						isEditing: false,
+						editPost: null,
+						editLoading: false,
+						error: err
+					})
+				})
+			}
 
 	submitBioInfo = (data) => {
 		this.localSaveBioInfo(data)
@@ -143,16 +202,16 @@ class Onboarding extends React.Component {
 			}
 		})
 			.then(res => {
-				return res.json();
+				return res.json()
 			})
 			.then(resData => {
 				if (resData.errors && resData.errors[0].status === 422) {
 					throw new Error(
 						"Validation failed. Make sure the email address isn't used yet!"
-					);
+					)
 				}
 				if (resData.errors) {
-					throw new Error('PROBLEM');
+					throw new Error('PROBLEM')
 				}
 				console.log(resData)
 				this.markOnboarded()
@@ -185,7 +244,9 @@ class Onboarding extends React.Component {
 				{this.state.currentPage === 1 && <OnboardingPics
 					nextPage={this.nextPage}
 					previousPage={this.previousPage}
-					completedProgress={33} />}
+					completedProgress={33}
+					save={this.submitPicInfo}
+				/>}
 				{this.state.currentPage === 2 && <OnboardingBio
 					previousPage={this.previousPage}
 					completedProgress={66}
@@ -194,9 +255,7 @@ class Onboarding extends React.Component {
 					bio={this.state.bio}
 					job={this.state.job}
 					tags={this.state.tags}
-				/>
-
-				}
+				/>}
 			</div>
 		)
 	}

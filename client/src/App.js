@@ -18,6 +18,7 @@ class App extends Component {
 		token: null,
 		userId: null,
 		loginFail: false,
+		isOnboarded: false
 	}
 
 	componentDidMount() {

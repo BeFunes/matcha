@@ -199,6 +199,22 @@ module.exports = {
 			interests: x.interests.split(",")
 			})
 		)
+	},
+	insertPictureInfo: async function({info}, req) {
+		console.log("INSERT PICTURE INFO")
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!')
+			error.code = 401
+			throw error
+		}
+		// if (!validate(info.profilePic, "pic")) {
+		// 	const error = new Error('Validation Error')
+		// 	error.code = 422
+		// 	throw error
+		// }
+		const query = `UPDATE users SET profilePic = ? WHERE email = ?`
+		const [row] = await db.query(query, [info.profilePic, req.email])
+		return {content: "Pic data updated successfully"}
 	}
 }
 
