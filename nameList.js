@@ -204,7 +204,7 @@ const boysName = [
     "Maria",
     ]
 
-interests = [
+const interests = [
 	"food",
 	"rock climbing",
 	"football",
@@ -241,7 +241,8 @@ module.exports = {
         return girlName[(Math.floor(Math.random()*girlName.length))]
     },
     get5fakeInterest: function() {
-    	  const interest = () => interests[Math.floor(Math.random()*interests.length)]
+    	  const interest = () => Math.floor(Math.random()*interests.length) + 1
 	      return new Set ([interest(), interest(), interest(), interest(), interest()])
-    }
+    },
+    interests: interests
 }

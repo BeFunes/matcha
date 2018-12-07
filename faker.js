@@ -96,11 +96,19 @@ picture2, picture3, picture4, picture5, isOnboarded)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, 1)`
 
 const createInterestsTableQuery = `CREATE TABLE interests (
+		id int(11) unsigned NOT NULL AUTO_INCREMENT,
     title varchar(20) NOT NULL,
-    user_id int(11) unsigned
+    PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
 
-const populateInterestsTableQuery = `INSERT INTO interests (title, user_id) VALUES (?, ?)`
+const createUsersInterestsTableQuery = `CREATE TABLE users_interests (
+    interest_id int(11) unsigned NOT NULL REFERENCES interests(id),
+    user_id int(11) unsigned NOT NULL REFERENCES users(id),
+    PRIMARY KEY (user_id, interest_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
+
+const populateInterestsTableQuery = `INSERT INTO interests (title) VALUES (?)`
+const populateUsersInterestsTableQuery = `INSERT INTO users_interests (interest_id, user_id) VALUES (?, ?)`
 
 const getRandomUser = () => {
 	const sex = ['M', 'F']
@@ -112,9 +120,15 @@ const getRandomUser = () => {
 db.connect()
 	.then( () => {
 		console.log("Connected!")
+		return db.query("DROP TABLE IF EXISTS users_interests") })
+	.then( () => {
+		console.log("Table users_interests deleted")
 		return db.query("DROP TABLE IF EXISTS users") })
 	.then( () => {
 		console.log("Table users deleted")
+		return db.query("DROP TABLE IF EXISTS interests") })
+	.then(() => {
+		console.log("Table interests deleted")
 		return db.query(createUsersTableQuery) })
 	.then( async function () {
 		console.log("Table users created");
@@ -124,16 +138,20 @@ db.connect()
 			await db.query(populateUsersTableQuery, data)
 			}
 		console.log("User data inserted")
-		return db.query("DROP TABLE IF EXISTS interests") })
-	.then(() => {
-		console.log("Table interests deleted");
 		return db.query(createInterestsTableQuery) })
 	.then(async function () {
 		console.log("Table interests created");
-		for (let i = 0; i < 300; i++) {
+		lists.interests.forEach(async (x) => {
+			await db.query(populateInterestsTableQuery, [x])
+		})
+		console.log("Interests data inserted")
+		return db.query(createUsersInterestsTableQuery) })
+	.then(async function () {
+		console.log("Table users_interests created")
+		for (let i = 1; i < 301; i++) {
 			let interests = lists.get5fakeInterest()
 			for (let interest of interests) {
-				await db.query(populateInterestsTableQuery, [interest, i])
+				await db.query(populateUsersInterestsTableQuery, [interest, i])
 			}
 		}
 		console.log("Interests data inserted")
