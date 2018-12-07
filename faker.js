@@ -19,7 +19,7 @@ const getOrientation = (gender, orientation) => {
 		case "gay" :
 			return gender
 		default:
-			return "B"
+			return "FM"
 	}
 }
 
@@ -75,7 +75,7 @@ const createUsersTableQuery = `CREATE TABLE users (
     password varchar(70)  NOT NULL,
     dob date DEFAULT NULL,
     gender char(1),
-    orientation char(1),
+    orientation char(2),
     job varchar(50),
     bio varchar(3000),
     profilePic varchar(255),

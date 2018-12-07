@@ -159,19 +159,9 @@ module.exports = {
 		const today = new Date()
 		const maxDob = `${today.getFullYear() - filters.minAge}-${("0" + (today.getMonth() + 1)).slice(-2)}-${("0" + today.getDate()).slice(-2)}`
 		const minDob = `${today.getFullYear() - filters.maxAge}-${("0" + (today.getMonth() + 1)).slice(-2)}-${("0" + today.getDate()).slice(-2)}`
-		
-		const query = `SELECT * FROM users WHERE (gender = ?) AND (dob > ?) AND (dob < ?) AND (orientation = ?) ORDER BY id LIMIT 0,1000`
-		let users = []
-		if (filters.orientation == 'B') {
-			const [req1] = await db.query(query, ['M', minDob, maxDob, filters.gender])
-			const [req2] = await db.query(query, ['F', minDob, maxDob, filters.gender])
-			const [req3] = await db.query(query, ['M', minDob, maxDob, 'B'])
-			const [req4] = await db.query(query, ['F', minDob, maxDob, 'B'])
-			users = [...users, ...req1, ...req2, ...req3, ...req4]
-		} else { 
-			const [toto] = await db.query(query, [filters.orientation, minDob, maxDob, filters.gender])
-			users = [...users,...toto]
-		}
+
+		const query = `SELECT * FROM users WHERE (gender REGEXP ?) AND (dob > ?) AND (dob < ?) AND (orientation LIKE ?) ORDER BY id LIMIT 0,1000`
+		const [users] = await db.query(query, [`^[${filters.orientation}]$`, minDob, maxDob, `%${filters.gender}%`])
 
 		const result = users.map((x) => (
 			{

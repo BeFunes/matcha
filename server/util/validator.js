@@ -20,7 +20,7 @@ module.exports = {
 				case "gender":
 					return value && value === 'M' || value === 'F'
 				case "orientation":
-					return value && value === 'M' || value === 'F' || value === 'B'
+					return value && value === 'M' || value === 'F' || value === 'FM'
 				case "dob":
 					const year = parseInt(value.substring(0, 4))
 					return value && value.match(datePattern) && year >= 1919 && year <= 2000
