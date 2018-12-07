@@ -81,6 +81,7 @@ module.exports = buildSchema(`
         getUserData: UserData
         isOnboarded: Boolean!
         match(filters: MatchFilter) : [UserData]
+        emailConfirmation(hashToken: String!): Boolean!
     }
     
     type RootMutation {

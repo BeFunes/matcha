@@ -2,6 +2,14 @@ const db = require('../util/db')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { validate } = require('./../util/validator')
+const nodemailer = require('nodemailer');
+const sendGripTransport = require('nodemailer-sendgrid-transport')
+
+const transporter = nodemailer.createTransport(sendGripTransport({
+	auth: {
+		api_key: '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'
+	}
+}))
 
 module.exports = {
 	createUser: async function ({userInput}) {
@@ -17,6 +25,14 @@ module.exports = {
 		}
 		const hashedPw = await bcrypt.hash(userInput.password, 12)
 		await db.query('Insert into users (email, password) VALUES (?, ?)', [userInput.email, hashedPw])
+		const address = "localhost:3000/confirmation/"
+		const hash = "ewfefewrfregtdghdfdsghbfsbfzdgadfxdfvsfdzvbsvdfbsdb"
+		transporter.sendMail({
+			to: userInput.email,
+			from: 'raghirelli@gmail.com',
+			subject: 'Confirmation',
+			html: `<a href="http://localhost:3000/confirmation/faerfadagafgfhhgfcvzfdzvfxghgbxgdvvffd" target="_blank" rel="noopener noreferrer" data-auth="NotApplicable" style="font-size:20px; font-family:Helvetica,Arial,sans-serif; color:#ffffff; text-decoration:none; text-decoration:none; -webkit-border-radius:7px; -moz-border-radius:7px; border-radius:7px; padding:12px 18px; border:1px solid #85b5ff; display:inline-block">Cliquez ici pour commencer ▸</a>`
+		})
 		// check return value and send error if appropriate
 		// console.log(row)
 		return {email: userInput.email}
@@ -182,29 +198,15 @@ module.exports = {
 			// isOnboarded: x.isOnboarded
 			})
 		)
-
-		// const fakeusers = [{
-		// 	firstName: 'some',
-		// 	lastName: 'name',
-		// 	email: 'emaikl',
-		// 	dob: "1999-04-02",
-		// 	gender: "F",
-		// 	orientation: "M",
-		// 	job: "miner",
-		// 	bio: "some stuff bio",
-		// 	profilePic: "urlpic",
-		// },
-		// 	{
-		// 		firstName: 'other',
-		// 		lastName: 'name',
-		// 		email: 'emaikl',
-		// 		dob: "1999-04-02",
-		// 		gender: "F",
-		// 		orientation: "M",
-		// 		job: "miner",
-		// 		bio: "some stuff bio",
-		// 		profilePic: "urlpic",
-		// 	}]
 		return result
+	},
+	emailConfirmation: async function({hashToken}, req) {
+		console.log("Email Confirmation")
+		const query = `SELECT * FROM users WHERE hashToken = ?`
+		const users = await db.query(query, [hashToken])
+		console.log(hashToken)
+		if (users[0].length <= 0) { return false }
+		
+		return true
 	}
 }
