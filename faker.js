@@ -2,7 +2,7 @@ const faker = require('faker')
 const mysql = require('mysql2')
 const randomLocation = require('random-location')
 const moment = require('moment')
-const lists = require('./nameList')
+const fakerUtils = require('./fakerUtils')
 
 const db = mysql.createConnection({
  host: "localhost",
@@ -50,7 +50,7 @@ const dummyPassword = "$2a$12$rZHGfYxrMBjazgmd.OXq3OiH5wiocqYo6QB5Mxp6I2msv/JnGQ
 const getData = (gender, orient) => {
 	const genderCode = gender === 'M' ? 0 : 1
 	faker.locale = "fr";
-	const firstName = lists.getFakeFirstName(genderCode);
+	const firstName = fakerUtils.getFakeFirstName(genderCode);
 	const lastName = faker.name.lastName(genderCode);
 	const email = `${firstName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()}.${lastName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()}@hotmail.com`
 	const password = dummyPassword
@@ -63,7 +63,7 @@ const getData = (gender, orient) => {
 	const job = faker.name.jobTitle()
 	const bio = faker.lorem.paragraph()
 	const profilePicture = faker.image.avatar()
-	const hashToken = "ghjfhgdFGKVJghfhdfgd4535tdfdFDHfgcfgsegljnhikbjh"
+	const hashToken = fakerUtils.generateHashToken()
 	return [firstName, lastName, email, password, dob, gender, orientation, job, bio, profilePicture, position.latitude, position.longitude, hashToken]
 }
 
@@ -86,11 +86,10 @@ const createUsersTableQuery = `CREATE TABLE users (
     picture5 varchar(255),
     latitude decimal(20,17),
 	longitude decimal(20,17),
-	hashToken varchar(250) DEFAULT NULL,
+	hashToken varchar(250) NOT NULL,
 	isOnboarded tinyint(1) NOT NULL DEFAULT 0,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
-
 
 const populateUsersTableQuery = `INSERT INTO users (first_name, last_name, email, password,
 dob, gender, orientation, job, bio, profilePic, latitude, longitude, hashToken,
@@ -143,7 +142,7 @@ db.connect()
 		return db.query(createInterestsTableQuery) })
 	.then(async function () {
 		console.log("Table interests created");
-		lists.interests.forEach(async (x) => {
+		fakerUtils.interests.forEach(async (x) => {
 			await db.query(populateInterestsTableQuery, [x])
 		})
 		console.log("Interests data inserted")
@@ -151,7 +150,7 @@ db.connect()
 	.then(async function () {
 		console.log("Table users_interests created")
 		for (let i = 1; i < 301; i++) {
-			let interests = lists.get5fakeInterest()
+			let interests = fakerUtils.get5fakeInterest()
 			for (let interest of interests) {
 				await db.query(populateUsersInterestsTableQuery, [interest, i])
 			}
