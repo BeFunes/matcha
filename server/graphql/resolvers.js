@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken')
 const { validate } = require('./../util/validator')
 const nodemailer = require('nodemailer');
 const sendGripTransport = require('nodemailer-sendgrid-transport')
+const hashToken = require('../../fakerUtils')
 
 const transporter = nodemailer.createTransport(sendGripTransport({
 	auth: {
@@ -24,14 +25,16 @@ module.exports = {
 			throw new Error('User exists already!')
 		}
 		const hashedPw = await bcrypt.hash(userInput.password, 12)
-		await db.query('Insert into users (email, password) VALUES (?, ?)', [userInput.email, hashedPw])
+		const mailToken = hashToken.generateHashToken()
+		await db.query('Insert into users (email, password, hashToken) VALUES (?, ?, ?)', [userInput.email, hashedPw, mailToken])
 		const address = "localhost:3000/confirmation/"
 		const hash = "ewfefewrfregtdghdfdsghbfsbfzdgadfxdfvsfdzvbsvdfbsdb"
+
 		transporter.sendMail({
 			to: userInput.email,
 			from: 'raghirelli@gmail.com',
 			subject: 'Confirmation',
-			html: `<a href="http://localhost:3000/confirmation/faerfadagafgfhhgfcvzfdzvfxghgbxgdvvffd" target="_blank" rel="noopener noreferrer" data-auth="NotApplicable" style="font-size:20px; font-family:Helvetica,Arial,sans-serif; color:#ffffff; text-decoration:none; text-decoration:none; -webkit-border-radius:7px; -moz-border-radius:7px; border-radius:7px; padding:12px 18px; border:1px solid #85b5ff; display:inline-block">Cliquez ici pour commencer ▸</a>`
+			html: `<a href="http://localhost:3000/confirmation/${mailToken}" target="_blank" rel="noopener noreferrer" data-auth="NotApplicable" style="font-size:20px; font-family:Helvetica,Arial,sans-serif; color:#ffffff; text-decoration:none; text-decoration:none; -webkit-border-radius:7px; -moz-border-radius:7px; border-radius:7px; padding:12px 18px; border:1px solid #85b5ff; display:inline-block">Cliquez ici pour commencer ▸</a>`
 		})
 		// check return value and send error if appropriate
 		// console.log(row)
@@ -225,5 +228,22 @@ module.exports = {
 		if (users[0].length <= 0) { return false }
 		
 		return true
+	},
+	changePassword: async function({info}, req) {
+		const [user] = await db.query('SELECT isOnboarded, password, id, email FROM users WHERE email=?', info.email)
+		if (user.length === 0) {
+			const error = new Error('User not found.')
+			error.code = 401
+			throw error
+		}
+		const isEqual = await bcrypt.compare(info.oldPassword, user[0].password)
+		if (!isEqual) {
+			const error = new Error('Password is incorrect.')
+			error.code = 401
+			throw error
+		}
+		const hashedPw = await bcrypt.hash(info.newPassword, 12)
+		await db.query('UPDATE users SET password = (?) WHERE email=?', [hashedPw, info.email])
+		return {content: "Password succesfully changed !"}
 	}
 }

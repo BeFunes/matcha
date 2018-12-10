@@ -9,13 +9,19 @@ module.exports = buildSchema(`
         name: String
     }
 	
-		type Message {
-				content: String
-		}
+	type Message {
+		content: String
+	}
 		
     input UserInputData {
         email: String!
         password: String!
+    }
+
+    input renewPassword {
+        email: String!
+        oldPassword: String!
+        newPassword: String!
     }
 		
 		input UserProfileInfo {
@@ -87,6 +93,7 @@ module.exports = buildSchema(`
     
     type RootMutation {
         createUser(userInput: UserInputData) : User!
+        changePassword(info: renewPassword): Message
         insertProfileInfo(info: UserProfileInfo) : Message 
         insertPictureInfo(info: UserPictureInfo) : Message
         insertBioInfo(info: UserBioInfo) : Message
