@@ -242,8 +242,11 @@ module.exports = {
 			error.code = 401
 			throw error
 		}
+		if (info.oldPassword == info.newPassword) {
+			return {content: "Invalid new password"}
+		}
 		const hashedPw = await bcrypt.hash(info.newPassword, 12)
 		await db.query('UPDATE users SET password = (?) WHERE email=?', [hashedPw, info.email])
-		return {content: "Password succesfully changed !"}
+		return {content: "Password succesfully changed "}
 	}
 }
