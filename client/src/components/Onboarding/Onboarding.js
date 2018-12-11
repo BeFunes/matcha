@@ -6,7 +6,7 @@ import OnboardingPics from "./OnboardingPics/OnboardingPics"
 
 const defaultState = {
 	completed: 40,
-	currentPage: 1,
+	currentPage: 0,
 	firstName: '',
 	lastName: '',
 	dob: "1990-01-01",
@@ -113,7 +113,7 @@ class Onboarding extends React.Component {
 				if (resData.errors) {
 					throw new Error('PROBLEM')
 				}
-				console.log(resData)
+				console.log(resData.data.markOnboarded.content)
 				this.props.onboardingHandler()
 			})
 			.catch(err => {
@@ -122,64 +122,48 @@ class Onboarding extends React.Component {
 		}
 
 	submitPicInfo = (data) => {
-		console.log('submit pic info', data.profilePic)
-
-		const formData = new FormData();
-		formData.append('image', data.profilePic);
-		// if (this.state.profilePic) {
-		// 	formData.append('oldPath', this.state.editPost.imagePath);
-		// }
-		fetch('http://localhost:3001/post-image', {
-			method: 'PUT',
+		let graphqlQuery = {
+			query: `
+			      mutation {
+			        insertPictureInfo(info: {
+			          profilePic: "${data.profilePic}",
+			          picture2: "${data.picture2}",
+			          picture3: "${data.picture3}",
+			          picture4: "${data.picture4}",
+			          picture5: "${data.picture5}",
+			        }) {
+			          content
+			        } } `
+		}
+		return fetch('http://localhost:3001/graphql', {
+			method: 'POST',
+			body: JSON.stringify(graphqlQuery),
 			headers: {
 				Authorization: 'Bearer ' + this.props.token,
-			},
-			body: formData
-		})
-		.then(res => res.json())
-		.then(fileResData => {
-			console.log(fileResData)
-			const imageUrl = fileResData.filePath
-			let graphqlQuery = {
-				query: `
-	      mutation {
-	        insertPictureInfo(info: {profilePic: "${imageUrl}"}) {
-	          content
-	        } } `
+				'Content-Type': 'application/json'
 			}
-			return fetch('http://localhost:3001/graphql', {
-				method: 'POST',
-				body: JSON.stringify(graphqlQuery),
-				headers: {
-					Authorization: 'Bearer ' + this.props.token,
-					'Content-Type': 'application/json'
-				}
-			})
 		})
-			.then(res => {
-				return res.json()
-			})
-			.then(resData => {
-				if (resData.errors && resData.errors[0].status === 422) {
-					throw new Error(
-						"Validation failed"
-					)
-				}
-				if (resData.errors) {
-					throw new Error('Image upload failed')
-				}
-				console.log(resData)
-			})
+		.then(res => {
+			return res.json()
+		})
+		.then(resData => {
+			if (resData.errors && resData.errors[0].status === 422) {
+				throw new Error(
+					"Validation failed"
+				)
+			}
+			if (resData.errors) {
+				throw new Error('Image upload failed')
+			}
+			console.log(resData.data.insertPictureInfo.content)
+			this.setState({...data})
+			this.nextPage()
+		})
 			.catch(err => {
-					console.log(err)
-					this.setState({
-						isEditing: false,
-						editPost: null,
-						editLoading: false,
-						error: err
-					})
-				})
-			}
+				console.log(err)
+			})
+	}
+
 
 	submitBioInfo = (data) => {
 		this.localSaveBioInfo(data)
@@ -213,7 +197,7 @@ class Onboarding extends React.Component {
 				if (resData.errors) {
 					throw new Error('PROBLEM')
 				}
-				console.log(resData)
+				console.log(resData.data.insertBioInfo.content)
 				this.markOnboarded()
 			})
 			.catch(err => {
@@ -246,6 +230,12 @@ class Onboarding extends React.Component {
 					previousPage={this.previousPage}
 					completedProgress={33}
 					save={this.submitPicInfo}
+					token={this.props.token}
+					profilePic={this.state.profilePic}
+					picture2={this.state.picture2}
+					picture3={this.state.picture3}
+					picture4={this.state.picture4}
+					picture5={this.state.picture5}
 				/>}
 				{this.state.currentPage === 2 && <OnboardingBio
 					previousPage={this.previousPage}

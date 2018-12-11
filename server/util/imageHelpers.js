@@ -1,4 +1,6 @@
 const multer = require('multer')
+const path = require('path')
+const fs = require('fs')
 
 module.exports = {
 
@@ -23,7 +25,7 @@ module.exports = {
 		}
 	},
 
-	clearImage: filePath => {
+	clearImage: (filePath) => {
 		filePath = path.join(__dirname, '..', filePath);
 		fs.unlink(filePath, err => console.log(err));
 	}

@@ -11,6 +11,7 @@ module.exports = buildSchema(`
 	
 		type Message {
 				content: String
+				filePath: String
 		}
 		
     input UserInputData {

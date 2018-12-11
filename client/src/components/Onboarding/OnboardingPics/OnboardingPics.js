@@ -8,21 +8,59 @@ import Button from "@material-ui/core/es/Button/Button";
 import ImageUploader from 'react-images-upload';
 
 class OnboardingPics extends React.Component {
-	state = {
+	state = {}
+///////// PROBLEM. This is called twice, therefore uploadPic is called twice.
+	/// This will be fixed once we change the picture uploader
+	onDrop = (pictures) => {
+		this.uploadPic(pictures[0], 'profilePic')
+	}
+//////////////////
+
+	uploadPic = (data, picType) => {
+		const formData = new FormData()
+		formData.append('image', data)
+		if (this.state[`${picType}Path`]) {
+			console.log("OLD PATH", this.state[`${picType}Path`])
+			formData.append('oldPath', this.state[`${picType}Path`]);
+		}
+		fetch('http://localhost:3001/post-image', {
+			method: 'PUT',
+			headers: {
+				Authorization: 'Bearer ' + this.props.token,
+			},
+			body: formData
+		})
+			.then(res => res.json())
+			.then(fileResData => {
+				console.log(fileResData)
+				this.setState({[`${picType}Path`]: fileResData.filePath, [picType]: data})
+			})
+			.catch(err => {
+				console.log(err)
+			})
 	}
 
-	onDrop = (picture) => {
+	componentDidMount() {
+		const {profilePic, picture2, picture3, picture4, picture5} = this.props
 		this.setState({
-			profilePic: picture[0]
+			profilePicPath: profilePic,
+			picture2Path: picture2,
+			picture3Path: picture3,
+			picture4Path: picture4,
+			picture5Path: picture5
 		})
 	}
 
 	render() {
-		const {nextPage, previousPage, completedProgress} = this.props
+		const {previousPage, completedProgress} = this.props
 
 		// const allValid = elementsArray.every((x) => x.valid && x.value !== '')
 		const save = () => this.props.save({
-			profilePic: this.state.profilePic
+			profilePic: this.state.profilePicPath,
+			picture2: this.state.picture2Path,
+			picture3: this.state.picture3Path,
+			picture4: this.state.picture4Path,
+			picture5: this.state.picture5Path
 		})
 
 		return (

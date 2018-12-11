@@ -94,7 +94,6 @@ module.exports = {
 
 	markOnboarded: async function(_, req) {
 		console.log("MARK ONBOARDED")
-		console.log(req)
 		if (!req.isAuth) {
 			const error = new Error('Not authenticated!')
 			error.code = 401
@@ -207,13 +206,13 @@ module.exports = {
 			error.code = 401
 			throw error
 		}
-		// if (!validate(info.profilePic, "pic")) {
-		// 	const error = new Error('Validation Error')
-		// 	error.code = 422
-		// 	throw error
-		// }
-		const query = `UPDATE users SET profilePic = ? WHERE email = ?`
-		const [row] = await db.query(query, [info.profilePic, req.email])
+		if (!validate(info.profilePic, "pic")) {
+			const error = new Error('Validation Error')
+			error.code = 422
+			throw error
+		}
+		const query = `UPDATE users SET profilePic = ?, picture2 = ?, picture3 = ?, picture4 = ?, picture5 = ? WHERE email = ?`
+		const [row] = await db.query(query, [info.profilePic, info.picture2, info.picture3, info.picture4, info.picture5, req.email])
 		return {content: "Pic data updated successfully"}
 	}
 }
@@ -221,27 +220,3 @@ module.exports = {
 
 
 
-
-
-		// const fakeusers = [{
-		// 	firstName: 'some',
-		// 	lastName: 'name',
-		// 	email: 'emaikl',
-		// 	dob: "1999-04-02",
-		// 	gender: "F",
-		// 	orientation: "M",
-		// 	job: "miner",
-		// 	bio: "some stuff bio",
-		// 	profilePic: "urlpic",
-		// },
-		// 	{
-		// 		firstName: 'other',
-		// 		lastName: 'name',
-		// 		email: 'emaikl',
-		// 		dob: "1999-04-02",
-		// 		gender: "F",
-		// 		orientation: "M",
-		// 		job: "miner",
-		// 		bio: "some stuff bio",
-		// 		profilePic: "urlpic",
-		// 	}]
