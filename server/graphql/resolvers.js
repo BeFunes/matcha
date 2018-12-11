@@ -228,7 +228,6 @@ module.exports = {
 		return true
 	},
 	changePassword: async function({info}, req) {
-		console.log(req.email)
 		if (!req.isAuth) {
 			return {content: "REQUEST UNAUTHORIZED"}
 		}
