@@ -107,7 +107,6 @@ class App extends Component {
 				if (resData.errors) {
 					throw new Error ("User data retrieval failed .")
 				}
-				console.log("Fdsfs", resData.data.isOnboarded)
 				if (resData.data.isOnboarded) {
 					this.getUserData(token)
 				}

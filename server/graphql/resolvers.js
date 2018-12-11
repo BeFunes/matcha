@@ -113,7 +113,6 @@ module.exports = {
 
 	markOnboarded: async function(_, req) {
 		console.log("MARK ONBOARDED")
-		console.log(req)
 		if (!req.isAuth) {
 			const error = new Error('Not authenticated!')
 			error.code = 401
@@ -218,7 +217,6 @@ module.exports = {
 			interests: x.interests.split(",")
 			})
 		)
-		return result
 	},
 	emailConfirmation: async function({hashToken}, req) {
 		console.log("Email Confirmation")
@@ -252,5 +250,21 @@ module.exports = {
 		const hashedPw = await bcrypt.hash(info.newPassword, 12)
 		await db.query('UPDATE users SET password = (?) WHERE email=?', [hashedPw, info.email])
 		return {content: "Password succesfully changed "}
+	},
+	insertPictureInfo: async function({info}, req) {
+		console.log("INSERT PICTURE INFO")
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!')
+			error.code = 401
+			throw error
+		}
+		if (!validate(info.profilePic, "pic")) {
+			const error = new Error('Validation Error')
+			error.code = 422
+			throw error
+		}
+		const query = `UPDATE users SET profilePic = ?, picture2 = ?, picture3 = ?, picture4 = ?, picture5 = ? WHERE email = ?`
+		const [row] = await db.query(query, [info.profilePic, info.picture2, info.picture3, info.picture4, info.picture5, req.email])
+		return {content: "Pic data updated successfully"}
 	}
 }

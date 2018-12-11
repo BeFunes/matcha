@@ -1,37 +1,57 @@
-const path = require('path');
+const {clearImage, fileFilter, fileStorage} = require("./util/imageHelpers")
 
-const express = require('express');
-const bodyParser = require('body-parser');
-const graphqlHttp = require('express-graphql');
+const path = require('path')
+const fs = require('fs')
 
-const auth = require('./middleware/auth');
+const express = require('express')
+const bodyParser = require('body-parser')
+const graphqlHttp = require('express-graphql')
+const multer = require('multer')
 
-const graphqlSchema = require('./graphql/schema');
-const graphqlResolver = require('./graphql/resolvers');
-// const auth = require('./middleware/auth');
+const auth = require('./middleware/auth')
 
-const app = express();
+const graphqlSchema = require('./graphql/schema')
+const graphqlResolver = require('./graphql/resolvers')
 
+const app = express()
 
-// app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
-app.use(bodyParser.json());// application/json
-// app.use(bodyParser.text({ type: 'application/graphql' }));
-
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json())// application/json
+app.use(
+	multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
+)
+app.use('/images', express.static(path.join(__dirname, 'images')))
 
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader(
-        'Access-Control-Allow-Methods',
-        'OPTIONS, GET, POST, PUT, PATCH, DELETE'
-    );
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(200);
-    }
-    next();
+	res.setHeader('Access-Control-Allow-Origin', '*')
+	res.setHeader(
+		'Access-Control-Allow-Methods',
+		'OPTIONS, GET, POST, PUT, PATCH, DELETE'
+	)
+	res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+	if (req.method === 'OPTIONS') {
+		return res.sendStatus(200)
+	}
+	next()
+})
+
+app.use(auth)
+
+app.put('/post-image', (req, res, next) => {
+	if (!req.isAuth) {
+		throw new Error('Not authenticated!');
+	}
+	if (!req.file) {
+		return res.status(200).json({ message: 'No file provided!' });
+	}
+	if (req.body.oldPath) {
+		clearImage(req.body.oldPath);
+	}
+	return res
+		.status(201)
+		.json({ message: 'File stored.', filePath: req.file.path });
 });
 
-app.use(auth);
 
 app.use(
     '/graphql',
@@ -41,93 +61,23 @@ app.use(
         graphiql: true,
         // formatError(err) {
         //     if (!err.originalError) {
-        //         return err;
+        //         return err
         //     }
-        //     const data = err.originalError.data;
-        //     const message = err.message || 'An error occurred.';
-        //     const code = err.originalError.code || 500;
-        //     return { message: message, status: code, data: data };
+        //     const data = err.originalError.data
+        //     const message = err.message || 'An error occurred.'
+        //     const code = err.originalError.code || 500
+        //     return { message: message, status: code, data: data }
         // }
     })
-);
+)
 
 app.use((error, req, res, next) => {
-    console.log(error);
-    const status = error.statusCode || 500;
-    const message = error.message;
-    const data = error.data;
-    res.status(status).json({ message: message, data: data });
-});
+    console.log(error)
+    const status = error.statusCode || 500
+    const message = error.message
+    const data = error.data
+    res.status(status).json({ message: message, data: data })
+})
 
 
-module.exports = app;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// var createError = require('http-errors');
-// var express = require('express');
-// var path = require('path');
-// var cookieParser = require('cookie-parser');
-// var logger = require('morgan');
-//
-// var indexRouter = require('./routes/index');
-// var usersRouter = require('./routes/users');
-//
-// var app = express();
-//
-// // view engine setup
-// app.set('views', path.join(__dirname, 'views'));
-// app.set('view engine', 'ejs');
-//
-// app.use(logger('dev'));
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: false }));
-// app.use(cookieParser());
-// app.use(express.static(path.join(__dirname, 'public')));
-//
-// app.use('/', indexRouter);
-// app.use('/users', usersRouter);
-//
-// // catch 404 and forward to error handler
-// app.use(function(req, res, next) {
-//   next(createError(404));
-// });
-//
-// // error handler
-// app.use(function(err, req, res, next) {
-//   // set locals, only providing error in development
-//   res.locals.message = err.message;
-//   res.locals.error = req.app.get('env') === 'development' ? err : {};
-//
-//   // render the error page
-//   res.status(err.status || 500);
-//   res.render('error');
-// });
-//
-// module.exports = app;
+module.exports = app

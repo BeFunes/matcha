@@ -4,7 +4,7 @@ const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/   /// must
 const emailPattern = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
 const datePattern = /([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))/
 const urlPattern = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/
-
+const storedImagePattern = /^images\/[\w\-. \:()]+\.(gif|png|jpg|jpeg)$/
 module.exports = {
 	validate: (value, type) => {
 		try {
@@ -39,7 +39,8 @@ module.exports = {
 					})
 					return valid
 				case "pic":
-					return value && value.length >= 3 && value.length <= 255 && value.match(urlPattern)
+					return value && value.length >= 3 && value.length <= 255 &&
+						(value.match(urlPattern) || value.match(storedImagePattern))
 			}
 		}
 		catch (error) {
