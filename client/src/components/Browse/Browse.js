@@ -5,12 +5,18 @@ import Display from "./Display/Display";
 
 class Browse extends Component {
 
-	state = {}
-	componentDidMount() {
-		this.getProfiles()
+	state = {
+		filters: {
+			ageMin: 30,
+			ageMax: 50
+		}
 	}
 
-	getProfiles = () => {
+	componentDidMount() {
+		this.getProfiles(this.state.filters)
+	}
+
+	getProfiles = (data) => {
 		console.log("GET PROFILES")
 		let query = {
 			query: ` {
@@ -18,8 +24,8 @@ class Browse extends Component {
 					    filters:{
 					       gender : "F",
 					        orientation : "MF",
-					        minAge : 18,
-					        maxAge :50,
+					        minAge : ${data.ageMin},
+					        maxAge : ${data.ageMax},
 					        interests : ["football"],
 					        latitude : 48.85154659837264,
 					        longitude : 2.348984726384281,
@@ -30,6 +36,7 @@ class Browse extends Component {
 				    lastName
 				    orientation
 				    gender
+				    dob
 				    interests
 				    profilePic
 				  }  }     `
@@ -49,7 +56,7 @@ class Browse extends Component {
 				if (resData.errors) {
 					throw new Error ("Profiles search failed")
 				}
-				this.setState({matches: resData.data.match})
+				this.setState({matches: resData.data.match, filters: {...data}})
 			})
 			.catch(err => {
 				console.log(err)
@@ -59,7 +66,10 @@ class Browse extends Component {
 	render() {
 		return (
 			<div className={styles.component}>
-				<FilterPanel/>
+				<FilterPanel
+					onFilterChange={this.getProfiles}
+					filters={this.state.filters}
+				/>
 				<Display
 					profiles={this.state.matches}
 				/>

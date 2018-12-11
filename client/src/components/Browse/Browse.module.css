@@ -1,7 +1,7 @@
 .component {
     display: flex;
-    width: 70%;
-    min-width: 886px;
+    width: 100%;
+    /*min-width: 886px;*/
     height: 100%;
-    align-content: stretch;
+    align-items: stretch;
 }
