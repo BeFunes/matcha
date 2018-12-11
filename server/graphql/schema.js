@@ -9,9 +9,9 @@ module.exports = buildSchema(`
         name: String
     }
 	
-	type Message {
-		content: String
-	}
+		type Message {
+			content: String
+		}
 		
     input UserInputData {
         email: String!
