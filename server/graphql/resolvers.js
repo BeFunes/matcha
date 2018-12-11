@@ -228,7 +228,10 @@ module.exports = {
 		return true
 	},
 	changePassword: async function({info}, req) {
-		const [user] = await db.query('SELECT isOnboarded, password, id, email FROM users WHERE email=?', info.email)
+		if (!req.isAuth) {
+			return {content: "REQUEST UNAUTHORIZED"}
+		}
+		const [user] = await db.query('SELECT isOnboarded, password, id, email FROM users WHERE email=?', req.email)
 		if (user.length === 0) {
 			const error = new Error('User not found.')
 			error.code = 401
