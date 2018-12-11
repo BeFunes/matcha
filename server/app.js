@@ -11,7 +11,7 @@ const multer = require('multer')
 const auth = require('./middleware/auth')
 
 const graphqlSchema = require('./graphql/schema')
-const graphqlResolver = require('./graphql/resolvers')
+const graphqlResolver = require('./graphql/resolvers/')
 
 const app = express()
 
