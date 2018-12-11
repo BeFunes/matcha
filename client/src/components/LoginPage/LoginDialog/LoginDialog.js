@@ -10,36 +10,39 @@ import TextInput from "../../UI/TextInput/TextInput";
 class LoginDialog extends React.Component {
 
 	state = {
-		email: {
-			label: 'Email',
-			type: 'email',
-			value: '',
-			valid: true,
-			style: {margin: '20px 15px 10px'},
-			autoComplete: 'email',
-			rules: {
-				minLength: 8,
-				maxLength: 40,
-			}
+		inputFields: {
+			email: {
+				label: 'Email',
+				type: 'email',
+				value: '',
+				valid: true,
+				style: {margin: '20px 15px 10px'},
+				autoComplete: 'email',
+				rules: {
+					minLength: 8,
+					maxLength: 40,
+				}
+			},
+			password: {
+				label: 'Password',
+				type: 'password',
+				tooltip: passwordCriteria,
+				value: '',
+				valid: true,
+				rules: {
+					minLength: 8,
+					maxLength: 40,
+				}
+			},
 		},
-		password: {
-			label: 'Password',
-			type: 'password',
-			tooltip: passwordCriteria,
-			value: '',
-			valid: true,
-			rules: {
-				minLength: 8,
-				maxLength: 40,
-			}
-		},
+		loginFail: false
 	};
 
 	inputChangeHandler = (type, {target}) => {
 		const sanitisedValue = target.value.trim()
-		const valid = validator(target.value, this.state[type].rules, type)
-		if (this.state[type] !== sanitisedValue)
-			this.setState({[type]: {...this.state[type], value: sanitisedValue, valid: valid}});
+		const valid = validator(target.value, this.state.inputFields[type].rules, type)
+		if (this.state.inputFields[type] !== sanitisedValue)
+			this.setState({inputFields: {...this.state.inputFields, [type]: {...this.state.inputFields[type], value: sanitisedValue, valid: valid}}});
 	}
 
 	loginHandler = (authData) => {
@@ -70,13 +73,13 @@ class LoginDialog extends React.Component {
 					)
 				}
 				if (resData.errors) {
-					this.setState({isAuth: false, loginFail: true})
 					throw new Error ("User login failed.")
 				}
 				console.log(resData)
 				this.props.onLogin(resData.data.login)
 			})
 			.catch(err => {
+				this.setState({isAuth: false, loginFail: true})
 				console.log(err)
 			})
 	}
@@ -84,14 +87,14 @@ class LoginDialog extends React.Component {
 	render() {
 		const { open, onClose, loginFail} = this.props;
 		const elementsArray = [];
-		for (let key in this.state) {
+		for (let key in this.state.inputFields) {
 			elementsArray.push({
-				...this.state[key],
+				...this.state.inputFields[key],
 				id: key});
 		}
 		const allValid = elementsArray.every((x) => x.valid && x.value !== '')
-		const login = () => this.loginHandler({email: this.state.email.value, password: this.state.password.value})
-
+		const login = () => this.loginHandler({email: this.state.inputFields.email.value, password: this.state.inputFields.password.value})
+		console.log("LOGIN STATE", this.state)
 		return (
 			<Dialog onClose={onClose} open={open}>
 				<form  noValidate autoComplete="off" className={styles.form}>
@@ -110,7 +113,7 @@ class LoginDialog extends React.Component {
 								tooltip={element.tooltip}
 							/>
 						</div> ))}
-					{loginFail ? (<div className={styles.errorMessage}>
+					{loginFail || this.state.loginFail ? (<div className={styles.errorMessage}>
 							Incorrect email or password
 						</div>) : null}
 					<div className={styles.buttons}>

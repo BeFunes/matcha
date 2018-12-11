@@ -28,7 +28,6 @@ class LoginPage extends Component {
 
 
 	render() {
-		const { onLogin, loginFail } = this.props
 		return (
 			<div className={styles.component}>
 				<div className={styles.buttons}>
@@ -38,8 +37,7 @@ class LoginPage extends Component {
 					<LoginDialog
 					open={this.state.loginDialogOpen}
 					onClose={this.closeLoginHandler}
-					onLogin={onLogin}
-					loginFail={loginFail}
+					onLogin={this.props.onLogin}
 				/>
 				<SignupDialog
 					open={this.state.signupDialogOpen}

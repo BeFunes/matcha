@@ -18,7 +18,6 @@ class App extends Component {
 		isAuth: false,
 		token: null,
 		userId: null,
-		loginFail: false,
 	}
 
 	componentDidMount() {
@@ -157,7 +156,7 @@ class App extends Component {
 			if (this.state.isAuth && !this.state.isOnboarded && typeof this.state.isOnboarded !== 'undefined')
 				return <Route path="/" render={(props) => <Onboarding token={this.state.token} onboardingHandler={this.onboardingHandler} {...props}/>} />
 			else if (!this.state.isAuth)
-				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler} loginFail={this.state.loginFail}/>}/>
+				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler} />}/>
 			else
 				return (
 					<Route path="/" exact render={() => <Browse token={this.state.token} /> } />
