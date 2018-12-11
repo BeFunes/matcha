@@ -160,7 +160,7 @@ class App extends Component {
 				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler} loginFail={this.state.loginFail}/>}/>
 			else
 				return (
-					<Route path="/" exact component={Browse} />
+					<Route path="/" exact render={() => <Browse token={this.state.token} /> } />
 					// 	<Route path="profile" component={Profile}/>
 					// 	<Route path="chat" component={Chat}/>
 				)

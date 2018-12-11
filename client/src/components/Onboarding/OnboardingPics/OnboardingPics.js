@@ -4,7 +4,6 @@ import Fab from "@material-ui/core/es/Fab/Fab";
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 import LinearProgress from "@material-ui/core/es/LinearProgress/LinearProgress";
-import Button from "@material-ui/core/es/Button/Button";
 import ImageUploader from 'react-images-upload';
 
 class OnboardingPics extends React.Component {

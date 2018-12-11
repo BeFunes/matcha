@@ -1,3 +1,7 @@
 .component {
-    background-color: green;
+    display: flex;
+    width: 70%;
+    min-width: 886px;
+    height: 100%;
+    align-content: stretch;
 }

@@ -1,0 +1,32 @@
+.component {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    height: 180px;
+    width: 140px;
+    border: 3px solid darkcyan;
+    border-radius: 30px;
+    margin: 5px;
+    align-items: center;
+}
+
+.img {
+    border-radius: 28px;
+    width: 140px;
+}
+
+.f {
+    border-color: deeppink;
+    background-color: lightpink;
+}
+
+.m {
+    border-color: deepskyblue;
+    background-color: lightblue;
+}
+
+.name {
+    margin-top: 8px;
+    font-weight: bold;
+
+}
