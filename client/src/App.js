@@ -84,6 +84,33 @@ class App extends Component {
 			})
 	}
 
+	getUsedInterests = (token) => {
+		console.log("GET USED INTERESTS")
+		const query = {
+			query: `{ usedInterests } `
+		}
+		fetch('http://localhost:3001/graphql', {
+			method: 'POST',
+			headers: {
+				Authorization: 'Bearer ' + token,
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(query)
+		})
+			.then(res => {
+				return res.json()
+			})
+			.then(resData => {
+				if (resData.errors) {
+					throw new Error("Interests retrieval failed .")
+				}
+				this.setState({interests: resData.data.usedInterests})
+			})
+			.catch(err => {
+				console.log(err)
+			})
+	}
+
 
 	getIsOnboarded = (token) => {
 		console.log("GET IS ONBOARDED")
@@ -109,6 +136,7 @@ class App extends Component {
 				}
 				if (resData.data.isOnboarded) {
 					this.getUserData(token)
+					this.getUsedInterests(token)
 				}
 			})
 			.catch(err => {
@@ -130,6 +158,7 @@ class App extends Component {
 		this.setAutoLogout(60*60*1000)
 		if (data.isOnboarded) {
 			this.getUserData(data.token)
+			this.getUsedInterests(data.token)
 		}
 	}
 
@@ -160,7 +189,7 @@ class App extends Component {
 				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler} />}/>
 			else
 				return (
-					<Route path="/" exact render={() => <Browse token={this.state.token} user={this.state.user}/> } />
+					<Route path="/" exact render={() => <Browse token={this.state.token} user={this.state.user} interests={this.state.interests}/> } />
 					// 	<Route path="profile" component={Profile}/>
 					// 	<Route path="chat" component={Chat}/>
 				)

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import styles from './FilterPanel.module.css'
-import { Range } from 'rc-slider';
+import {Range} from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import FormControl from "@material-ui/core/es/FormControl/FormControl";
 import Select from "@material-ui/core/es/Select/Select";
@@ -25,7 +25,7 @@ class FilterPanel extends Component {
 	}
 
 	sortingChangeHandler = ({target}) => {
-		this.setState({ sortValue: target.value })
+		this.setState({sortValue: target.value})
 		this.props.onSortChange(target.value)
 	}
 
@@ -37,44 +37,65 @@ class FilterPanel extends Component {
 		return (
 			<div className={styles.component}>
 				<div className={styles.filterBox}>
-				<header className={styles.header}> FILTERS</header>
-				<div className={styles.ageRange}>
-					<div className={styles.label}>Age range</div>
-					<Range
-						min={18}
-						max={99}
-						marks={{[filters.ageMin]: filters.ageMin, [filters.ageMax]: filters.ageMax}}
-						allowCross={false}
-						onChange={this.ageRangeHandler}
-						trackStyle={[{backgroundColor: '#DD0E52'}]}
-						onAfterChange={this.props.onFilterChange.bind(this, filters)}
-						railStyle={{backgroundColor: '#aeaeae'}}
-						value={[filters.ageMin, filters.ageMax]}
-					/>
+					<header className={styles.header}> FILTERS</header>
+					<div className={styles.title}>
+						<div className={styles.label}>Age range</div>
+						<Range
+							min={18}
+							max={99}
+							marks={{[filters.ageMin]: filters.ageMin, [filters.ageMax]: filters.ageMax}}
+							allowCross={false}
+							onChange={this.ageRangeHandler}
+							trackStyle={[{backgroundColor: '#DD0E52'}]}
+							onAfterChange={this.props.onFilterChange.bind(this, filters)}
+							railStyle={{backgroundColor: '#aeaeae'}}
+							value={[filters.ageMin, filters.ageMax]}
+						/>
+					</div>
+					<div className={styles.title}>
+						<div className={styles.label}>Interests</div>
+
+						{/*<FormControl className={classes.formControl}>*/}
+							{/*<Select*/}
+								{/*multiple*/}
+								{/*value={this.state.name}*/}
+								{/*onChange={this.handleChange}*/}
+								{/*input={<Input id="select-multiple-checkbox" />}*/}
+								{/*renderValue={selected => selected.join(', ')}*/}
+								{/*MenuProps={MenuProps}*/}
+							{/*>*/}
+								{/*{names.map(name => (*/}
+									{/*<MenuItem key={name} value={name}>*/}
+										{/*<Checkbox checked={this.state.name.indexOf(name) > -1} />*/}
+										{/*<ListItemText primary={name} />*/}
+									{/*</MenuItem>*/}
+								{/*))}*/}
+							{/*</Select>*/}
+						{/*</FormControl>*/}
+					</div>
 				</div>
-				</div>
+
+
 				<div className={styles.sortingBox}>
-				<header className={styles.header}> SORT BY </header>
+					<header className={styles.header}> SORT BY</header>
+					<FormControl variant="outlined">
 
-
-				<FormControl variant="outlined" >
-
-					<Select
-						value={this.state.sortValue}
-						onChange={this.sortingChangeHandler}
-						input={
-							<OutlinedInput
-								labelWidth={0}
-								name="age"
-							/>
-						}
-					>
-						<MenuItem value="location">Distance</MenuItem>
-						<MenuItem value="age<">Age <em>&nbsp;(youger to older)</em></MenuItem>
-						<MenuItem value="age>">Age <em>&nbsp;(older to younger)</em></MenuItem>
-						<MenuItem value="interests">Interests in common</MenuItem>
-					</Select>
-				</FormControl>
+						<Select
+							value={this.state.sortValue}
+							onChange={this.sortingChangeHandler}
+							input={
+								<OutlinedInput
+									labelWidth={0}
+									name="age"
+								/>
+							}
+						>
+							<MenuItem value="location">Distance</MenuItem>
+							<MenuItem value="age<">Age <em>&nbsp;(youger to older)</em></MenuItem>
+							<MenuItem value="age>">Age <em>&nbsp;(older to younger)</em></MenuItem>
+							<MenuItem value="interests">Interests in common</MenuItem>
+						</Select>
+					</FormControl>
 				</div>
 			</div>
 		)

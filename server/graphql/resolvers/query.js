@@ -143,7 +143,23 @@ const query = {
 		
 		return true
     },
-    
+	usedInterests: async function(_, req) {
+		console.log("GET USED INTERESTS")
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!')
+			error.code = 401
+			throw error
+		}
+		const query = `SELECT DISTINCT I.title FROM interests I
+									RIGHT JOIN users_interests UI ON UI.interest_id = I.id`
+		const [interests] = await db.query(query, req.email)
+		if (interests.length === 0) {
+			const error = new Error('No interests')
+			error.code = 401
+			throw error
+		}
+		return interests.map(x => x.title)
+	}
 }
 
 module.exports = query
