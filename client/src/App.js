@@ -76,7 +76,7 @@ class App extends Component {
 				if (resData.errors) {
 					throw new Error ("User data retrieval failed .")
 				}
-				this.setState({...resData.data.getUserData})
+				this.setState({user: {...resData.data.getUserData}, isOnboarded: resData.data.getUserData.isOnboarded })
 			})
 			.catch(err => {
 				console.log(err)
@@ -159,7 +159,7 @@ class App extends Component {
 				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler} />}/>
 			else
 				return (
-					<Route path="/" exact render={() => <Browse token={this.state.token} /> } />
+					<Route path="/" exact render={() => <Browse token={this.state.token} user={this.state.user}/> } />
 					// 	<Route path="profile" component={Profile}/>
 					// 	<Route path="chat" component={Chat}/>
 				)

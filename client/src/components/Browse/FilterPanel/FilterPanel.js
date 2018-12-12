@@ -40,6 +40,7 @@ class FilterPanel extends Component {
 						value={[this.state.ageMin, this.state.ageMax]}
 					/>
 				</div>
+				<header className={styles.header}> SORT BY </header>
 			</div>
 		)
 	}

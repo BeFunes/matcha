@@ -1,7 +1,8 @@
-import React, {Component} from 'react';
+import React, {Component} from 'react'
 import styles from './Browse.module.css'
-import FilterPanel from "./FilterPanel/FilterPanel";
-import Display from "./Display/Display";
+import FilterPanel from "./FilterPanel/FilterPanel"
+import Display from "./Display/Display"
+import _ from 'lodash'
 
 class Browse extends Component {
 
@@ -16,14 +17,21 @@ class Browse extends Component {
 		this.getProfiles(this.state.filters)
 	}
 
+	componentDidUpdate() {
+		if (typeof this.state.matches === 'undefined') {
+			this.getProfiles(this.state.filters)
+		}
+	}
+
 	getProfiles = (data) => {
+		if (!this.props.user) { return }
 		console.log("GET PROFILES")
 		let query = {
 			query: ` {
 			      match(
 					    filters:{
-					       gender : "F",
-					        orientation : "MF",
+					       gender : "${this.props.user.gender}",
+					        orientation : "${this.props.user.orientation}",
 					        minAge : ${data.ageMin},
 					        maxAge : ${data.ageMax},
 					        interests : ["football"],
@@ -66,10 +74,10 @@ class Browse extends Component {
 	render() {
 		return (
 			<div className={styles.component}>
-				<FilterPanel
+				{ this.props.user && <FilterPanel
 					onFilterChange={this.getProfiles}
 					filters={this.state.filters}
-				/>
+				/>}
 				<Display
 					profiles={this.state.matches}
 				/>
