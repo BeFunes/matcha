@@ -36,6 +36,7 @@ class FilterPanel extends Component {
 		}
 		return (
 			<div className={styles.component}>
+				<div className={styles.filterBox}>
 				<header className={styles.header}> FILTERS</header>
 				<div className={styles.ageRange}>
 					<div className={styles.label}>Age range</div>
@@ -51,6 +52,8 @@ class FilterPanel extends Component {
 						value={[filters.ageMin, filters.ageMax]}
 					/>
 				</div>
+				</div>
+				<div className={styles.sortingBox}>
 				<header className={styles.header}> SORT BY </header>
 
 
@@ -66,12 +69,13 @@ class FilterPanel extends Component {
 							/>
 						}
 					>
-						<MenuItem value="distance">Distance</MenuItem>
+						<MenuItem value="location">Distance</MenuItem>
 						<MenuItem value="age<">Age <em>&nbsp;(youger to older)</em></MenuItem>
 						<MenuItem value="age>">Age <em>&nbsp;(older to younger)</em></MenuItem>
 						<MenuItem value="interests">Interests in common</MenuItem>
 					</Select>
 				</FormControl>
+				</div>
 			</div>
 		)
 	}
