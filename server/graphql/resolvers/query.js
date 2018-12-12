@@ -39,7 +39,11 @@ const query = {
 			error.code = 401
 			throw error
 		}
-		const [user] = await db.query('SELECT * FROM users WHERE email= ? ', req.email)
+		const query = `SELECT U.*, GROUP_CONCAT(I.title) interests FROM (SELECT * from users WHERE email=?) U
+		JOIN users_interests UI on U.id = UI.user_id
+		JOIN interests I ON I.id = UI.interest_id
+		GROUP BY UI.user_id `
+		const [user] = await db.query(query, req.email)
 		if (user.length === 0) {
 			const error = new Error('User not found.')
 			error.code = 401
@@ -55,6 +59,7 @@ const query = {
 			orientation: user[0].orientation,
 			job: user[0].job,
 			bio: user[0].bio,
+			interests: user[0].interests.split(','),
 			profilePic: user[0].profilePic,
 			picture2: user[0].picture2,
 			picture3: user[0].picture3,

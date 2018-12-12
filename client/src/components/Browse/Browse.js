@@ -3,6 +3,7 @@ import styles from './Browse.module.css'
 import FilterPanel from "./FilterPanel/FilterPanel"
 import Display from "./Display/Display"
 import _ from 'lodash'
+import {getAge} from "../../utils/date";
 
 class Browse extends Component {
 
@@ -10,7 +11,8 @@ class Browse extends Component {
 		filters: {
 			ageMin: 30,
 			ageMax: 50
-		}
+		},
+		sortValue: "location"
 	}
 
 	componentDidMount() {
@@ -64,11 +66,34 @@ class Browse extends Component {
 				if (resData.errors) {
 					throw new Error ("Profiles search failed")
 				}
-				this.setState({matches: resData.data.match, filters: {...data}})
+				const matchesWithAge = resData.data.match.map(x => ({...x, age: getAge(x.dob)}))
+				const sortedMatches = this.sort(matchesWithAge, this.state.sortValue)
+				this.setState({matches: sortedMatches, filters: {...data}})
 			})
 			.catch(err => {
 				console.log(err)
 			})
+	}
+
+	sort = (array, sortValue) => {
+		switch (sortValue) {
+			case "age<":
+				return _.orderBy(array, ['age'], ['asc'])
+			case "age>":
+				return _.orderBy(array, ['age'], ['desc'])
+			case "location":
+				return array
+			case "interests":
+				return _.orderBy(array, [x => _.intersection(x.interests, this.props.user.interests).length ], ['desc']);
+			default:
+				return array
+		}
+	}
+
+	sortingChangeHandler = value => {
+		console.log(value)
+		let newMatches = this.sort(this.state.matches, value)
+		this.setState({sortValue: value, matches: newMatches})
 	}
 
 	render() {
@@ -77,6 +102,7 @@ class Browse extends Component {
 				{ this.props.user && <FilterPanel
 					onFilterChange={this.getProfiles}
 					filters={this.state.filters}
+					onSortChange={this.sortingChangeHandler}
 				/>}
 				<Display
 					profiles={this.state.matches}

@@ -52,6 +52,7 @@ class App extends Component {
 										orientation
 										job
 										bio
+										interests
 										profilePic
 										picture2
 										picture3

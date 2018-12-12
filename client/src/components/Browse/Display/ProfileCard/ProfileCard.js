@@ -1,12 +1,10 @@
 import React, {Component} from 'react';
 import styles from './ProfileCard.module.css'
 import classnames from 'classnames';
-import {getAge} from "../../../../utils/date";
-
 
 class ProfileCard extends Component {
 	render() {
-		const { firstName, dob, lastName, profilePic, gender } = this.props.profile
+		const { firstName, age, lastName, profilePic, gender } = this.props.profile
 		const borderStyle = gender === 'F' ? styles.f : styles.m
 		return (
 			<div className={classnames(styles.component, borderStyle)}>
@@ -20,7 +18,7 @@ class ProfileCard extends Component {
 				<div className={styles.name}>
 				{firstName} {lastName}
 				</div>
-				<div>{getAge(dob)}</div>
+				<div>{age}</div>
 			</div>
 		)
 	}
