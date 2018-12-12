@@ -94,7 +94,6 @@ class LoginDialog extends React.Component {
 		}
 		const allValid = elementsArray.every((x) => x.valid && x.value !== '')
 		const login = () => this.loginHandler({email: this.state.inputFields.email.value, password: this.state.inputFields.password.value})
-		console.log("LOGIN STATE", this.state)
 		return (
 			<Dialog onClose={onClose} open={open}>
 				<form  noValidate autoComplete="off" className={styles.form}>

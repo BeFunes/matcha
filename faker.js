@@ -62,7 +62,8 @@ const getData = (gender, orient) => {
 	faker.locale = "en";
 	const job = faker.name.jobTitle()
 	const bio = faker.lorem.paragraph()
-	const profilePicture = faker.image.avatar()
+	const randomN = Math.floor(Math.random() * 100)
+	const profilePicture = `https://randomuser.me/api/portraits/${gender === 'M' ? 'men' : 'women'}/${randomN}.jpg`
 	const hashToken = fakerUtils.generateHashToken()
 	return [firstName, lastName, email, password, dob, gender, orientation, job, bio, profilePicture, position.latitude, position.longitude, hashToken]
 }
