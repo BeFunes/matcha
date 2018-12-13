@@ -2,6 +2,7 @@ const db = require('../../util/db')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { validate } = require('./../../util/validator')
+const CONST = require('../../../constants')
 
 
 const query = {
@@ -26,7 +27,7 @@ const query = {
 		}
 		const token = jwt.sign(
 			{userId: user[0].id, email: user[0].email},
-			"👹",
+			CONST.SECRET,
 			{expiresIn: '1h'}
 		)
 		return {token: token, userId: user[0].id, isOnboarded: !!user[0].isOnboarded}

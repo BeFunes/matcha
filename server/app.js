@@ -59,28 +59,29 @@ app.use(
         schema: graphqlSchema,
         rootValue: graphqlResolver,
         graphiql: true,
-        // formatError(err) {
-        //     if (!err.originalError) {
-        //         return err
-        //     }
-        //     const data = err.originalError.data
-        //     const message = err.message || 'An error occurred.'
-        //     const code = err.originalError.code || 500
-        //     return { message: message, status: code, data: data }
-        // }
+        formatError(err) {
+            if (!err.originalError) {
+                return err
+            }
+            const data = err.originalError.data
+            const message = err.message || 'An error occurred.'
+            const code = err.originalError.code || 500
+            return { message: message, status: code, data: data }
+        }
     })
 )
 
 
 
 
-app.use((error, req, res, next) => {
-    console.log(error)
-    const status = error.statusCode || 500
-    const message = error.message
-    const data = error.data
-    res.status(status).json({ message: message, data: data })
-})
+// app.use((error, req, res, next) => {
+//     console.log(error)
+// 	console.log("fsdoifjsofijdosijfs")
+//     const status = error.statusCode || 500
+//     const message = error.message
+//     const data = error.data
+//     res.status(status).json({ message: message, data: data, payload: error.payload })
+// })
 
 
 module.exports = app

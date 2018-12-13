@@ -93,12 +93,13 @@ module.exports = buildSchema(`
     
     type RootMutation {
         createUser(userInput: UserInputData) : User!
-        emailConfirmation(hashToken: String!): Message
+        emailConfirmation(token: String!): AuthData!
         changePassword(info: renewPassword): Message
         insertProfileInfo(info: UserProfileInfo) : Message 
         insertPictureInfo(info: UserPictureInfo) : Message
         insertBioInfo(info: UserBioInfo) : Message
         markOnboarded : Message
+        resendConfirmationEmail(email: String): Message 
     }
 
     schema {

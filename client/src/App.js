@@ -18,6 +18,7 @@ class App extends Component {
 		isAuth: false,
 		token: null,
 		userId: null,
+		isLoading: true
 	}
 
 	componentDidMount() {
@@ -31,7 +32,7 @@ class App extends Component {
 		}
 		const userId = localStorage.getItem('userId')
 		const remainingTime = new Date(expiryDate).getTime() - new Date().getTime()
-		this.setState({isAuth: true, token: token, userId: userId})
+		this.setState({isAuth: true, token: token, userId: userId, isLoading: false})
 		this.setAutoLogout(remainingTime)
 		if (typeof this.state.isOnboarded === 'undefined') {
 			this.getIsOnboarded(token)
@@ -77,7 +78,7 @@ class App extends Component {
 				if (resData.errors) {
 					throw new Error ("User data retrieval failed .")
 				}
-				this.setState({user: {...resData.data.getUserData}, isOnboarded: resData.data.getUserData.isOnboarded })
+				this.setState({user: {...resData.data.getUserData}, isOnboarded: resData.data.getUserData.isOnboarded, isLoading: false })
 			})
 			.catch(err => {
 				console.log(err)
@@ -149,7 +150,8 @@ class App extends Component {
 			isAuth: true,
 			token: data.token,
 			userId: data.userId,
-			isOnboarded: data.isOnboarded
+			isOnboarded: data.isOnboarded,
+			isLoading: false
 		})
 		const expiryDate = new Date (new Date().getTime() + 60*60*1000)
 		localStorage.setItem('token', data.token)
@@ -183,7 +185,7 @@ class App extends Component {
 		console.log(this.state)
 		const hasAccess = this.state.isAuth && this.state.isOnboarded
 		const routeZero = () => {
-			if (this.state.isAuth && !this.state.isOnboarded && typeof this.state.isOnboarded !== 'undefined')
+			if (this.state.isAuth && !this.state.isOnboarded && !this.state.isLoading)
 				return <Route path="/" render={(props) => <Onboarding token={this.state.token} onboardingHandler={this.onboardingHandler} {...props}/>} />
 			else if (!this.state.isAuth)
 				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler} />}/>
@@ -202,7 +204,7 @@ class App extends Component {
 
 						{hasAccess && <Toolbar onLogout={this.logoutHandler}/> }
 						<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
-							{<Route path="/confirmation/:token" component={Confirmation}/>}
+							{<Route path="/confirmation/:token" render={(props) => <Confirmation {...props} markLoggedIn={this.loginHandler} />}/>}
 							{hasAccess && <Route path="/profile" component={Profile}/>}
 							{hasAccess && <Route path="/chat" component={Chat}/>}
 							{routeZero()}

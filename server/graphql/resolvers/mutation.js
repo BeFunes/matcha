@@ -2,15 +2,9 @@ const jwt = require('jsonwebtoken')
 const db = require('../../util/db')
 const bcrypt = require('bcryptjs')
 const { validate } = require('./../../util/validator')
-const nodemailer = require('nodemailer');
-const sendGripTransport = require('nodemailer-sendgrid-transport')
 const confirmationEmail = require('../../util/confirmationEmail')
+const CONST = require('../../../constants')
 
-const transporter = nodemailer.createTransport(sendGripTransport({
-	auth: {
-		api_key: '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'
-	}
-}))
 
 module.exports = {
 	createUser: async function ({userInput}) {
@@ -24,26 +18,7 @@ module.exports = {
 		if (row.length > 0) {
 			throw new Error('User exists already!')
 		}
-
-		//////////// send confirmation email ///////////////
-		const confirmationToken = jwt.sign(
-			{email: userInput.email},
-			"🍗🍡⏰",
-			{expiresIn: '12h'}
-		)
-		await transporter.sendMail({
-			to: userInput.email,
-			from: 'raghirelli@gmail.com',
-			subject: 'Confirmation',
-			html: confirmationEmail.emailBody(confirmationToken)
-		}, (err, info) => {
-			console.log(info.envelope)
-			console.log(info.messageId)
-			if (err) {
-				throw new Error("can't send confirmation email")
-			}
-		})
-
+		await confirmationEmail.sendConfirmationEmail(userInput.email)
 		const hashedPw = await bcrypt.hash(userInput.password, 12)
 		await db.query('Insert into users (email, password) VALUES (?, ?)', [userInput.email, hashedPw])
 
@@ -53,18 +28,21 @@ module.exports = {
 		return {email: userInput.email}
 	},
 
-	emailConfirmation: async function({hashToken}, req) {
+	emailConfirmation: async function({token}, req) {
 		console.log("EMAIL CONFIRMATION")
 		let decodedToken;
 		try {
-			decodedToken = jwt.verify(hashToken, '🍗🍡⏰');
+			decodedToken = jwt.verify(token, CONST.EMAIL_CONFIRMATION_SECRET);
 		} catch (err) {
-			throw new Error(err.message)
+			const {email} = jwt.verify(token, '🍗🍡⏰', {ignoreExpiration: true})
+			const e = new Error(err.message)
+			e.data = email
+			throw e
 		}
 		if (!decodedToken) {
 			throw new Error("Invalid token")
 		}
-		const query = `SELECT isConfirmed FROM users WHERE email = ?`
+		const query = `SELECT isConfirmed, id, isOnboarded FROM users WHERE email = ?`
 		const [users] = await db.query(query, [decodedToken.email])
 		if (users.length <= 0) {
 			throw new Error("User does not exist")
@@ -75,7 +53,14 @@ module.exports = {
 		const mutation = `UPDATE users SET isConfirmed = 1 WHERE email = ?`
 		const [row] = await db.query(mutation, [decodedToken.email])
 		console.log(row)
-		return { content: "Account confirmed successfully"}
+
+		const authToken = jwt.sign(
+			{userId: users[0].id, email: decodedToken.email},
+			CONST.SECRET,
+			{expiresIn: '1h'}
+		)
+		return {token: authToken, userId: users[0].id, isOnboarded: !!users[0].isOnboarded}
+		// return { content: "Account confirmed successfully"}
 	},
 
 	insertProfileInfo: async function({info}, req) {
@@ -171,5 +156,17 @@ module.exports = {
 		const query = `UPDATE users SET profilePic = ?, picture2 = ?, picture3 = ?, picture4 = ?, picture5 = ? WHERE email = ?`
 		const [row] = await db.query(query, [info.profilePic, info.picture2, info.picture3, info.picture4, info.picture5, req.email])
 		return {content: "Pic data updated successfully"}
+	},
+	resendConfirmationEmail: async function ({email}) {
+		console.log("RESEND CONFIRMATION EMAIL")
+		const [users] = await db.query('SELECT isConfirmed FROM users WHERE email=?', email)
+		if (users.length <= 0) {
+			throw new Error("User does not exist")
+		}
+		if (users[0].isConfirmed === 1) {
+			throw new Error("Account already confirmed")
+		}
+		await confirmationEmail.sendConfirmationEmail(email)
+		return { content: "Email re-sent successfully"}
 	}
 }
