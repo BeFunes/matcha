@@ -22,21 +22,26 @@ const transporter = nodemailer.createTransport(sendGridTransport({
 }))
 
 module.exports = {
-	sendConfirmationEmail: async function (email) {
+	sendConfirmationEmail: async function (email, subject) {
+		let key
+		if (subject == 'confirmation') {
+			key = CONST.EMAIL_CONFIRMATION_SECRET
+		} else { key = CONST.RESET_PASSWORD_SECRET }
+
 		const confirmationToken = jwt.sign(
-			{email: email },
-			CONST.EMAIL_CONFIRMATION_SECRET,
+			{email: email},
+			key,
 			{expiresIn: '12h'}
 		)
 		await transporter.sendMail({
 			to: email,
 			from: 'raghirelli@gmail.com',
-			subject: 'Confirmation',
+			subject: subject,
 			html: emailBody(confirmationToken)
 		}, (err) => {
 			if (err) {
 				console.log(err)
-				throw new Error("can't send confirmation email")
+				throw new Error(`can't send ${subject} email`) 
 			}
 		})
 	}

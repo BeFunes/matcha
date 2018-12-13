@@ -51,6 +51,11 @@ module.exports = buildSchema(`
         userId: String!
         isOnboarded: Boolean!
     }
+
+    input emailData {
+        email: String!
+        subject: String!
+    }
     
     type UserData {
         firstName: String!
@@ -94,6 +99,8 @@ module.exports = buildSchema(`
     type RootMutation {
         createUser(userInput: UserInputData) : User!
         emailConfirmation(token: String!): AuthData!
+        passwordResetEmail(data: emailData) : Message
+        resetPassword(token: String!, password: String!, confirmationPassword: String!): AuthData!
         changePassword(info: renewPassword): Message
         insertProfileInfo(info: UserProfileInfo) : Message 
         insertPictureInfo(info: UserPictureInfo) : Message
