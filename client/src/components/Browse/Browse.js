@@ -103,6 +103,7 @@ class Browse extends Component {
 					onFilterChange={this.getProfiles}
 					filters={this.state.filters}
 					onSortChange={this.sortingChangeHandler}
+					interests={this.props.interests}
 				/>}
 				<Display
 					profiles={this.state.matches}
