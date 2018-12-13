@@ -64,8 +64,7 @@ const getData = (gender, orient) => {
 	const bio = faker.lorem.paragraph()
 	const randomN = Math.floor(Math.random() * 100)
 	const profilePicture = `https://randomuser.me/api/portraits/${gender === 'M' ? 'men' : 'women'}/${randomN}.jpg`
-	const hashToken = fakerUtils.generateHashToken()
-	return [firstName, lastName, email, password, dob, gender, orientation, job, bio, profilePicture, position.latitude, position.longitude, hashToken]
+	return [firstName, lastName, email, password, dob, gender, orientation, job, bio, profilePicture, position.latitude, position.longitude]
 }
 
 
@@ -86,16 +85,16 @@ const createUsersTableQuery = `CREATE TABLE users (
     picture4 varchar(255),
     picture5 varchar(255),
     latitude decimal(20,17),
-	longitude decimal(20,17),
-	hashToken varchar(250) NOT NULL,
-	isOnboarded tinyint(1) NOT NULL DEFAULT 0,
+		longitude decimal(20,17),
+		isOnboarded tinyint(1) NOT NULL DEFAULT 0,
+		isConfirmed tinyint(1) NOT NULL DEFAULT 0,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
 
 const populateUsersTableQuery = `INSERT INTO users (first_name, last_name, email, password,
-dob, gender, orientation, job, bio, profilePic, latitude, longitude, hashToken,
-picture2, picture3, picture4, picture5, isOnboarded)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, 1)`
+dob, gender, orientation, job, bio, profilePic, latitude, longitude,
+picture2, picture3, picture4, picture5, isOnboarded, isConfirmed)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, 1, 1)`
 
 const createInterestsTableQuery = `CREATE TABLE interests (
 		id int(11) unsigned NOT NULL AUTO_INCREMENT,

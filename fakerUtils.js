@@ -242,13 +242,5 @@ module.exports = {
     	  const interest = () => Math.floor(Math.random()*interests.length) + 1
 	      return new Set ([interest(), interest(), interest(), interest(), interest()])
     },
-    generateHashToken: function() {
-        let text = "";
-        const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-      
-        for (let i = 0; i < 35; i++)
-          text += possible.charAt(Math.floor(Math.random() * possible.length));
-        return text;
-      },
     interests: interests,
 }

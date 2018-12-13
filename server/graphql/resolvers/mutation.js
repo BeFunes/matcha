@@ -1,9 +1,13 @@
+import jwt from "jsonwebtoken";
+
 const db = require('../../util/db')
 const bcrypt = require('bcryptjs')
 const { validate } = require('./../../util/validator')
 const nodemailer = require('nodemailer');
 const sendGripTransport = require('nodemailer-sendgrid-transport')
 const hashToken = require('../../../fakerUtils')
+const { HOST } = require('../../../constants')
+const confirmationEmailBody = require('../../util/confirmationEmail')
 
 const transporter = nodemailer.createTransport(sendGripTransport({
 	auth: {
@@ -24,16 +28,26 @@ module.exports = {
 			throw new Error('User exists already!')
 		}
 		const hashedPw = await bcrypt.hash(userInput.password, 12)
-		const mailToken = hashToken.generateHashToken()
-		await db.query('Insert into users (email, password, hashToken) VALUES (?, ?, ?)', [userInput.email, hashedPw, mailToken])
-		const address = "localhost:3000/confirmation/"
-		const hash = "ewfefewrfregtdghdfdsghbfsbfzdgadfxdfvsfdzvbsvdfbsdb"
+		await db.query('Insert into users (email, password) VALUES (?, ?)', [userInput.email, hashedPw])
 
+		//////////// send confirmation email ///////////////
+
+		const confirmationToken = jwt.sign(
+			{email: userInput.email},
+			"🍗🍡⏰",
+			{expiresIn: '1h'}
+		)
 		transporter.sendMail({
 			to: userInput.email,
 			from: 'raghirelli@gmail.com',
 			subject: 'Confirmation',
-			html: `<a href="http://localhost:3000/confirmation/${mailToken}" target="_blank" rel="noopener noreferrer" data-auth="NotApplicable" style="font-size:20px; font-family:Helvetica,Arial,sans-serif; color:#ffffff; text-decoration:none; text-decoration:none; -webkit-border-radius:7px; -moz-border-radius:7px; border-radius:7px; padding:12px 18px; border:1px solid #85b5ff; display:inline-block">Cliquez ici pour commencer ▸</a>`
+			html: confirmationEmailBody(HOST, confirmationToken)
+		}, (err, info) => {
+			console.log(info.envelope)
+			console.log(info.messageId)
+			if (err) {
+				throw new Error("can't send confirmation email")
+			}
 		})
 		// check return value and send error if appropriate
 		// console.log(row)
