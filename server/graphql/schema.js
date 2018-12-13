@@ -88,12 +88,12 @@ module.exports = buildSchema(`
         getUserData: UserData
         isOnboarded: Boolean!
         match(filters: MatchFilter) : [UserData]
-        emailConfirmation(hashToken: String!): Boolean!
         usedInterests: [String]!
     }
     
     type RootMutation {
         createUser(userInput: UserInputData) : User!
+        emailConfirmation(hashToken: String!): Message
         changePassword(info: renewPassword): Message
         insertProfileInfo(info: UserProfileInfo) : Message 
         insertPictureInfo(info: UserPictureInfo) : Message

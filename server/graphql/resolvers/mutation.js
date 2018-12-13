@@ -4,8 +4,7 @@ const bcrypt = require('bcryptjs')
 const { validate } = require('./../../util/validator')
 const nodemailer = require('nodemailer');
 const sendGripTransport = require('nodemailer-sendgrid-transport')
-const { HOST } = require('../../../constants')
-const confirmationEmailBody = require('../../util/confirmationEmail')
+const confirmationEmail = require('../../util/confirmationEmail')
 
 const transporter = nodemailer.createTransport(sendGripTransport({
 	auth: {
@@ -25,21 +24,18 @@ module.exports = {
 		if (row.length > 0) {
 			throw new Error('User exists already!')
 		}
-		const hashedPw = await bcrypt.hash(userInput.password, 12)
-		await db.query('Insert into users (email, password) VALUES (?, ?)', [userInput.email, hashedPw])
 
 		//////////// send confirmation email ///////////////
-
 		const confirmationToken = jwt.sign(
 			{email: userInput.email},
 			"🍗🍡⏰",
-			{expiresIn: '1h'}
+			{expiresIn: '12h'}
 		)
-		transporter.sendMail({
+		await transporter.sendMail({
 			to: userInput.email,
 			from: 'raghirelli@gmail.com',
 			subject: 'Confirmation',
-			html: confirmationEmailBody(HOST, confirmationToken)
+			html: confirmationEmail.emailBody(confirmationToken)
 		}, (err, info) => {
 			console.log(info.envelope)
 			console.log(info.messageId)
@@ -47,10 +43,41 @@ module.exports = {
 				throw new Error("can't send confirmation email")
 			}
 		})
+
+		const hashedPw = await bcrypt.hash(userInput.password, 12)
+		await db.query('Insert into users (email, password) VALUES (?, ?)', [userInput.email, hashedPw])
+
+
 		// check return value and send error if appropriate
 		// console.log(row)
 		return {email: userInput.email}
 	},
+
+	emailConfirmation: async function({hashToken}, req) {
+		console.log("EMAIL CONFIRMATION")
+		let decodedToken;
+		try {
+			decodedToken = jwt.verify(hashToken, '🍗🍡⏰');
+		} catch (err) {
+			throw new Error(err.message)
+		}
+		if (!decodedToken) {
+			throw new Error("Invalid token")
+		}
+		const query = `SELECT isConfirmed FROM users WHERE email = ?`
+		const [users] = await db.query(query, [decodedToken.email])
+		if (users.length <= 0) {
+			throw new Error("User does not exist")
+		}
+		if (users[0].isConfirmed === 1) {
+			throw new Error("Account already confirmed")
+		}
+		const mutation = `UPDATE users SET isConfirmed = 1 WHERE email = ?`
+		const [row] = await db.query(mutation, [decodedToken.email])
+		console.log(row)
+		return { content: "Account confirmed successfully"}
+	},
+
 	insertProfileInfo: async function({info}, req) {
 		console.log("INSERT PROFILE INFO")
 		if (!req.isAuth) {
@@ -122,7 +149,7 @@ module.exports = {
 			error.code = 401
 			throw error
 		}
-		if (info.oldPassword == info.newPassword) {
+		if (info.oldPassword === info.newPassword) {
 			return {content: "Invalid new password"}
 		}
 		const hashedPw = await bcrypt.hash(info.newPassword, 12)

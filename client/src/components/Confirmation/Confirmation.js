@@ -1,6 +1,4 @@
 import React, {Component} from 'react';
-// import styles from './Chat.module.css'
-
 
 
 class Confirmation extends Component {
@@ -8,9 +6,10 @@ class Confirmation extends Component {
 	emailConfirmationHandler = (hashToken) => {
 		console.log("emailConfirmationHandler")
 		const query = {
-			query: `{
-				emailConfirmation(hashToken: "${hashToken}")
-			  }`
+			query: `mutation {
+				emailConfirmation(hashToken: "${hashToken}") {
+				content
+			  } }`
 		}
 		fetch('http://localhost:3001/graphql', {
 			method: 'POST',
@@ -23,9 +22,9 @@ class Confirmation extends Component {
 		})
 		.then(resData => {
 			if (resData.errors) {
-				throw new Error ("User data retrieval failed .")
+				throw new Error ("Token confirmation failed")
 			}
-			console.log("HELLO", resData.data)
+			console.log(resData.data.content)
 			// this.setState({...resData.data.getUserData})
 		})
 		.catch(err => {

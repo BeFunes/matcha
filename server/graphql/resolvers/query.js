@@ -133,16 +133,7 @@ const query = {
 			})
 		)
     },
-    
-	emailConfirmation: async function({hashToken}, req) {
-		console.log("Email Confirmation")
-		const query = `SELECT * FROM users WHERE hashToken = ?`
-		const users = await db.query(query, [hashToken])
-		console.log(hashToken)
-		if (users[0].length <= 0) { return false }
-		
-		return true
-    },
+
 	usedInterests: async function(_, req) {
 		console.log("GET USED INTERESTS")
 		if (!req.isAuth) {
