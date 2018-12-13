@@ -1,11 +1,9 @@
-import jwt from "jsonwebtoken";
-
+const jwt = require('jsonwebtoken')
 const db = require('../../util/db')
 const bcrypt = require('bcryptjs')
 const { validate } = require('./../../util/validator')
 const nodemailer = require('nodemailer');
 const sendGripTransport = require('nodemailer-sendgrid-transport')
-const hashToken = require('../../../fakerUtils')
 const { HOST } = require('../../../constants')
 const confirmationEmailBody = require('../../util/confirmationEmail')
 
