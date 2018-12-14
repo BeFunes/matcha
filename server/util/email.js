@@ -1,9 +1,9 @@
 const CONST = require('../../constants')
-const nodemailer = require('nodemailer');
+const nodeMailer = require('nodemailer');
 const sendGridTransport = require('nodemailer-sendgrid-transport')
 const jwt = require('jsonwebtoken')
 
-const emailBody = (token) => {
+const confirmationEmailBody = (token) => {
 	return (
 		`<a href="${CONST.HOST}confirmation/${token}" 
 					target="_blank" 
@@ -15,19 +15,14 @@ const emailBody = (token) => {
 	)
 }
 
-const transporter = nodemailer.createTransport(sendGridTransport({
+const transporter = nodeMailer.createTransport(sendGridTransport({
 	auth: {
 		api_key: CONST.SEND_GRID_API_KEY
 	}
 }))
 
 module.exports = {
-	sendConfirmationEmail: async function (email, subject) {
-		let key
-		if (subject == 'confirmation') {
-			key = CONST.EMAIL_CONFIRMATION_SECRET
-		} else { key = CONST.RESET_PASSWORD_SECRET }
-
+	sendEmail: async function (key, email, subject) {
 		const confirmationToken = jwt.sign(
 			{email: email},
 			key,
@@ -37,12 +32,12 @@ module.exports = {
 			to: email,
 			from: 'raghirelli@gmail.com',
 			subject: subject,
-			html: emailBody(confirmationToken)
+			html: confirmationEmailBody(confirmationToken)
 		}, (err) => {
 			if (err) {
 				console.log(err)
 				throw new Error(`can't send ${subject} email`) 
 			}
 		})
-	}
+	},
 }

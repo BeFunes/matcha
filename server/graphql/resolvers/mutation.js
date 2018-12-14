@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 const db = require('../../util/db')
 const bcrypt = require('bcryptjs')
 const { validate } = require('./../../util/validator')
-const confirmationEmail = require('../../util/email')
+const emailUtil = require('../../util/email')
 const CONST = require('../../../constants')
 
 
@@ -18,7 +18,7 @@ module.exports = {
 		if (row.length > 0) {
 			throw new Error('User exists already!')
 		}
-		await confirmationEmail.sendConfirmationEmail(userInput.email, 'confirmation')
+		await emailUtil.sendEmail(CONST.EMAIL_CONFIRMATION_SECRET, userInput.email, 'confirmation')
 		const hashedPw = await bcrypt.hash(userInput.password, 12)
 		await db.query('Insert into users (email, password) VALUES (?, ?)', [userInput.email, hashedPw])
 
@@ -69,7 +69,7 @@ module.exports = {
 		if (users.length <= 0) {
 			throw new Error("User does not exist")
 		}
-		await confirmationEmail.sendConfirmationEmail(data.email, 'reset password')
+		await emailUtil.sendEmail(CONST.RESET_PASSWORD_SECRET, data.email, 'reset password')
 		return {content: "Reset password succesfully sent"}
 	},
 
@@ -97,7 +97,7 @@ module.exports = {
 			error.code = 422
 			throw error
 		}
-		if (!validate(password, "password") || password != confirmationPassword) {
+		if (!validate(password, "password") || password !== confirmationPassword) {
 			const error = new Error('Validation Error')
 			error.code = 422
 			throw error
@@ -225,7 +225,7 @@ module.exports = {
 		if (users[0].isConfirmed === 1) {
 			throw new Error("Account already confirmed")
 		}
-		await confirmationEmail.sendConfirmationEmail(email)
+		await emailUtil.sendEmail(CONST.EMAIL_CONFIRMATION_SECRET, email, 'confirmation')
 		return { content: "Email re-sent successfully"}
 	}
 }
