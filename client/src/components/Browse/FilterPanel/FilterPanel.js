@@ -25,17 +25,19 @@ class FilterPanel extends Component {
 	state = {
 		filters: {
 			ageMin: 18,
-			ageMax: 99
+			ageMax: 99,
+			interests: []
 		},
-		sortValue: 'location'
+		sortValue: 'location',
 	}
 
 	componentDidMount() {
-		this.setState({filters: {...this.props.filters}})
+		this.setState({filters: {...this.state.filters, ...this.props.filters}})
 	}
 
+
 	ageRangeHandler = ([min, max]) => {
-		this.setState({filters: {ageMin: min, ageMax: max}})
+		this.setState({filters: {...this.state.filters, ageMin: min, ageMax: max}})
 	}
 
 	sortingChangeHandler = ({target}) => {
@@ -44,23 +46,19 @@ class FilterPanel extends Component {
 	}
 
 	interestsChangeHandler = ({target}) => {
-		const { options } = target;
-		const value = [];
-		for (let i = 0, l = options.length; i < l; i += 1) {
-			if (options[i].selected) {
-				value.push(options[i].value);
-			}
-		}
-		this.setState({
-			interestsName: value,
-		});
+		this.setState({ filters: {...this.state.filters, interests: target.value }})
+		this.props.onFilterChange({...this.getFilters(), interests: target.value})
 	}
 
+	getFilters = () => ({
+		ageMin: this.state.filters.ageMin,
+		ageMax: this.state.filters.ageMax,
+		interests: this.state.filters.interests
+	})
+
 	render() {
-		const filters = {
-			ageMin: this.state.filters.ageMin,
-			ageMax: this.state.filters.ageMax
-		}
+		const allInterests = this.props.interests
+		const filters = this.getFilters()
 		return (
 			<div className={styles.component}>
 				<div className={styles.filterBox}>
@@ -74,32 +72,31 @@ class FilterPanel extends Component {
 							allowCross={false}
 							onChange={this.ageRangeHandler}
 							trackStyle={[{backgroundColor: '#DD0E52'}]}
-							onAfterChange={this.props.onFilterChange.bind(this, filters)}
+							onAfterChange={this.props.onFilterChange.bind(this, this.getFilters())}
 							railStyle={{backgroundColor: '#aeaeae'}}
 							value={[filters.ageMin, filters.ageMax]}
 						/>
 					</div>
-					{/*<div className={styles.title}>*/}
-						{/*<div className={styles.label}>Interests</div>*/}
+					<div className={styles.title}>
+						<div className={styles.label}>Interests</div>
 
-						{/*<FormControl >*/}
-							{/*<Select*/}
-								{/*multiple*/}
-								{/*value={this.state.selectedName}*/}
-								{/*onChange={this.interestsChangeHandler}*/}
-								{/*input={<Input id="select-multiple-checkbox" />}*/}
-								{/*renderValue={selected => selected.join(', ')}*/}
-								{/*MenuProps={MenuProps}*/}
-							{/*>*/}
-								{/*{this.props.interests && this.props.interests.map(interest => (*/}
-									{/*<MenuItem key={interest} value={interest}>*/}
-										{/*<Checkbox checked={true} />*/}
-										{/*<ListItemText primary={interest} />*/}
-									{/*</MenuItem>*/}
-								{/*))}*/}
-							{/*</Select>*/}
-						{/*</FormControl>*/}
-					{/*</div>*/}
+						<FormControl className={styles.interestsFilter}>
+							<Select
+								multiple
+								value={this.state.filters.interests}
+								onChange={this.interestsChangeHandler}
+								renderValue={selected => selected.join(', ')}
+								MenuProps={MenuProps}
+							>
+								{allInterests && allInterests.map(interest => (
+									<MenuItem key={interest} value={interest}>
+										<Checkbox checked={this.state.filters.interests.indexOf(interest) >= 0} />
+										<ListItemText primary={interest} />
+									</MenuItem>
+								))}
+							</Select>
+						</FormControl>
+					</div>
 				</div>
 
 

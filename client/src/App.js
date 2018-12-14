@@ -206,7 +206,7 @@ class App extends Component {
 
 						{hasAccess && <Toolbar onLogout={this.logoutHandler}/> }
 						<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
-							{<Route path="/confirmation/:token" render={(props) => <Confirmation {...props} markLoggedIn={this.loginHandler} />}/>}
+							{!this.state.isAuth && <Route path="/confirmation/:token" render={(props) => <Confirmation {...props} markLoggedIn={this.loginHandler} />}/>}
 							{hasAccess && <Route path="/profile" component={Profile}/>}
 							{hasAccess && <Route path="/chat" component={Chat}/>}
 							{routeZero()}

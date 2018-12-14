@@ -10,23 +10,26 @@ class Browse extends Component {
 	state = {
 		filters: {
 			ageMin: 30,
-			ageMax: 50
+			ageMax: 50,
+			interests: []
 		},
 		sortValue: "location"
 	}
 
 	componentDidMount() {
-		this.getProfiles(this.state.filters)
+		this.getProfiles({...this.state.filters, interests: this.props.interests || []})
 	}
 
 	componentDidUpdate() {
 		if (typeof this.state.matches === 'undefined') {
-			this.getProfiles(this.state.filters)
+			this.getProfiles({...this.state.filters, interests: this.props.interests || []})
 		}
 	}
 
 	getProfiles = (data) => {
 		if (!this.props.user) { return }
+		if (this.props.interests && this.props.interests === data.interests)
+			data.interests = []
 		console.log("GET PROFILES")
 		let query = {
 			query: ` {
@@ -36,7 +39,7 @@ class Browse extends Component {
 					        orientation : "${this.props.user.orientation}",
 					        minAge : ${data.ageMin},
 					        maxAge : ${data.ageMax},
-					        interests : ["football"],
+					        interests : [${data.interests.map(x => `"${x}"`)}],
 					        latitude : 48.85154659837264,
 					        longitude : 2.348984726384281,
 					        radius: 5000 
@@ -101,8 +104,8 @@ class Browse extends Component {
 			<div className={styles.component}>
 				{ this.props.user && <FilterPanel
 					onFilterChange={this.getProfiles}
-					filters={this.state.filters}
 					onSortChange={this.sortingChangeHandler}
+					filters={this.state.filters}
 					interests={this.props.interests}
 				/>}
 				<Display
