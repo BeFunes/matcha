@@ -92,7 +92,7 @@ module.exports = {
 		if (users.length <= 0) {
 			throw new Error("User does not exist")
 		}
-		if (!users.isConfirmed) {
+		if (!users[0].isConfirmed) {
 			const error = new Error('User is not confirmed')
 			error.code = 422
 			throw error

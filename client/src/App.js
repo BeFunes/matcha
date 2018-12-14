@@ -9,6 +9,7 @@ import Profile from "./components/Profile/Profile";
 import Chat from "./components/Chat/Chat";
 import Confirmation from "./components/Confirmation/Confirmation"
 import Onboarding from "./components/Onboarding/Onboarding";
+import ResetPassword from './components/ResetPassword/ResetPassword';
 
 
 
@@ -172,9 +173,7 @@ class App extends Component {
 	};
 
 	setAutoLogout = milliseconds => {
-		setTimeout(() => {
-			this.logoutHandler();
-		}, milliseconds);
+		setTimeout(this.logoutHandler , milliseconds);
 	};
 
 	onboardingHandler = () => {
@@ -207,6 +206,7 @@ class App extends Component {
 						{hasAccess && <Toolbar onLogout={this.logoutHandler}/> }
 						<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
 							{!this.state.isAuth && <Route path="/confirmation/:token" render={(props) => <Confirmation {...props} markLoggedIn={this.loginHandler} />}/>}
+							{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword}/>}
 							{hasAccess && <Route path="/profile" component={Profile}/>}
 							{hasAccess && <Route path="/chat" component={Chat}/>}
 							{routeZero()}

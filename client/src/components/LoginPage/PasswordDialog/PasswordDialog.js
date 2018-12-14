@@ -24,6 +24,7 @@ class PasswordDialog extends React.Component {
 				}
 			},
 		},
+		buttonDisabled: false,
 	};
 
     inputChangeHandler = (type, {target}) => {
@@ -65,17 +66,21 @@ class PasswordDialog extends React.Component {
 					throw new Error ("Email Unknown")
 				}
 				console.log(resData)
+				this.setState({buttonDisabled: true})
+				setTimeout(this.props.onClose, 1000)
+				
+				
 			})
 			.catch(err => {
 				console.log(err)
 			})
+			
 	}
     
 
 	render() {
         const {open, onClose} = this.props;
         const element = this.state.inputFields['email']
-        console.log("--------------------",element)
         const allValid = (element.valid && element.value !== '')
 		return (
 			<Dialog open={open} onClose={onClose}>
@@ -94,15 +99,13 @@ class PasswordDialog extends React.Component {
 							/>
 						</div>
                         <div className={styles.buttons}>
-						<Button variant={allValid ? "contained" : "outlined"}
-						        color="secondary"
-						        onClick={allValid ? () => this.sendResetPasswordHandler() : null}>
+						<Button variant={allValid && !this.state.buttonDisabled ? "contained" : "outlined"}
+								color="secondary"
+						        onClick={allValid  && !this.state.buttonDisabled ? () => this.sendResetPasswordHandler() : null}>
 							Reset Password
 						</Button>
                         </div>
                         </Dialog>
-                        
-
 		);
 	}
 }

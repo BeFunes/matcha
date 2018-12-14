@@ -87,7 +87,7 @@ class SignupDialog extends React.Component {
 	inputChangeHandler = (type, {target}) => {
 		const sanitisedValue = target.value.trim()
 		const valid = validator(sanitisedValue, this.state[type].rules, target.type)
-
+		console.log(type)
 		const checkConfirmationPassword = () => {
 			if (type === 'password2' || type === 'password') {
 				const pass2valid = (type === 'password2') ? valid : this.state.password2.valid
