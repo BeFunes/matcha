@@ -3,11 +3,13 @@ import styles from './LoginPage.module.css'
 import LoginDialog from './LoginDialog/LoginDialog'
 import SignupDialog from "./SignupDialog/SignupDialog";
 import Fab from "@material-ui/core/es/Fab/Fab";
+import PasswordDialog from './PasswordDialog/PasswordDialog'
 
 class LoginPage extends Component {
 	state = {
 		loginDialogOpen: false,
-		signupDialogOpen: false
+		signupDialogOpen: false,
+		passwordDialogOpen: false
 	};
 
 	openLoginHandler = () => {
@@ -26,6 +28,16 @@ class LoginPage extends Component {
 		this.setState({ signupDialogOpen: false });
 	};
 
+	openPasswordHandler = () => {
+		console.log("In openPassword -------------")
+		this.setState({ passwordDialogOpen: true,
+						loginDialogOpen: false
+		 });
+	};
+
+	closePasswordHandler = () => {
+		this.setState({ passwordDialogOpen: false });
+	};
 
 	render() {
 		return (
@@ -38,10 +50,15 @@ class LoginPage extends Component {
 					open={this.state.loginDialogOpen}
 					onClose={this.closeLoginHandler}
 					onLogin={this.props.onLogin}
+					onPasswordReset={this.openPasswordHandler}
 				/>
 				<SignupDialog
 					open={this.state.signupDialogOpen}
 					onClose={this.closeSignupHandler}
+				/>
+				<PasswordDialog
+					open={this.state.passwordDialogOpen}
+					onClose={this.closePasswordHandler}
 				/>
 			</div>
 		)
