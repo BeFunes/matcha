@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { validate } = require('./../../util/validator')
 const CONST = require('../../../constants')
+const _ = require ('lodash')
 
 
 const query = {
@@ -93,17 +94,14 @@ const query = {
 		const today = new Date()
 		const maxDob = `${today.getFullYear() - filters.minAge}-${("0" + (today.getMonth() + 1)).slice(-2)}-${("0" + today.getDate()).slice(-2)}`
 		const minDob = `${today.getFullYear() - filters.maxAge}-${("0" + (today.getMonth() + 1)).slice(-2)}-${("0" + today.getDate()).slice(-2)}`
-		let interestsCondition = ''
-		filters.interests.forEach(() => {
-			interestsCondition += 'AND I.title = ? '
-		})
+		const interestsCondition = filters.interests.length ? `AND (${filters.interests.map(() => "I.title = ?").join(" OR ")})` : ''
 
 		const query = `
 		SELECT R.*, GROUP_CONCAT(I.title) interests FROM 
 			( SELECT U.*
 				FROM users_interests UI
 				JOIN users U ON UI.user_id = U.id
-				JOIN interests I ON I.id = UI.interest_id
+				RIGHT JOIN interests I ON I.id = UI.interest_id
 				WHERE (U.gender REGEXP ?)
 				AND (U.dob > ?)
 				AND (U.dob < ?)
@@ -114,26 +112,29 @@ const query = {
 		JOIN users_interests UI on R.id = UI.user_id
 		JOIN interests I ON I.id = UI.interest_id
 		GROUP BY UI.user_id`
-		const [users] = await db.query(query, [`^[${filters.orientation}]$`, minDob, maxDob, `%${filters.gender}%`, ...filters.interests])
-		return users.map((x) => (
+		/// IF NO INTERESTS ARE SPECIFIED, ALL ARE RETURNED
+		const array = [`^[${filters.orientation}]$`, minDob, maxDob, `%${filters.gender}%`]
+		const [users] = await db.query(query, [...array, ...filters.interests])
+		const result = users.map((x) => (
 			{
-			firstName: x.first_name,
-			lastName: x.last_name,
-			email: x.email,
-			dob: x.dob,
-			gender: x.gender,
-			orientation: x.orientation,
-			job: x.job,
-			bio: x.bio,
-			profilePic: x.profilePic,
-			picture2: x.picture2,
-			picture3: x.picture3,
-			picture4: x.picture4,
-			picture5: x.picture5,
-			interests: x.interests.split(",")
+				firstName: x.first_name,
+				lastName: x.last_name,
+				email: x.email,
+				dob: x.dob,
+				gender: x.gender,
+				orientation: x.orientation,
+				job: x.job,
+				bio: x.bio,
+				profilePic: x.profilePic,
+				picture2: x.picture2,
+				picture3: x.picture3,
+				picture4: x.picture4,
+				picture5: x.picture5,
+				interests: x.interests.split(",")
 			})
 		)
-    },
+		return _.filter(result, (x) => _.difference(filters.interests, x.interests).length === 0)
+	},
 
 	usedInterests: async function(_, req) {
 		console.log("GET USED INTERESTS")
