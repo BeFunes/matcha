@@ -69,7 +69,7 @@ module.exports = {
 		if (users.length <= 0) {
 			throw new Error("User does not exist")
 		}
-		await emailUtil.sendEmail(CONST.RESET_PASSWORD_SECRET, data.email, 'reset password')
+		await emailUtil.sendEmail(CONST.RESET_PASSWORD_SECRET, data.email, data.subject)
 		return {content: "Reset password succesfully sent"}
 	},
 
