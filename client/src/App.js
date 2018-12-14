@@ -179,6 +179,8 @@ class App extends Component {
 
 	onboardingHandler = () => {
 		this.setState({ isOnboarded: true })
+		this.getUserData(this.state.token)
+		this.getUsedInterests(this.state.token)
 	}
 
 	render() {

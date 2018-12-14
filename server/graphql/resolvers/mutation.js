@@ -96,13 +96,18 @@ module.exports = {
 			throw error
 		}
 		const query = `UPDATE users SET job = ?, bio = ? WHERE email = ?`
-		const [row] = await db.query(query, [info.job, info.bio, req.email])
-		console.log(`Update job=${info.job} and bio=${info.bio}\n`, row)
-		const interestQuery = `INSERT INTO interests (title, user_id) values (?, ?)`
-		info.interests.forEach(async (tag) => {
-			const [row] = await db.query(interestQuery, [tag, req.userId])
-			console.log(`insert new interest ${tag} for user ${req.userId}\n`, row)
-		})
+		const [resBioInfo] = await db.query(query, [info.job, info.bio, req.email])
+		console.log(resBioInfo)
+		const interests = info.interests.map(x => [x])
+		const interestQuery = `INSERT IGNORE INTO interests (title) values ?`
+		const [resInterests] = await db.query(interestQuery, [interests])
+		console.log(resInterests)
+		const interestsIdQuery = `SELECT id FROM interests WHERE title IN (${info.interests.map(() => "?").join()})`
+		const [ids] = await db.query(interestsIdQuery, info.interests)
+		console.log(ids)
+		const usersInterestsQuery = 'INSERT INTO users_interests (interest_id, user_id) values ?'
+		const [resUserInterests] = await db.query(usersInterestsQuery, [ids.map((x) => [ x.id, req.userId ])])
+		console.log(resUserInterests)
 		return {content: "Bio data updated successfully"}
 	},
 	markOnboarded: async function(_, req) {

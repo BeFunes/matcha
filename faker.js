@@ -99,7 +99,8 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, 1, 1)`
 const createInterestsTableQuery = `CREATE TABLE interests (
 		id int(11) unsigned NOT NULL AUTO_INCREMENT,
     title varchar(20) NOT NULL,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    UNIQUE (title)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
 
 const createUsersInterestsTableQuery = `CREATE TABLE users_interests (
