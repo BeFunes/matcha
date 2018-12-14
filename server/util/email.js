@@ -15,6 +15,24 @@ const confirmationEmailBody = (token) => {
 	)
 }
 
+const resetPasswordEmailBody = (token) => {
+	return (
+		`<a href="${CONST.HOST}reset_password/${token}" 
+					target="_blank" 
+					rel="noopener noreferrer" 
+					data-auth="NotApplicable" 
+					style="font-size:20px; font-family:Helvetica,Arial,sans-serif; color:#ffffff; text-decoration:none; text-decoration:none; -webkit-border-radius:7px; -moz-border-radius:7px; border-radius:7px; padding:12px 18px; border:1px solid #85b5ff; display:inline-block"
+					> RESET PASSWORD ▸
+					</a>`
+	)
+}
+
+const emailBody = (token, subject) => {
+	if (subject == 'confirmation') { return confirmationEmailBody(token) }
+	return resetPasswordEmailBody(token)
+
+}
+
 const transporter = nodeMailer.createTransport(sendGridTransport({
 	auth: {
 		api_key: CONST.SEND_GRID_API_KEY
@@ -32,7 +50,7 @@ module.exports = {
 			to: email,
 			from: 'raghirelli@gmail.com',
 			subject: subject,
-			html: confirmationEmailBody(confirmationToken)
+			html: emailBody(confirmationToken, subject)
 		}, (err) => {
 			if (err) {
 				console.log(err)
