@@ -240,7 +240,7 @@ module.exports = {
     },
     get5fakeInterest: function() {
     	  const interest = () => Math.floor(Math.random()*interests.length) + 1
-	      return new Set ([interest(), interest(), interest(), interest(), interest()])
+	      return [...new Set ([interest(), interest(), interest(), interest(), interest()])]
     },
     interests: interests,
 }

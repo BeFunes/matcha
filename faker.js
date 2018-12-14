@@ -68,7 +68,7 @@ const getData = (gender, orient) => {
 }
 
 
-const createUsersTableQuery = `CREATE TABLE users (
+const createUsersTable = `CREATE TABLE users (
     id int(11) unsigned NOT NULL AUTO_INCREMENT,
     first_name varchar(20),
     last_name varchar(30),
@@ -91,26 +91,32 @@ const createUsersTableQuery = `CREATE TABLE users (
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
 
-const populateUsersTableQuery = `INSERT INTO users (first_name, last_name, email, password,
+const populateUsersTable = `INSERT INTO users (first_name, last_name, email, password,
 dob, gender, orientation, job, bio, profilePic, latitude, longitude,
 picture2, picture3, picture4, picture5, isOnboarded, isConfirmed)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, 1, 1)`
 
-const createInterestsTableQuery = `CREATE TABLE interests (
+const createInterestsTable = `CREATE TABLE interests (
 		id int(11) unsigned NOT NULL AUTO_INCREMENT,
     title varchar(20) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE (title)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
 
-const createUsersInterestsTableQuery = `CREATE TABLE users_interests (
+const populateInterestsTable = `INSERT INTO interests (title) VALUES ?`
+
+const createUsersInterestsTable = `CREATE TABLE users_interests (
     interest_id int(11) unsigned NOT NULL REFERENCES interests(id),
     user_id int(11) unsigned NOT NULL REFERENCES users(id),
     PRIMARY KEY (user_id, interest_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
 
-const populateInterestsTableQuery = `INSERT INTO interests (title) VALUES (?)`
-const populateUsersInterestsTableQuery = `INSERT INTO users_interests (interest_id, user_id) VALUES (?, ?)`
+const populateUsersInterestsTable = `INSERT INTO users_interests (interest_id, user_id) VALUES (?, ?)`
+
+const createLikesTable = `CREATE TABLE likes (
+		sender_id int(11) unsigned NOT NULL REFERENCES users(id),
+		receiver_id int(11) unsigned NOT NULL REFERENCES users(id)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`
 
 const getRandomUser = () => {
 	const sex = ['M', 'F']
@@ -129,31 +135,33 @@ db.connect()
 	.then( () => {
 		console.log("Table users deleted")
 		return db.query("DROP TABLE IF EXISTS interests") })
-	.then(() => {
+	.then( () => {
 		console.log("Table interests deleted")
-		return db.query(createUsersTableQuery) })
+		return db.query("DROP TABLE IF EXISTS likess") })
+	.then(() => {
+		console.log("Table likes deleted")
+		return db.query(createUsersTable) })
 	.then( async function () {
 		console.log("Table users created");
 		for (let i = 0; i < 300; i++) {
 			let user = getRandomUser()
 			const data = getData(user.gender, user.orientation)
-			await db.query(populateUsersTableQuery, data)
+			await db.query(populateUsersTable, data)
 			}
 		console.log("User data inserted")
-		return db.query(createInterestsTableQuery) })
+		return db.query(createInterestsTable) })
 	.then(async function () {
 		console.log("Table interests created");
-		fakerUtils.interests.forEach(async (x) => {
-			await db.query(populateInterestsTableQuery, [x])
-		})
+		await db.query(populateInterestsTable, [fakerUtils.interests.map(x => [x])]) })
+	.then(async function () {
 		console.log("Interests data inserted")
-		return db.query(createUsersInterestsTableQuery) })
+		return db.query(createUsersInterestsTable) })
 	.then(async function () {
 		console.log("Table users_interests created")
 		for (let i = 1; i < 301; i++) {
 			let interests = fakerUtils.get5fakeInterest()
 			for (let interest of interests) {
-				await db.query(populateUsersInterestsTableQuery, [interest, i])
+				await db.query(populateUsersInterestsTable, [interest, i])
 			}
 		}
 		console.log("Interests data inserted")

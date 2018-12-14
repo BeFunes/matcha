@@ -7,9 +7,9 @@ class Display extends Component {
 		const { profiles } = this.props
 		return (
 			<div className={styles.component}>
-				{profiles && profiles.map((item) => (
+				{profiles && profiles.map((item, index) => (
 					<ProfileCard
-						key={`${item.firstName}+${item.lastName}`}
+						key={`${item.firstName}+${item.lastName}+${index}`}
 						profile={item}
 					/>
 				))}

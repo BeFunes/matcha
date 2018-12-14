@@ -13,7 +13,10 @@
 .img {
     border-radius: 28px;
     width: 140px;
+    height: 160px;
 }
+
+
 
 .f {
     border-color: deeppink;
@@ -28,5 +31,9 @@
 .name {
     margin-top: 8px;
     font-weight: bold;
+}
 
+.heart {
+    margin-left: 110px;
+    margin-top: 5px;
 }
