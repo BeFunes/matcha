@@ -8,7 +8,6 @@ import TextInput from "../../UI/TextInput/TextInput";
 
 
 class LoginDialog extends React.Component {
-
 	state = {
 		inputFields: {
 			email: {
@@ -41,7 +40,7 @@ class LoginDialog extends React.Component {
 	inputChangeHandler = (type, {target}) => {
 		const sanitisedValue = target.value.trim()
 		const valid = validator(target.value, this.state.inputFields[type].rules, type)
-		if (this.state.inputFields[type] !== sanitisedValue)
+		if (this.state.inputFields[type].value !== sanitisedValue)
 			this.setState({inputFields: {...this.state.inputFields, [type]: {...this.state.inputFields[type], value: sanitisedValue, valid: valid}}});
 	}
 
@@ -85,7 +84,7 @@ class LoginDialog extends React.Component {
 	}
 
 	render() {
-		const { open, onClose, loginFail} = this.props;
+		const { open, onClose, loginFail, onPasswordReset } = this.props;
 		const elementsArray = [];
 		for (let key in this.state.inputFields) {
 			elementsArray.push({
@@ -97,7 +96,8 @@ class LoginDialog extends React.Component {
 		return (
 			<Dialog onClose={onClose} open={open}>
 				<form  noValidate autoComplete="off" className={styles.form}>
-					{elementsArray.map(element => (
+					{elementsArray.map(element => 
+					(
 						<div key={element.id} >
 							<TextInput
 								label={element.label}
@@ -122,7 +122,7 @@ class LoginDialog extends React.Component {
 							Login
 						</Button>
 					</div>
-					<p className={styles.passwordReset}> Forgot your password ?</p>
+					<p className={styles.passwordReset} onClick={onPasswordReset}> Forgot your password ?</p>
 				</form>
 			</Dialog>
 		);
