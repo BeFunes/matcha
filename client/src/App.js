@@ -32,7 +32,7 @@ class App extends Component {
 		}
 		const userId = localStorage.getItem('userId')
 		const remainingTime = new Date(expiryDate).getTime() - new Date().getTime()
-		this.setState({isAuth: true, token: token, userId: userId, isLoading: false})
+		this.setState({isAuth: true, token: token, userId: userId})
 		this.setAutoLogout(remainingTime)
 		if (typeof this.state.isOnboarded === 'undefined') {
 			this.getIsOnboarded(token)
