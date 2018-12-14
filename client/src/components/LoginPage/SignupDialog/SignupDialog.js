@@ -62,7 +62,6 @@ class SignupDialog extends React.Component {
 			body: JSON.stringify(query)
 		})
 			.then(res => {
-				console.log("AUTH OK")
 				return res.json()
 			})
 			.then(resData => {
