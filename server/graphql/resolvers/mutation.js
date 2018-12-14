@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 const db = require('../../util/db')
 const bcrypt = require('bcryptjs')
 const { validate } = require('./../../util/validator')
-const confirmationEmail = require('../../util/confirmationEmail')
+const confirmationEmail = require('../../util/email')
 const CONST = require('../../../constants')
 
 
@@ -18,7 +18,7 @@ module.exports = {
 		if (row.length > 0) {
 			throw new Error('User exists already!')
 		}
-		await confirmationEmail.sendConfirmationEmail(userInput.email)
+		await confirmationEmail.sendConfirmationEmail(userInput.email, 'confirmation')
 		const hashedPw = await bcrypt.hash(userInput.password, 12)
 		await db.query('Insert into users (email, password) VALUES (?, ?)', [userInput.email, hashedPw])
 
@@ -62,6 +62,60 @@ module.exports = {
 		return {token: authToken, userId: users[0].id, isOnboarded: !!users[0].isOnboarded}
 		// return { content: "Account confirmed successfully"}
 	},
+
+	passwordResetEmail: async function({data}, req) {
+		const query = `SELECT id FROM users WHERE email = ?`
+		const [users] = await db.query(query, [data.email])
+		if (users.length <= 0) {
+			throw new Error("User does not exist")
+		}
+		await confirmationEmail.sendConfirmationEmail(data.email, 'reset password')
+		return {content: "Reset password succesfully sent"}
+	},
+
+	resetPassword: async function({token, password, confirmationPassword}, req) {
+		console.log("EMAIL CONFIRMATION")
+		let decodedToken;
+		try {
+			decodedToken = jwt.verify(token, CONST.RESET_PASSWORD_SECRET);
+		} catch (err) {
+			const {email} = jwt.verify(token, CONST.RESET_PASSWORD_SECRET, {ignoreExpiration: true})
+			const e = new Error(err.message)
+			e.data = email
+			throw e
+		}
+		if (!decodedToken) {
+			throw new Error("Invalid token")
+		}
+		const query = `SELECT isConfirmed, id, isOnboarded FROM users WHERE email = ?`
+		const [users] = await db.query(query, [decodedToken.email])
+		if (users.length <= 0) {
+			throw new Error("User does not exist")
+		}
+		if (!users.isConfirmed) {
+			const error = new Error('User is not confirmed')
+			error.code = 422
+			throw error
+		}
+		if (!validate(password, "password") || password != confirmationPassword) {
+			const error = new Error('Validation Error')
+			error.code = 422
+			throw error
+		}
+		const hashedPw = await bcrypt.hash(password, 12)
+		const mutation = `UPDATE users SET password = ? WHERE email = ?`
+		const [row] = await db.query(mutation, [hashedPw, decodedToken.email])
+		console.log(row)
+
+		const authToken = jwt.sign(
+			{userId: users[0].id, email: decodedToken.email},
+			CONST.SECRET,
+			{expiresIn: '1h'}
+		)
+		return {token: authToken, userId: users[0].id, isOnboarded: !!users[0].isOnboarded}
+		// return { content: "Account confirmed successfully"}
+	},
+
 
 	insertProfileInfo: async function({info}, req) {
 		console.log("INSERT PROFILE INFO")
