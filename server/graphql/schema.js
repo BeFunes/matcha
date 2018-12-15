@@ -58,6 +58,7 @@ module.exports = buildSchema(`
     }
     
     type UserData {
+        id: Int!
         firstName: String!
         lastName: String!
         password: String
@@ -87,6 +88,11 @@ module.exports = buildSchema(`
         radius: Int
     }
     
+    input LikeInfo {
+        receiver_id: Int!
+        liked: Boolean!
+    }
+  
     
     type RootQuery {
         login(email: String!, password: String!): AuthData!
@@ -107,6 +113,7 @@ module.exports = buildSchema(`
         insertBioInfo(info: UserBioInfo) : Message
         markOnboarded : Message
         resendConfirmationEmail(email: String): Message 
+        toggleLike(info: LikeInfo): Message
     }
 
     schema {

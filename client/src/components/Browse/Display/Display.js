@@ -4,13 +4,14 @@ import ProfileCard from "./ProfileCard/ProfileCard";
 
 class Display extends Component {
 	render() {
-		const { profiles } = this.props
+		const { profiles, token} = this.props
 		return (
 			<div className={styles.component}>
 				{profiles && profiles.map((item, index) => (
 					<ProfileCard
 						key={`${item.firstName}+${item.lastName}+${index}`}
 						profile={item}
+						token={token}
 					/>
 				))}
 			</div>

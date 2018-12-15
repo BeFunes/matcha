@@ -10,9 +10,42 @@ class ProfileCard extends Component {
 
 	state = { }
 
+
+
 	toggleLike = () => {
-		this.setState({liked: !this.state.liked})
 	}
+
+	toggleLike = () => {
+		const mutation = {
+			query: ` mutation {
+				toggleLike (info: {receiver_id: ${this.props.profile.id}, liked:${!this.state.liked}}) {
+					content
+				}
+			}`
+		}
+		fetch('http://localhost:3001/graphql', {
+			method: 'POST',
+			body: JSON.stringify(mutation),
+			headers: {
+				Authorization: 'Bearer ' + this.props.token,
+				'Content-Type': 'application/json'
+			}
+		})
+			.then(res => {
+				return res.json()
+			})
+			.then(resData => {
+				if (resData.errors) {
+					throw new Error(resData.errors[0].message)
+				}
+				console.log(resData.data.toggleLike.content)
+				this.setState({liked: !this.state.liked})
+			})
+			.catch(err => {
+				console.log(err)
+			})
+	}
+
 
 	render() {
 		const { firstName, age, lastName, profilePic, gender, liked } = this.props.profile

@@ -111,7 +111,7 @@ const createUsersInterestsTable = `CREATE TABLE users_interests (
     PRIMARY KEY (user_id, interest_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
 
-const populateUsersInterestsTable = `INSERT INTO users_interests (interest_id, user_id) VALUES (?, ?)`
+const populateUsersInterestsTable = `INSERT INTO users_interests (interest_id, user_id) VALUES ?`
 
 const createLikesTable = `CREATE TABLE likes (
 		sender_id int(11) unsigned NOT NULL REFERENCES users(id),
@@ -130,19 +130,19 @@ db.connect()
 		console.log("Connected!")
 		return db.query("DROP TABLE IF EXISTS users_interests") })
 	.then( () => {
-		console.log("Table users_interests deleted")
+		console.log("Table 'users_interest' deleted")
 		return db.query("DROP TABLE IF EXISTS users") })
 	.then( () => {
-		console.log("Table users deleted")
+		console.log("Table 'users' deleted")
 		return db.query("DROP TABLE IF EXISTS interests") })
 	.then( () => {
-		console.log("Table interests deleted")
-		return db.query("DROP TABLE IF EXISTS likess") })
+		console.log("Table 'interests' deleted")
+		return db.query("DROP TABLE IF EXISTS likes") })
 	.then(() => {
-		console.log("Table likes deleted")
+		console.log("Table 'likes' deleted")
 		return db.query(createUsersTable) })
 	.then( async function () {
-		console.log("Table users created");
+		console.log("Table 'users' created");
 		for (let i = 0; i < 300; i++) {
 			let user = getRandomUser()
 			const data = getData(user.gender, user.orientation)
@@ -151,20 +151,24 @@ db.connect()
 		console.log("User data inserted")
 		return db.query(createInterestsTable) })
 	.then(async function () {
-		console.log("Table interests created");
+		console.log("Table 'interests' created");
 		await db.query(populateInterestsTable, [fakerUtils.interests.map(x => [x])]) })
 	.then(async function () {
 		console.log("Interests data inserted")
 		return db.query(createUsersInterestsTable) })
 	.then(async function () {
-		console.log("Table users_interests created")
+		console.log("Table 'users_interests' created")
+		let users_interests = []
 		for (let i = 1; i < 301; i++) {
-			let interests = fakerUtils.get5fakeInterest()
-			for (let interest of interests) {
-				await db.query(populateUsersInterestsTable, [interest, i])
-			}
+			users_interests = users_interests.concat(fakerUtils.get5fakeInterest().map(x => [x, i]))
 		}
+		await db.query(populateUsersInterestsTable, [users_interests])
+	})
+	.then(async function () {
 		console.log("Interests data inserted")
+		await db.query(createLikesTable) })
+	.then(() => {
+		console.log("Table 'likes' created")
 		db.end()
 	})
 	.catch((err) => {

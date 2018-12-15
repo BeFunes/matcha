@@ -118,6 +118,7 @@ const query = {
 		const result = users.map((x) => (
 			{
 				firstName: x.first_name,
+				id: x.id,
 				lastName: x.last_name,
 				email: x.email,
 				dob: x.dob,

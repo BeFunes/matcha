@@ -46,6 +46,7 @@ class Browse extends Component {
 					    })
 				  {
 				    firstName
+				    id
 				    lastName
 				    orientation
 				    gender
@@ -110,6 +111,7 @@ class Browse extends Component {
 				/>}
 				<Display
 					profiles={this.state.matches}
+					token={this.props.token}
 				/>
 			</div>
 		)

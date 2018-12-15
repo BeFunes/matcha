@@ -156,6 +156,7 @@ module.exports = {
 		const interestQuery = `INSERT IGNORE INTO interests (title) values ?`
 		const [resInterests] = await db.query(interestQuery, [interests])
 		console.log(resInterests)
+		///////// refactor
 		const interestsIdQuery = `SELECT id FROM interests WHERE title IN (${info.interests.map(() => "?").join()})`
 		const [ids] = await db.query(interestsIdQuery, info.interests)
 		console.log(ids)
@@ -227,5 +228,20 @@ module.exports = {
 		}
 		await emailUtil.sendEmail(CONST.EMAIL_CONFIRMATION_SECRET, email, 'confirmation')
 		return { content: "Email re-sent successfully"}
+	},
+	toggleLike: async function ({info}, req) {
+		console.log("TOGGLE LIKE")
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!')
+			error.code = 401
+			throw error
+		}
+		const query = info.liked
+			? 'INSERT INTO likes (sender_id, receiver_id) VALUES (?, ?)'
+			: 'DELETE FROM likes WHERE sender_id = ? AND receiver_id = ?'
+
+		const [row] = await db.query(query, [req.userId, info.receiver_id])
+		console.log([row])
+		return { content: "Liked updated successfully"}
 	}
 }
