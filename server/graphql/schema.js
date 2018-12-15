@@ -93,9 +93,14 @@ module.exports = buildSchema(`
         liked: Boolean
     }
     
+     input BlockInput {
+        receiverId: Int!
+        blocked: Boolean
+    }
+    
     type LikeData {
-        likes: Boolean!
-        isLiked: Boolean!
+        likeTo: Boolean!
+        likeFrom: Boolean!
     }
     
     type RootQuery {
@@ -119,6 +124,7 @@ module.exports = buildSchema(`
         markOnboarded : Message
         resendConfirmationEmail(email: String): Message 
         toggleLike(info: LikeInput): Message
+        toggleBlock(info: BlockInput): Message
     }
 
     schema {

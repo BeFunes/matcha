@@ -183,7 +183,7 @@ class App extends Component {
 	}
 
 	render() {
-		console.log(this.state)
+		// console.log(this.state)
 		const hasAccess = this.state.isAuth && this.state.isOnboarded
 		const routeZero = () => {
 			if (this.state.isAuth && !this.state.isOnboarded && !this.state.isLoading)

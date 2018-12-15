@@ -118,6 +118,11 @@ const createLikesTable = `CREATE TABLE likes (
 		receiver_id int(11) unsigned NOT NULL REFERENCES users(id)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`
 
+const createBlocksTable = `CREATE TABLE blocks (
+		sender_id int(11) unsigned NOT NULL REFERENCES users(id),
+		receiver_id int(11) unsigned NOT NULL REFERENCES users(id)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`
+
 const getRandomUser = () => {
 	const sex = ['M', 'F']
 	const orient = ['straight', 'gay', 'bisexual']
@@ -140,6 +145,9 @@ db.connect()
 		return db.query("DROP TABLE IF EXISTS likes") })
 	.then(() => {
 		console.log("Table 'likes' deleted")
+		return db.query("DROP TABLE IF EXISTS blocks") })
+	.then(() => {
+		console.log("Table 'blocks' deleted")
 		return db.query(createUsersTable) })
 	.then( async function () {
 		console.log("Table 'users' created");
@@ -167,8 +175,11 @@ db.connect()
 	.then(async function () {
 		console.log("Interests data inserted")
 		await db.query(createLikesTable) })
-	.then(() => {
+	.then(async function () {
 		console.log("Table 'likes' created")
+		await db.query(createBlocksTable) })
+	.then(() => {
+		console.log("Table 'blocks' created")
 		db.end()
 	})
 	.catch((err) => {

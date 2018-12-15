@@ -2,19 +2,27 @@ import React, {Component} from 'react';
 import styles from './ProfileCard.module.css'
 import classnames from 'classnames';
 import FullHeart from '@material-ui/icons/Favorite'
-import EmtpyHeart from '@material-ui/icons/FavoriteBorder'
-
+import EmptyHeart from '@material-ui/icons/FavoriteBorder'
+import ChatBubbleEmpty from '@material-ui/icons/ChatBubbleOutline'
+import ChatBubbleFull from '@material-ui/icons/ChatBubbleOutline'
+import Block from '@material-ui/icons/Block'
 
 
 class ProfileCard extends Component {
 
-	state = { }
+	state = {
+		likeTo: false,
+		likeFrom: false
+	}
 
+	componentDidMount() {
+		this.getLikeInfo()
+	}
 
 	toggleLike = () => {
 		const mutation = {
 			query: ` mutation {
-				toggleLike (info: {receiverId: ${this.props.profile.id}, liked:${!this.state.liked}}) {
+				toggleLike (info: {receiverId: ${this.props.profile.id}, liked:${!this.state.likeTo}}) {
 					content
 				}
 			}`
@@ -35,7 +43,74 @@ class ProfileCard extends Component {
 					throw new Error(resData.errors[0].message)
 				}
 				console.log(resData.data.toggleLike.content)
-				this.setState({liked: !this.state.liked})
+				this.setState({likeTo: !this.state.likeTo})
+			})
+			.catch(err => {
+				console.log(err)
+			})
+	}
+
+	getLikeInfo = () => {
+		const mutation = {
+			query: ` {
+				likeInfo (info: {receiverId: ${this.props.profile.id} }) {
+				    likeTo
+				    likeFrom
+				  }
+			}`
+		}
+		fetch('http://localhost:3001/graphql', {
+			method: 'POST',
+			body: JSON.stringify(mutation),
+			headers: {
+				Authorization: 'Bearer ' + this.props.token,
+				'Content-Type': 'application/json'
+			}
+		})
+			.then(res => {
+				return res.json()
+			})
+			.then(resData => {
+				if (resData.errors) {
+					throw new Error(resData.errors[0].message)
+				}
+				// console.log(resData.data.likeInfo)
+				if (this.props.profile.id === 4) {
+					console.log(resData.data.likeInfo)
+				}
+				const {likeTo, likeFrom} = resData.data.likeInfo
+				this.setState({likeTo: likeTo, likeFrom: likeFrom})
+			})
+			.catch(err => {
+				console.log(err)
+			})
+	}
+
+	blockUser = () => {
+		const mutation = {
+			query: ` mutation {
+				toggleBlock (info: {receiverId: ${this.props.profile.id}, blocked:${!this.state.blocked}}) {
+					content
+				}
+			}`
+		}
+		fetch('http://localhost:3001/graphql', {
+			method: 'POST',
+			body: JSON.stringify(mutation),
+			headers: {
+				Authorization: 'Bearer ' + this.props.token,
+				'Content-Type': 'application/json'
+			}
+		})
+			.then(res => {
+				return res.json()
+			})
+			.then(resData => {
+				if (resData.errors) {
+					throw new Error(resData.errors[0].message)
+				}
+				console.log(resData.data.toggleBlock.content)
+				this.setState({blocked: !this.state.blocked})
 			})
 			.catch(err => {
 				console.log(err)
@@ -43,26 +118,40 @@ class ProfileCard extends Component {
 	}
 
 	render() {
-		const { firstName, age, lastName, profilePic, gender, liked } = this.props.profile
+		const {firstName, age, lastName, profilePic, gender} = this.props.profile
+		const chat = this.state.likeFrom && this.state.likeTo
 		const borderStyle = gender === 'F' ? styles.f : styles.m
+
+		const renderHeart = () => {
+			return (this.state.likeTo)
+				? <FullHeart onClick={this.toggleLike} />
+				: <EmptyHeart onClick={this.toggleLike}/>
+		}
+
+		const renderChat = () => {
+			return (this.state.hasChatted)
+			? <ChatBubbleFull/> : <ChatBubbleEmpty/>
+		}
+
+		// const renderBlock = () =>
+
+
 		return (
 			<div className={classnames(styles.component, borderStyle)}>
 				<div className={styles.img}
-				     style={{ backgroundImage: `url(${profilePic})`,
-					     backgroundRepeat: 'noRepeat', backgroundSize: 'cover' }}
-				>
-					{this.state.liked ? <FullHeart
-							className={styles.heart}
-							color="secondary"
-							onClick={this.toggleLike}
-						/>
-						: <EmtpyHeart
-							className={styles.heart}
-							onClick={this.toggleLike}
-						/>}
-				</div>
+				     style={{
+					     backgroundImage: `url(${profilePic})`,
+					     backgroundRepeat: 'noRepeat', backgroundSize: 'cover'
+				     }}
+				/>
+					<div className={styles.icons}>
+						{renderHeart()}
+						{chat && renderChat()}
+						<Block onClick={this.blockUser} color={this.state.blocked ? "error" : "inherit"}/>
+					</div>
+				{/*</div>*/}
 				<div className={styles.name}>
-				{firstName} {lastName}
+					{firstName} {lastName}
 				</div>
 				<div>{age}</div>
 			</div>

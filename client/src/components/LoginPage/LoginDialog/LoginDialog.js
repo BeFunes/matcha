@@ -74,7 +74,7 @@ class LoginDialog extends React.Component {
 				if (resData.errors) {
 					throw new Error ("User login failed.")
 				}
-				console.log(resData)
+				// console.log(resData.data.login)
 				this.props.onLogin(resData.data.login)
 			})
 			.catch(err => {

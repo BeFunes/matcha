@@ -97,7 +97,8 @@ const query = {
 		const interestsCondition = filters.interests.length ? `AND (${filters.interests.map(() => "I.title = ?").join(" OR ")})` : ''
 
 		const query = `
-		SELECT R.*, GROUP_CONCAT(I.title) interests FROM 
+		
+		SELECT * FROM (SELECT R.*, GROUP_CONCAT(I.title) interests FROM 
 			( SELECT U.*
 				FROM users_interests UI
 				JOIN users U ON UI.user_id = U.id
@@ -111,8 +112,11 @@ const query = {
 				) R
 		JOIN users_interests UI on R.id = UI.user_id
 		JOIN interests I ON I.id = UI.interest_id
-		GROUP BY UI.user_id`
+		GROUP BY UI.user_id) A
+		LEFT JOIN blocks B ON A.id = B.sender_id
+		WHERE B.sender_id IS NULL OR B.receiver_id != ?`
 		/// IF NO INTERESTS ARE SPECIFIED, ALL ARE RETURNED
+		const array = [`^[${filters.orientation}]$`, minDob, maxDob, `%${filters.gender}%`, req.userId]
 		const [users] = await db.query(query, [...array, ...filters.interests])
 		const result = users.map((x) => (
 			{
@@ -154,18 +158,16 @@ const query = {
 		return interests.map(x => x.title)
 	},
 	likeInfo: async function ({info}, req) {
-		console.log("GET LIKE INFO")
-		// if (!req.isAuth) {
-		// 	const error = new Error('Not authenticated!')
-		// 	error.code = 401
-		// 	throw error
-		// }
-		req.userId = 122
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!')
+			error.code = 401
+			throw error
+		}
 		const userToMatchQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
 		const matchToUserQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
 		const [userToMatch] = await db.query(userToMatchQuery, [req.userId, info.receiverId])
 		const [matchToUser] = await db.query(matchToUserQuery, [info.receiverId, req.userId])
-		return { likes: userToMatch[0].val, isLiked: matchToUser[0].val }
+		return { likeTo: userToMatch[0].val, likeFrom: matchToUser[0].val }
 	}
 }
 

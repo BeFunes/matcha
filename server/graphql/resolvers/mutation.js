@@ -240,8 +240,21 @@ module.exports = {
 			? 'INSERT INTO likes (sender_id, receiver_id) VALUES (?, ?)'
 			: 'DELETE FROM likes WHERE sender_id = ? AND receiver_id = ?'
 
-		const [row] = await db.query(query, [req.userId, info.receiver_id])
-		console.log([row])
+		await db.query(query, [req.userId, info.receiverId])
 		return { content: "Liked updated successfully"}
+	},
+	toggleBlock: async function ({info}, req) {
+		console.log("TOGGLE BLOCK")
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!')
+			error.code = 401
+			throw error
+		}
+		const query = info.blocked
+			? 'INSERT INTO blocks (sender_id, receiver_id) VALUES (?, ?)'
+			: 'DELETE FROM blocks WHERE sender_id = ? AND receiver_id = ?'
+
+		await db.query(query, [req.userId, info.receiverId])
+		return { content: "User blocked successfully"}
 	}
 }

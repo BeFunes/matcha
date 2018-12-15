@@ -5,22 +5,21 @@
     height: 200px;
     width: 140px;
     border: 3px solid darkcyan;
-    border-radius: 30px;
+    border-radius: 20px;
     margin: 5px;
     align-items: center;
 }
 
 .img {
-    border-radius: 28px;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
     width: 140px;
-    height: 160px;
+    height: 180px;
 }
-
-
 
 .f {
     border-color: deeppink;
-    background-color: lightpink;
+    background-color: white;
 }
 
 .m {
@@ -33,7 +32,21 @@
     font-weight: bold;
 }
 
-.heart {
-    margin-left: 110px;
-    margin-top: 5px;
+.icons {
+    width: 80%;/*display: flex;*/
+    display: flex;
+    margin: 1px 0;
+    color: #373737;
+    justify-content: space-between;
+}
+
+
+
+.activeChat {
+    color: green;
+    /*margin-left: 23px;*/
+}
+
+.block {
+
 }
