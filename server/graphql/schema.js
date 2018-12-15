@@ -88,11 +88,15 @@ module.exports = buildSchema(`
         radius: Int
     }
     
-    input LikeInfo {
-        receiver_id: Int!
-        liked: Boolean!
+    input LikeInput {
+        receiverId: Int!
+        liked: Boolean
     }
-  
+    
+    type LikeData {
+        likes: Boolean!
+        isLiked: Boolean!
+    }
     
     type RootQuery {
         login(email: String!, password: String!): AuthData!
@@ -100,6 +104,7 @@ module.exports = buildSchema(`
         isOnboarded: Boolean!
         match(filters: MatchFilter) : [UserData]
         usedInterests: [String]!
+        likeInfo(info: LikeInput) : LikeData
     }
     
     type RootMutation {
@@ -113,7 +118,7 @@ module.exports = buildSchema(`
         insertBioInfo(info: UserBioInfo) : Message
         markOnboarded : Message
         resendConfirmationEmail(email: String): Message 
-        toggleLike(info: LikeInfo): Message
+        toggleLike(info: LikeInput): Message
     }
 
     schema {

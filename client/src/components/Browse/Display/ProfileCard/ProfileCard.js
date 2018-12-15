@@ -11,14 +11,10 @@ class ProfileCard extends Component {
 	state = { }
 
 
-
-	toggleLike = () => {
-	}
-
 	toggleLike = () => {
 		const mutation = {
 			query: ` mutation {
-				toggleLike (info: {receiver_id: ${this.props.profile.id}, liked:${!this.state.liked}}) {
+				toggleLike (info: {receiverId: ${this.props.profile.id}, liked:${!this.state.liked}}) {
 					content
 				}
 			}`
@@ -45,7 +41,6 @@ class ProfileCard extends Component {
 				console.log(err)
 			})
 	}
-
 
 	render() {
 		const { firstName, age, lastName, profilePic, gender, liked } = this.props.profile

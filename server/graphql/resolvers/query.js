@@ -113,7 +113,6 @@ const query = {
 		JOIN interests I ON I.id = UI.interest_id
 		GROUP BY UI.user_id`
 		/// IF NO INTERESTS ARE SPECIFIED, ALL ARE RETURNED
-		const array = [`^[${filters.orientation}]$`, minDob, maxDob, `%${filters.gender}%`]
 		const [users] = await db.query(query, [...array, ...filters.interests])
 		const result = users.map((x) => (
 			{
@@ -153,6 +152,20 @@ const query = {
 			throw error
 		}
 		return interests.map(x => x.title)
+	},
+	likeInfo: async function ({info}, req) {
+		console.log("GET LIKE INFO")
+		// if (!req.isAuth) {
+		// 	const error = new Error('Not authenticated!')
+		// 	error.code = 401
+		// 	throw error
+		// }
+		req.userId = 122
+		const userToMatchQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
+		const matchToUserQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
+		const [userToMatch] = await db.query(userToMatchQuery, [req.userId, info.receiverId])
+		const [matchToUser] = await db.query(matchToUserQuery, [info.receiverId, req.userId])
+		return { likes: userToMatch[0].val, isLiked: matchToUser[0].val }
 	}
 }
 
