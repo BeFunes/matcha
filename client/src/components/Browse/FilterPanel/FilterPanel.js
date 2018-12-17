@@ -6,11 +6,8 @@ import FormControl from "@material-ui/core/es/FormControl/FormControl";
 import Select from "@material-ui/core/es/Select/Select";
 import OutlinedInput from "@material-ui/core/es/OutlinedInput/OutlinedInput";
 import MenuItem from "@material-ui/core/es/MenuItem/MenuItem";
-import Input from "@material-ui/core/es/Input/Input";
 import Checkbox from "@material-ui/core/es/Checkbox/Checkbox";
 import ListItemText from "@material-ui/core/es/ListItemText/ListItemText";
-import FormControlLabel from "@material-ui/core/es/FormControlLabel/FormControlLabel";
-import Switch from "@material-ui/core/es/Switch/Switch";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;

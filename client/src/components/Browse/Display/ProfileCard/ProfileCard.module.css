@@ -17,6 +17,10 @@
     height: 180px;
 }
 
+.img:hover {
+    cursor: pointer;
+}
+
 .f {
     border-color: deeppink;
     background-color: white;

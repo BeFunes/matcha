@@ -34,18 +34,18 @@ const query = {
 		return {token: token, userId: user[0].id, isOnboarded: !!user[0].isOnboarded}
     },
     
-	getUserData: async function (_, req) {
+	getUserData: async function ({id}, req) {
 		console.log("GET USER INFO")
 		if (!req.isAuth) {
 			const error = new Error('Not authenticated!')
 			error.code = 401
 			throw error
 		}
-		const query = `SELECT U.*, GROUP_CONCAT(I.title) interests FROM (SELECT * from users WHERE email=?) U
+		const query = `SELECT U.*, GROUP_CONCAT(I.title) interests FROM (SELECT * from users WHERE id=?) U
 		JOIN users_interests UI on U.id = UI.user_id
 		JOIN interests I ON I.id = UI.interest_id
 		GROUP BY UI.user_id `
-		const [user] = await db.query(query, req.email)
+		const [user] = await db.query(query, id)
 		if (user.length === 0) {
 			const error = new Error('User not found.')
 			error.code = 401

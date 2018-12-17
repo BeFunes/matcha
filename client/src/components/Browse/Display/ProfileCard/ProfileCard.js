@@ -6,6 +6,7 @@ import EmptyHeart from '@material-ui/icons/FavoriteBorder'
 import ChatBubbleEmpty from '@material-ui/icons/ChatBubbleOutline'
 import ChatBubbleFull from '@material-ui/icons/ChatBubbleOutline'
 import Block from '@material-ui/icons/Block'
+import Redirect from "react-router-dom/es/Redirect";
 
 
 class ProfileCard extends Component {
@@ -119,7 +120,7 @@ class ProfileCard extends Component {
 	}
 
 	render() {
-		const {firstName, age, lastName, profilePic, gender} = this.props.profile
+		const {firstName, age, profilePic, gender, id} = this.props.profile
 		const chat = this.state.likeFrom && this.state.likeTo
 		const borderStyle = gender === 'F' ? styles.f : styles.m
 
@@ -145,6 +146,7 @@ class ProfileCard extends Component {
 					     backgroundImage: `url(${profilePic})`,
 					     backgroundRepeat: 'noRepeat', backgroundSize: 'cover'
 				     }}
+				     onClick={() => {this.props.history.push(`/user_profile/${id}`)}}
 				/>
 					<div className={styles.icons}>
 						{renderHeart()}

@@ -106,7 +106,7 @@ module.exports = buildSchema(`
     
     type RootQuery {
         login(email: String!, password: String!): AuthData!
-        getUserData: UserData
+        getUserData(id: Int!): UserData
         isOnboarded: Boolean!
         match(filters: MatchFilter) : [UserData]
         usedInterests: [String]!

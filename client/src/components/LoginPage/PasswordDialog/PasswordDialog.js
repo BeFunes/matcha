@@ -1,12 +1,10 @@
 import React from 'react';
 
 import styles from './PasswordDialog.module.css'
-import {passwordCriteria, validator} from "../../../utils/string";
+import { validator} from "../../../utils/string";
 import Dialog from "@material-ui/core/es/Dialog/Dialog";
 import Button from "@material-ui/core/es/Button/Button";
 import TextInput from "../../UI/TextInput/TextInput";
-
-
 
 class PasswordDialog extends React.Component {
     state = {

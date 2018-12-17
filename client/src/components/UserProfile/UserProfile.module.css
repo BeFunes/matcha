@@ -1,0 +1,56 @@
+.component {
+    background-color: white;
+    display: flex;
+    width: 70%;
+    min-width: 700px;
+    height: 100%;
+}
+
+.page {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    align-content: stretch;
+    margin: 25px 40px;
+}
+
+.profilePic {
+    border-radius: 100%;
+    height: 150px;
+    margin-left: 10px;
+}
+
+.header {
+    display: flex;
+}
+
+.infoBox {
+    display: flex;
+    flex-direction: column;
+    margin-left: 50px;
+    margin-top: 16px;
+}
+
+.name {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 6px 0;
+}
+
+.minorInfo {
+    /*height: 40px;*/
+    margin: 6px 0;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.body {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}

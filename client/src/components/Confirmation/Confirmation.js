@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Button from "@material-ui/core/es/Button/Button";
-import styles from "./Confirmation.module.css"
+// import styles from "./Confirmation.module.css"
 
 class Confirmation extends Component {
 	state = {

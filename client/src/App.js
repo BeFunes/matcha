@@ -5,7 +5,7 @@ import styles from './App.module.css';
 import Browse from "./components/Browse/Browse";
 import LoginPage from "./components/LoginPage/LoginPage";
 import Toolbar from "./components/Navigation/Toolbar/Toolbar";
-import Profile from "./components/Profile/Profile";
+import Profile from "./components/UserProfile/UserProfile";
 import Chat from "./components/Chat/Chat";
 import Confirmation from "./components/Confirmation/Confirmation"
 import Onboarding from "./components/Onboarding/Onboarding";
@@ -44,7 +44,7 @@ class App extends Component {
 		console.log("GET USER DATA")
 		const query = {
 			query: `{
-                getUserData {
+                getUserData(id: ${this.state.userId}) {
                     firstName
 										lastName
 										password
@@ -192,8 +192,8 @@ class App extends Component {
 				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler} />}/>
 			else
 				return (
-					<Route path="/" exact render={() => <Browse token={this.state.token} user={this.state.user} interests={this.state.interests}/> } />
-					// 	<Route path="profile" component={Profile}/>
+					<Route path="/" exact render={(props) => <Browse token={this.state.token} user={this.state.user} interests={this.state.interests} {...props} /> } />
+					// 	<Route path="profile" component={UserProfile}/>
 					// 	<Route path="chat" component={Chat}/>
 				)
 	}
@@ -207,7 +207,8 @@ class App extends Component {
 						<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
 							{!this.state.isAuth && <Route path="/confirmation/:token" render={(props) => <Confirmation {...props} markLoggedIn={this.loginHandler} />}/>}
 							{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword}/>}
-							{hasAccess && <Route path="/profile" component={Profile}/>}
+							{hasAccess && <Route path="/user_profile/:id" component={Profile}/>}
+							{/*{hasAccess && <Route path="/profile" component={Profile}/>}*/}
 							{hasAccess && <Route path="/chat" component={Chat}/>}
 							{routeZero()}
 						</Switch>

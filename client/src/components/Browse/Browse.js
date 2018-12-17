@@ -4,6 +4,7 @@ import FilterPanel from "./FilterPanel/FilterPanel"
 import Display from "./Display/Display"
 import _ from 'lodash'
 import {getAge} from "../../utils/date";
+import Route from "react-router-dom/es/Route";
 
 class Browse extends Component {
 
@@ -110,8 +111,7 @@ class Browse extends Component {
 		const {matches} = this.state
 ///////////////////// todo: remove before moving to production
 		matches && matches.forEach((x, index) => {
-			if (matches.find((y, ind) => {
-				if (index > ind) { return _.isEqual(y, x) }})) {
+			if (matches.find((y, ind) => index > ind ?  _.isEqual(y, x) : false )) {
 				console.log("DUPLICATE: ", x.id)
 			}
 		})
@@ -125,11 +125,12 @@ class Browse extends Component {
 					interests={this.props.interests}
 					onBlockedFilterChange={this.toggleAllowBlocked}
 				/>}
-				<Display
+				<Route render={(props) => <Display
 					profiles={matches}
 					token={this.props.token}
 					allowBlocked={this.state.filters.allowBlocked}
-				/>
+					{...props}
+				/> }/>
 			</div>
 		)
 	}

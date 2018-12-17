@@ -134,7 +134,7 @@ module.exports = {
 		const query = `UPDATE users SET first_name = ?, last_name = ?, dob = ?, gender = ?, orientation = ? WHERE email = ?`
 		const [row] = await db.query(query, [info.firstName, info.lastName, info.dob, info.gender, info.orientation, req.email])
 		console.log(row)
-		return {content: "Profile data updated successfully"}
+		return {content: "UserProfile data updated successfully"}
 	},
 
 	insertBioInfo: async function({info}, req) {

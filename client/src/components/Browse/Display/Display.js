@@ -1,17 +1,16 @@
 import React, {Component} from 'react';
 import styles from './Display.module.css'
 import ProfileCard from "./ProfileCard/ProfileCard";
-import _ from "lodash"
+import Route from "react-router-dom/es/Route";
 
 class Display extends Component {
-	state = {
-	}
+	state = {}
 
-	componentDidMount () {
+	componentDidMount() {
 		this.setState({profiles: this.props.profiles})
 	}
 
-	componentDidUpdate (prevProps) {
+	componentDidUpdate(prevProps) {
 		if (this.props.profiles !== prevProps.profiles) {
 			this.setState({profiles: this.props.profiles})
 		}
@@ -23,19 +22,21 @@ class Display extends Component {
 	}
 
 	render() {
-		const { token, allowBlocked } = this.props
-		const { profiles } = this.state
+		const {token, allowBlocked} = this.props
+		const {profiles} = this.state
 		const filteredProfiles = profiles && profiles[0] && profiles.filter(x => !x.blocked || allowBlocked)
 
 		return (
 			<div className={styles.component}>
 				{filteredProfiles && filteredProfiles.map((item, index) => (
-					<ProfileCard
+					<Route
 						key={`${item.firstName}+${item.lastName}+${index}`}
-						profile={item}
-						token={token}
-						onBlock={this.blockUser}
-					/>
+						render={(props) => <ProfileCard
+							profile={item}
+							token={token}
+							onBlock={this.blockUser}
+							{...props}
+						/>}/>
 				))}
 			</div>
 		)
