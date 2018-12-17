@@ -26,15 +26,23 @@
     color: #DD0E52;
     margin: 15px 0;
     font-weight: bolder;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .title {
-    margin: 0 20px 30px;
+    margin: 0 10px 30px 10px;
     /*line-height: 60px;*/
-    width: 200px;
+    width: 210px;
 
 }
 
 .interestsFilter {
     width: 100%;
 }
+
+.blockToggle {
+    padding-left: 50px;
+}
+

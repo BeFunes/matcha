@@ -105,11 +105,13 @@ class FilterPanel extends Component {
 						</FormControl>
 					</div>
 					<div className={styles.title}>
-						<div className={styles.label}>See blocked users</div>
+						<div className={styles.label}>See blocked users
 						<Checkbox
+							// className={styles.blockToggle}
 							checked={this.state.filters.blocked}
 							onChange={this.allowBlockedHandler}
 						/>
+						</div>
 					</div>
 				</div>
 

@@ -97,33 +97,34 @@ const query = {
 		const interestsCondition = filters.interests.length ? `AND (${filters.interests.map(() => "I.title = ?").join(" OR ")})` : ''
 
 		const query = `
-		SELECT Z.*, COALESCE(B.count, 0) AS blocked FROM 
+		SELECT DISTINCT U.* FROM 
+			(SELECT Z.*, COALESCE(B.count, 0) AS blocked FROM 
 				(SELECT * FROM (SELECT R.*, GROUP_CONCAT(I.title) interests FROM 
-						( SELECT U.*
-							FROM users_interests UI
-							JOIN users U ON UI.user_id = U.id
-							RIGHT JOIN interests I ON I.id = UI.interest_id
-							WHERE (U.gender REGEXP ?)
-							AND (U.dob > ?)
-							AND (U.dob < ?)
-							AND (U.orientation LIKE ?) 
-							${interestsCondition} 
-							ORDER BY id LIMIT 0,1000 
-							) R
+					( SELECT *
+						FROM users
+						WHERE (gender REGEXP ?)
+						AND (dob > ?)
+						AND (dob < ?)
+						AND (orientation LIKE ?) 
+						ORDER BY id LIMIT 0,1000 
+						) R
 					JOIN users_interests UI on R.id = UI.user_id
 					JOIN interests I ON I.id = UI.interest_id
 					GROUP BY UI.user_id) A
 					LEFT JOIN blocks B ON A.id = B.sender_id
 					WHERE B.sender_id IS NULL OR B.receiver_id != ?) Z
-						
 				LEFT JOIN (
-				SELECT receiver_id, COUNT(*) as COUNT
-				FROM blocks WHERE sender_id = ?
-				GROUP BY receiver_id ) as B
-				ON Z.id = B.receiver_id
-		`
+					SELECT receiver_id, COUNT(*) as COUNT
+					FROM blocks WHERE sender_id = ?
+					GROUP BY receiver_id ) as B
+			ON Z.id = B.receiver_id) U
+			JOIN users_interests UI ON UI.user_id = U.id
+			JOIN interests I on I.id = UI.interest_id
+			WHERE U.id != ?
+			${interestsCondition} `
+
 		/// IF NO INTERESTS ARE SPECIFIED, ALL ARE RETURNED
-		const array = [`^[${filters.orientation}]$`, minDob, maxDob, `%${filters.gender}%`, req.userId, req.userId]
+		const array = [`^[${filters.orientation}]$`, minDob, maxDob, `%${filters.gender}%`, req.userId, req.userId, req.userId]
 		const [users] = await db.query(query, [...array, ...filters.interests])
 		const result = users.map((x) => (
 			{

@@ -113,7 +113,14 @@ class Browse extends Component {
 
 	render() {
 		const {matches} = this.state
-		// const filteredMatches = matches && matches.filter(x => !x.blocked || this.state.filters.allowBlocked)
+///////////////////// todo: remove before moving to production
+		matches && matches.forEach((x, index) => {
+			if (matches.find((y, ind) => {
+				if (index > ind) { return _.isEqual(y, x) }})) {
+				console.log("DUPLICATE: ", x.id)
+			}
+		})
+
 		return (
 			<div className={styles.component}>
 				{ this.props.user && <FilterPanel
