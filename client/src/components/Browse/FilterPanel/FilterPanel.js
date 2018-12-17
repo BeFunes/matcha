@@ -9,6 +9,8 @@ import MenuItem from "@material-ui/core/es/MenuItem/MenuItem";
 import Input from "@material-ui/core/es/Input/Input";
 import Checkbox from "@material-ui/core/es/Checkbox/Checkbox";
 import ListItemText from "@material-ui/core/es/ListItemText/ListItemText";
+import FormControlLabel from "@material-ui/core/es/FormControlLabel/FormControlLabel";
+import Switch from "@material-ui/core/es/Switch/Switch";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -26,7 +28,8 @@ class FilterPanel extends Component {
 		filters: {
 			ageMin: 18,
 			ageMax: 99,
-			interests: []
+			interests: [],
+			allowBlocked: false
 		},
 		sortValue: 'location',
 	}
@@ -35,6 +38,10 @@ class FilterPanel extends Component {
 		this.setState({filters: {...this.state.filters, ...this.props.filters}})
 	}
 
+	allowBlockedHandler = () => {
+		this.setState({filters: {...this.state.filters, blocked: !this.state.filters.allowBlocked}})
+		this.props.onBlockedFilterChange()
+	}
 
 	ageRangeHandler = ([min, max]) => {
 		this.setState({filters: {...this.state.filters, ageMin: min, ageMax: max}})
@@ -96,6 +103,13 @@ class FilterPanel extends Component {
 								))}
 							</Select>
 						</FormControl>
+					</div>
+					<div className={styles.title}>
+						<div className={styles.label}>See blocked users</div>
+						<Checkbox
+							checked={this.state.filters.blocked}
+							onChange={this.allowBlockedHandler}
+						/>
 					</div>
 				</div>
 

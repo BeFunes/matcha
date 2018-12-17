@@ -42,7 +42,7 @@ class ProfileCard extends Component {
 				if (resData.errors) {
 					throw new Error(resData.errors[0].message)
 				}
-				console.log(resData.data.toggleLike.content)
+				// console.log(resData.data.toggleLike.content)
 				this.setState({likeTo: !this.state.likeTo})
 			})
 			.catch(err => {
@@ -109,8 +109,9 @@ class ProfileCard extends Component {
 				if (resData.errors) {
 					throw new Error(resData.errors[0].message)
 				}
-				console.log(resData.data.toggleBlock.content)
-				this.setState({blocked: !this.state.blocked})
+				console.log("user block toggled successfully")
+				// this.setState({blocked: !this.state.blocked})
+				this.props.onBlock(this.props.profile.id)
 			})
 			.catch(err => {
 				console.log(err)
@@ -133,7 +134,8 @@ class ProfileCard extends Component {
 			? <ChatBubbleFull/> : <ChatBubbleEmpty/>
 		}
 
-		// const renderBlock = () =>
+		const renderBlock = () =>
+			<Block onClick={this.blockUser} color={this.props.profile.blocked ? "error" : "inherit"}/>
 
 
 		return (
@@ -147,7 +149,7 @@ class ProfileCard extends Component {
 					<div className={styles.icons}>
 						{renderHeart()}
 						{chat && renderChat()}
-						<Block onClick={this.blockUser} color={this.state.blocked ? "error" : "inherit"}/>
+						{renderBlock()}
 					</div>
 				{/*</div>*/}
 				<div className={styles.name}>

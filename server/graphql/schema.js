@@ -75,6 +75,7 @@ module.exports = buildSchema(`
         picture5: String
         isOnboarded: Boolean!
         interests: [String]
+        blocked: Boolean
     }
     
     input MatchFilter {

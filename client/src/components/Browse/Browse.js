@@ -11,7 +11,8 @@ class Browse extends Component {
 		filters: {
 			ageMin: 30,
 			ageMax: 50,
-			interests: []
+			interests: [],
+			allowBlocked: false
 		},
 		sortValue: "location"
 	}
@@ -53,6 +54,7 @@ class Browse extends Component {
 				    dob
 				    interests
 				    profilePic
+				    blocked
 				  }  }     `
 		}
 		fetch('http://localhost:3001/graphql', {
@@ -93,6 +95,15 @@ class Browse extends Component {
 				return array
 		}
 	}
+	//
+	// blockUser = (userId) => {
+	// 	const newMatches = this.state.matches.forEach(x => { if (x.id === userId) { x.blocked = !x.blocked}})
+	// 	this.setState({matches: newMatches})
+	// }
+
+	toggleAllowBlocked = () => {
+		this.setState({filters: {...this.state.filters, allowBlocked: !this.state.filters.allowBlocked}})
+	}
 
 	sortingChangeHandler = value => {
 		console.log(value)
@@ -101,6 +112,8 @@ class Browse extends Component {
 	}
 
 	render() {
+		const {matches} = this.state
+		// const filteredMatches = matches && matches.filter(x => !x.blocked || this.state.filters.allowBlocked)
 		return (
 			<div className={styles.component}>
 				{ this.props.user && <FilterPanel
@@ -108,10 +121,12 @@ class Browse extends Component {
 					onSortChange={this.sortingChangeHandler}
 					filters={this.state.filters}
 					interests={this.props.interests}
+					onBlockedFilterChange={this.toggleAllowBlocked}
 				/>}
 				<Display
-					profiles={this.state.matches}
+					profiles={matches}
 					token={this.props.token}
+					allowBlocked={this.state.filters.allowBlocked}
 				/>
 			</div>
 		)
