@@ -95,11 +95,6 @@ class Browse extends Component {
 				return array
 		}
 	}
-	//
-	// blockUser = (userId) => {
-	// 	const newMatches = this.state.matches.forEach(x => { if (x.id === userId) { x.blocked = !x.blocked}})
-	// 	this.setState({matches: newMatches})
-	// }
 
 	toggleAllowBlocked = () => {
 		this.setState({filters: {...this.state.filters, allowBlocked: !this.state.filters.allowBlocked}})

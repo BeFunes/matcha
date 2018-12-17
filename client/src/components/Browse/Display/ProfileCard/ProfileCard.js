@@ -153,9 +153,9 @@ class ProfileCard extends Component {
 					</div>
 				{/*</div>*/}
 				<div className={styles.name}>
-					{firstName} {lastName}
+					{firstName}, {age}
 				</div>
-				<div>{age}</div>
+				{/*<div>{age}</div>*/}
 			</div>
 		)
 	}

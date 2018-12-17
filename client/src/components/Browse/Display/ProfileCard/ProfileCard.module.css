@@ -28,8 +28,9 @@
 }
 
 .name {
-    margin-top: 8px;
+    margin: 8px 0;
     font-weight: bold;
+
 }
 
 .icons {
@@ -37,7 +38,7 @@
     display: flex;
     margin: 1px 0;
     color: #373737;
-    justify-content: space-between;
+    justify-content: space-around;
 }
 
 
