@@ -70,7 +70,6 @@ class UserProfile extends Component {
 	}
 
 	openLightbox = (index) => {
-		console.log(index)
 		this.setState({lightboxIsOpen: true, currentImage: index})
 	}
 
@@ -83,7 +82,7 @@ class UserProfile extends Component {
 
 	render() {
 		const {firstName, lastName, dob, gender, orientation, job, bio, interests, profilePic, picture2, picture3, picture4, picture5} = this.state.user
-		const images = [picture2, picture3, picture4, picture5].filter(x => x !== null && typeof x !== 'undefined')
+		const images = [picture2, picture3, picture4, picture5].filter(x => !!x)
 		const imagesArray = [profilePic, ...images].map(x => ({src: x}))
 		const city = "Paris"
 		const country = "France"
@@ -122,18 +121,17 @@ class UserProfile extends Component {
 									     onClick={this.openLightbox.bind(this, (i+1))}
 									/>
 								)}
-
+							<Lightbox
+								currentImage={this.state.currentImage}
+								images={imagesArray}
+								isOpen={this.state.lightboxIsOpen}
+								onClose={this.closeLightbox}
+								onClickThumbnail={this.gotoImage}
+								onClickNext={this.nextImage}
+								onClickPrev={this.previousImage}
+							/>
 								</div>
 						}
-						<Lightbox
-							currentImage={this.state.currentImage}
-							images={imagesArray}
-							isOpen={this.state.lightboxIsOpen}
-							onClose={this.closeLightbox}
-							onClickThumbnail={this.gotoImage}
-							onClickNext={this.nextImage}
-							onClickPrev={this.previousImage}
-						/>
 					</div>
 				</div>
 				}
