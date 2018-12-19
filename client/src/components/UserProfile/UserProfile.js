@@ -76,12 +76,18 @@ class UserProfile extends Component {
 		const city = "Paris"
 		const country = "France"
 		const age = dob && getAge(dob)
+		// console.log(this.state.background)
 		return (
 			<div className={styles.component}>
 				{this.state.user &&
 
 				<div className={styles.page}>
-					<div className={styles.header}>
+					<div className={styles.header}
+					     style={{
+						     backgroundImage: `url(${this.state.background})`,
+						     backgroundRepeat: 'noRepeat', backgroundSize: 'cover'
+					     }}
+					>
 						<img className={styles.profilePic} src={profilePic}/>
 						<div className={styles.infoBox}>
 							<div className={styles.name}>{firstName} {lastName}</div>
