@@ -76,3 +76,16 @@
     background-size: cover;
     background-position: center;
 }
+
+.actionBlocks {
+    display: flex;
+}
+.iconBlock {
+    border: 1px solid gray;
+    border-radius: 5%;
+    background-color: #dcdcdc;
+    display: flex;
+    flex-direction: column;
+    justify-content:center;
+    margin-left: -1px;
+}

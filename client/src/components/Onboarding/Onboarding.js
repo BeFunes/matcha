@@ -3,6 +3,8 @@ import styles from './Onboarding.module.css'
 import OnboardingProfile from "./OnboardingProfile/OnboardingProfile"
 import OnboardingBio from "./OnboardingBio/OnboardingBio"
 import OnboardingPics from "./OnboardingPics/OnboardingPics"
+import {insertProfileInfoMutation} from "../../graphql/mutations";
+import {fetchGraphql} from "../../utils/graphql";
 
 const defaultState = {
 	completed: 40,
@@ -48,40 +50,20 @@ class Onboarding extends React.Component {
 				default: return 'FM'
 			}
 		})(data.orientation)
-		const mutation = {
-			query: ` mutation {
-				insertProfileInfo (info: {firstName: "${data.firstName}", lastName:"${data.lastName}", dob:"${data.dob}", gender: "${gender}", orientation:"${orientation}"}) {
-					content
-				}
-			}`
-		}
-		fetch('http://localhost:3001/graphql', {
-			method: 'POST',
-			body: JSON.stringify(mutation),
-			headers: {
-				Authorization: 'Bearer ' + this.props.token,
-				'Content-Type': 'application/json'
+		const query = insertProfileInfoMutation(data.firstName, data.lastName, data.dob, gender, orientation)
+		const cb = resData => {
+			if (resData.errors && resData.errors[0].status === 422) {
+				throw new Error(
+					"Validation failed. Make sure the email address isn't used yet!"
+				)
 			}
-		})
-			.then(res => {
-				return res.json()
-			})
-			.then(resData => {
-				if (resData.errors && resData.errors[0].status === 422) {
-					throw new Error(
-						"Validation failed. Make sure the email address isn't used yet!"
-					)
-				}
-				if (resData.errors) {
-					throw new Error('PROBLEM')
-				}
-				console.log(resData)
-				this.nextPage()
-			})
-			.catch(err => {
-				console.log(err)
-				this.setState(defaultState)
-			})
+			if (resData.errors) {
+				throw new Error('PROBLEM')
+			}
+			console.log(resData)
+			this.nextPage()
+		}
+		fetchGraphql(query, cb, this.props.token, () => this.setState(defaultState))
 	}
 
 	localSaveBioInfo = (data) => {

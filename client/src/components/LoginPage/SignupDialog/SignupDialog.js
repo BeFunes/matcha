@@ -5,6 +5,8 @@ import {passwordCriteria, validator} from "../../../utils/string";
 import Dialog from "@material-ui/core/es/Dialog/Dialog";
 import Button from "@material-ui/core/es/Button/Button";
 import TextInput from "../../UI/TextInput/TextInput";
+import {createUserMutation} from "../../../graphql/mutations";
+import {fetchGraphql} from "../../../utils/graphql";
 
 
 class SignupDialog extends React.Component {
@@ -47,40 +49,20 @@ class SignupDialog extends React.Component {
 	};
 
 	signupHandler = () => {
-		const query = {
-			query: `
-            mutation {
-                createUser(userInput: {
-                    email: "${this.state.email.value}", 
-                    password: "${this.state.password.value}"
-                    }) { email }
-               }`
+		const query = createUserMutation(this.state.email.value, this.state.password.value)
+		const cb = resData => {
+			if (resData.errors && resData.errors[0].status === 422) {
+				throw new Error(
+					"Validation failed. Make sure the email address isn't used yet!"
+				);
+			}
+			if (resData.errors) {
+				throw new Error('User creation failed!');
+			}
+			console.log(resData)
+			this.props.onClose()
 		}
-		fetch('http://localhost:3001/graphql', {
-			method: 'POST',
-			headers: {'Content-Type': 'application/json'},
-			body: JSON.stringify(query)
-		})
-			.then(res => {
-				return res.json()
-			})
-			.then(resData => {
-				if (resData.errors && resData.errors[0].status === 422) {
-					throw new Error(
-						"Validation failed. Make sure the email address isn't used yet!"
-					);
-				}
-				if (resData.errors) {
-					throw new Error('User creation failed!');
-				}
-				console.log(resData)
-				this.props.onClose()
-				// this.props.history.push('/')
-				// this.setState({isAuth: false})
-			})
-			.catch(err => {
-				console.log(err)
-			})
+		fetchGraphql(query, cb)
 	}
 
 	inputChangeHandler = (type, {target}) => {

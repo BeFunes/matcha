@@ -104,9 +104,17 @@ module.exports = buildSchema(`
         likeFrom: Boolean!
     }
     
+    type RelationsData {
+        likeTo: Boolean!
+        likeFrom: Boolean!
+        blockTo: Boolean!
+        blockFrom: Boolean!
+    }
+    
     type RootQuery {
         login(email: String!, password: String!): AuthData!
         getUserData(id: Int!): UserData
+        relationsData(id: Int!): RelationsData
         isOnboarded: Boolean!
         match(filters: MatchFilter) : [UserData]
         usedInterests: [String]!

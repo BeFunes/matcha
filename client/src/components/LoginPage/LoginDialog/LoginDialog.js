@@ -5,6 +5,8 @@ import {passwordCriteria, validator} from "../../../utils/string";
 import Dialog from "@material-ui/core/es/Dialog/Dialog";
 import Button from "@material-ui/core/es/Button/Button";
 import TextInput from "../../UI/TextInput/TextInput";
+import {loginQuery} from "../../../graphql/queries";
+import {fetchGraphql} from "../../../utils/graphql";
 
 
 class LoginDialog extends React.Component {
@@ -46,41 +48,20 @@ class LoginDialog extends React.Component {
 
 	loginHandler = (authData) => {
 		console.log("LOGIN HANDLER")  ////////////////////REMOVE
-		const query = {
-			query: `{
-                login(email: "${authData.email}", password: "${authData.password}") {
-                    token
-                    userId
-                    isOnboarded
-                }
-            } `
+		const query = loginQuery(authData.email, authData.password)
+		const cb = resData => {
+			if (resData.errors && resData.errors[0].status === 422) {
+				throw new Error(
+					"Validation failed."
+				)
+			}
+			if (resData.errors) {
+				throw new Error ("User login failed.")
+			}
+			this.props.onLogin(resData.data.login)
 		}
-		fetch('http://localhost:3001/graphql', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(query)
-		})
-			.then(res => {
-				return res.json()
-			})
-			.then(resData => {
-				if (resData.errors && resData.errors[0].status === 422) {
-					throw new Error(
-						"Validation failed."
-					)
-				}
-				if (resData.errors) {
-					throw new Error ("User login failed.")
-				}
-				// console.log(resData.data.login)
-				this.props.onLogin(resData.data.login)
-			})
-			.catch(err => {
-				this.setState({isAuth: false, loginFail: true})
-				console.log(err)
-			})
+		const errorCb = () => this.setState({isAuth: false, loginFail: true})
+		fetchGraphql(query, cb, null, errorCb)
 	}
 
 	render() {

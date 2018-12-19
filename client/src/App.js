@@ -10,7 +10,8 @@ import Chat from "./components/Chat/Chat";
 import Confirmation from "./components/Confirmation/Confirmation"
 import Onboarding from "./components/Onboarding/Onboarding";
 import ResetPassword from './components/ResetPassword/ResetPassword';
-
+import {getUserDataQuery, isOnboardedQuery, usedInterestsQuery} from "./graphql/queries";
+import {fetchGraphql} from "./utils/graphql";
 
 
 class App extends Component {
@@ -42,108 +43,43 @@ class App extends Component {
 
 	getUserData = (token) => {
 		console.log("GET USER DATA")
-		const query = {
-			query: `{
-                getUserData(id: ${this.state.userId}) {
-                    firstName
-										lastName
-										password
-										email
-										dob
-										gender
-										orientation
-										job
-										bio
-										interests
-										profilePic
-										picture2
-										picture3
-										picture4
-										picture5
-										isOnboarded
-                }
-            } `
+		const query = getUserDataQuery(this.state.userId)
+		const cb = resData => {
+			if (resData.errors) {
+				throw new Error ("User data retrieval failed .")
+			}
+			this.setState({user: {...resData.data.getUserData}, isOnboarded: resData.data.getUserData.isOnboarded, isLoading: false })
 		}
-		fetch('http://localhost:3001/graphql', {
-			method: 'POST',
-			headers: {
-				Authorization: 'Bearer ' + token,
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(query)
-		})
-			.then(res => {
-				return res.json()
-			})
-			.then(resData => {
-				if (resData.errors) {
-					throw new Error ("User data retrieval failed .")
-				}
-				this.setState({user: {...resData.data.getUserData}, isOnboarded: resData.data.getUserData.isOnboarded, isLoading: false })
-			})
-			.catch(err => {
-				console.log(err)
-			})
+		fetchGraphql(query, cb, token)
 	}
 
 	getUsedInterests = (token) => {
 		console.log("GET USED INTERESTS")
-		const query = {
-			query: `{ usedInterests } `
+
+		const query = usedInterestsQuery
+		const cb = resData => {
+			if (resData.errors) {
+				throw new Error("Interests retrieval failed .")
+			}
+			this.setState({interests: resData.data.usedInterests})
 		}
-		fetch('http://localhost:3001/graphql', {
-			method: 'POST',
-			headers: {
-				Authorization: 'Bearer ' + token,
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(query)
-		})
-			.then(res => {
-				return res.json()
-			})
-			.then(resData => {
-				if (resData.errors) {
-					throw new Error("Interests retrieval failed .")
-				}
-				this.setState({interests: resData.data.usedInterests})
-			})
-			.catch(err => {
-				console.log(err)
-			})
+		fetchGraphql(query, cb, token)
 	}
 
 
 	getIsOnboarded = (token) => {
 		console.log("GET IS ONBOARDED")
-		const query = {
-			query: `{
-            isOnboarded
-            } `
+		const query = isOnboardedQuery
+		const cb = (resData) => {
+			if (resData.errors) {
+				throw new Error ("User data retrieval failed .")
+			}
+			if (resData.data.isOnboarded) {
+				this.getUserData(token)
+				this.getUsedInterests(token)
+			}
 		}
-		fetch('http://localhost:3001/graphql', {
-			method: 'POST',
-			headers: {
-				Authorization: 'Bearer ' + token,
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(query)
-		})
-			.then(res => {
-				return res.json()
-			})
-			.then(resData => {
-				if (resData.errors) {
-					throw new Error ("User data retrieval failed .")
-				}
-				if (resData.data.isOnboarded) {
-					this.getUserData(token)
-					this.getUsedInterests(token)
-				}
-			})
-			.catch(err => {
-				console.log(err)
-			})
+		fetchGraphql(query, cb, token)
 	}
 
 	loginHandler = (data) => {

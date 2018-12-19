@@ -177,6 +177,29 @@ const query = {
 		const [userToMatch] = await db.query(userToMatchQuery, [req.userId, info.receiverId])
 		const [matchToUser] = await db.query(matchToUserQuery, [info.receiverId, req.userId])
 		return { likeTo: userToMatch[0].val, likeFrom: matchToUser[0].val }
+	},
+
+	relationsData: async function ({id}, req) {
+		console.log("GET RELATIONS DATA")
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!')
+			error.code = 401
+			throw error
+		}
+		const userLikesMatchQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
+		const matchLikesUserQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
+		const userBlocksMatchQuery = `SELECT EXISTS(SELECT * FROM blocks WHERE sender_id = ? AND receiver_id = ?) val`
+		const matchBlocksUserQuery = `SELECT EXISTS(SELECT * FROM blocks WHERE sender_id = ? AND receiver_id = ?) val`
+
+		const [userLikesMatch] = await db.query(userLikesMatchQuery, [req.userId, id])
+		const [matchLikesUser] = await db.query(matchLikesUserQuery, [id, req.userId])
+		const [userBlocksMatch] = await db.query(userBlocksMatchQuery, [req.userId, id])
+		const [matchBlocksUser] = await db.query(matchBlocksUserQuery, [id, req.userId])
+		return {
+			likeTo: userLikesMatch[0].val,
+			likeFrom: matchLikesUser[0].val,
+			blockTo: userBlocksMatch[0].val,
+			blockFrom: matchBlocksUser[0].val }
 	}
 }
 
