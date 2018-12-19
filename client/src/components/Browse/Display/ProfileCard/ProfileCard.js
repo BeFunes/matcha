@@ -6,7 +6,9 @@ import EmptyHeart from '@material-ui/icons/FavoriteBorder'
 import ChatBubbleEmpty from '@material-ui/icons/ChatBubbleOutline'
 import ChatBubbleFull from '@material-ui/icons/ChatBubbleOutline'
 import Block from '@material-ui/icons/Block'
-import Redirect from "react-router-dom/es/Redirect";
+import {likeInfoQuery } from "../../../../graphql/queries";
+import {fetchGraphql} from "../../../../utils/graphql";
+import {toggleBlockMutation, toggleLikeMutation} from "../../../../graphql/mutations";
 
 
 class ProfileCard extends Component {
@@ -21,102 +23,44 @@ class ProfileCard extends Component {
 	}
 
 	toggleLike = () => {
-		const mutation = {
-			query: ` mutation {
-				toggleLike (info: {receiverId: ${this.props.profile.id}, liked:${!this.state.likeTo}}) {
-					content
-				}
-			}`
-		}
-		fetch('http://localhost:3001/graphql', {
-			method: 'POST',
-			body: JSON.stringify(mutation),
-			headers: {
-				Authorization: 'Bearer ' + this.props.token,
-				'Content-Type': 'application/json'
+		const query = toggleLikeMutation(this.props.profile.id, !this.state.likeTo)
+		const cb = resData => {
+			if (resData.errors) {
+				throw new Error(resData.errors[0].message)
 			}
-		})
-			.then(res => {
-				return res.json()
-			})
-			.then(resData => {
-				if (resData.errors) {
-					throw new Error(resData.errors[0].message)
-				}
-				// console.log(resData.data.toggleLike.content)
-				this.setState({likeTo: !this.state.likeTo})
-			})
-			.catch(err => {
-				console.log(err)
-			})
+			// console.log(resData.data.toggleLike.content)
+			this.setState({likeTo: !this.state.likeTo})
+		}
+		fetchGraphql(query, cb, this.props.token)
 	}
 
 	getLikeInfo = () => {
-		const mutation = {
-			query: ` {
-				likeInfo (info: {receiverId: ${this.props.profile.id} }) {
-				    likeTo
-				    likeFrom
-				  }
-			}`
-		}
-		fetch('http://localhost:3001/graphql', {
-			method: 'POST',
-			body: JSON.stringify(mutation),
-			headers: {
-				Authorization: 'Bearer ' + this.props.token,
-				'Content-Type': 'application/json'
+		const query = likeInfoQuery(this.props.profile.id)
+		const cb = resData => {
+			if (resData.errors) {
+				throw new Error(resData.errors[0].message)
 			}
-		})
-			.then(res => {
-				return res.json()
-			})
-			.then(resData => {
-				if (resData.errors) {
-					throw new Error(resData.errors[0].message)
-				}
-				// console.log(resData.data.likeInfo)
-				if (this.props.profile.id === 4) {
-					console.log(resData.data.likeInfo)
-				}
-				const {likeTo, likeFrom} = resData.data.likeInfo
-				this.setState({likeTo: likeTo, likeFrom: likeFrom})
-			})
-			.catch(err => {
-				console.log(err)
-			})
+			// console.log(resData.data.likeInfo)
+			if (this.props.profile.id === 4) {
+				console.log(resData.data.likeInfo)
+			}
+			const {likeTo, likeFrom} = resData.data.likeInfo
+			this.setState({likeTo: likeTo, likeFrom: likeFrom})
+		}
+		fetchGraphql(query, cb, this.props.token)
 	}
 
 	blockUser = () => {
-		const mutation = {
-			query: ` mutation {
-				toggleBlock (info: {receiverId: ${this.props.profile.id}, blocked:${!this.state.blocked}}) {
-					content
-				}
-			}`
-		}
-		fetch('http://localhost:3001/graphql', {
-			method: 'POST',
-			body: JSON.stringify(mutation),
-			headers: {
-				Authorization: 'Bearer ' + this.props.token,
-				'Content-Type': 'application/json'
+		const query = toggleBlockMutation(this.props.profile.id, !this.state.blocked)
+		const cb = resData => {
+			if (resData.errors) {
+				throw new Error(resData.errors[0].message)
 			}
-		})
-			.then(res => {
-				return res.json()
-			})
-			.then(resData => {
-				if (resData.errors) {
-					throw new Error(resData.errors[0].message)
-				}
-				console.log("user block toggled successfully")
-				// this.setState({blocked: !this.state.blocked})
-				this.props.onBlock(this.props.profile.id)
-			})
-			.catch(err => {
-				console.log(err)
-			})
+			console.log("user block toggled successfully")
+			// this.setState({blocked: !this.state.blocked})
+			this.props.onBlock(this.props.profile.id)
+		}
+		fetchGraphql(query, cb, this.props.token)
 	}
 
 	render() {

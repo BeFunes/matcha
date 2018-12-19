@@ -78,3 +78,12 @@ export const relationsDataQuery = (id) => ({
                 }
             } `
 })
+
+export const likeInfoQuery = (id) => ({
+	query: ` {
+				likeInfo (info: {receiverId: ${id} }) {
+				    likeTo
+				    likeFrom
+				  }
+			}`
+})

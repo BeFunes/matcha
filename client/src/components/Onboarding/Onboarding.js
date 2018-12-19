@@ -3,7 +3,10 @@ import styles from './Onboarding.module.css'
 import OnboardingProfile from "./OnboardingProfile/OnboardingProfile"
 import OnboardingBio from "./OnboardingBio/OnboardingBio"
 import OnboardingPics from "./OnboardingPics/OnboardingPics"
-import {insertProfileInfoMutation} from "../../graphql/mutations";
+import {
+	insertBioInfoMutation, insertPictureInfoMutation, insertProfileInfoMutation,
+	markOnboardedMutation
+} from "../../graphql/mutations";
 import {fetchGraphql} from "../../utils/graphql";
 
 const defaultState = {
@@ -75,60 +78,20 @@ class Onboarding extends React.Component {
 	}
 
 	markOnboarded = () => {
-		const mutation = {
-			query: `mutation {
-				markOnboarded {
-				content
-				} }	` }
-		fetch('http://localhost:3001/graphql', {
-			method: 'POST',
-			body: JSON.stringify(mutation),
-			headers: {
-				Authorization: 'Bearer ' + this.props.token,
-				'Content-Type': 'application/json'
+		const query = markOnboardedMutation
+		const cb = resData => {
+			if (resData.errors) {
+				throw new Error('PROBLEM')
 			}
-		})
-			.then(res => {
-				return res.json()
-			})
-			.then(resData => {
-				if (resData.errors) {
-					throw new Error('PROBLEM')
-				}
-				console.log(resData.data.markOnboarded.content)
-				this.props.onboardingHandler()
-			})
-			.catch(err => {
-				console.log(err)
-			})
+			console.log(resData.data.markOnboarded.content)
+			this.props.onboardingHandler()
 		}
+		fetchGraphql(query, cb, this.props.token)
+	}
 
 	submitPicInfo = (data) => {
-		let graphqlQuery = {
-			query: `
-			      mutation {
-			        insertPictureInfo(info: {
-			          profilePic: "${data.profilePic}",
-			          picture2: "${data.picture2}",
-			          picture3: "${data.picture3}",
-			          picture4: "${data.picture4}",
-			          picture5: "${data.picture5}",
-			        }) {
-			          content
-			        } } `
-		}
-		return fetch('http://localhost:3001/graphql', {
-			method: 'POST',
-			body: JSON.stringify(graphqlQuery),
-			headers: {
-				Authorization: 'Bearer ' + this.props.token,
-				'Content-Type': 'application/json'
-			}
-		})
-		.then(res => {
-			return res.json()
-		})
-		.then(resData => {
+		let query = insertPictureInfoMutation(data)
+		const cb = resData => {
 			if (resData.errors && resData.errors[0].status === 422) {
 				throw new Error(
 					"Validation failed"
@@ -140,53 +103,28 @@ class Onboarding extends React.Component {
 			console.log(resData.data.insertPictureInfo.content)
 			this.setState({...data})
 			this.nextPage()
-		})
-			.catch(err => {
-				console.log(err)
-			})
+		}
+		fetchGraphql(query, cb, this.props.token)
 	}
 
 
 	submitBioInfo = (data) => {
 		this.localSaveBioInfo(data)
 		const interestsString = '"' + data.tags.join('", "') + '"'
-		const mutation = {
-			query: ` mutation {
-				 insertBioInfo(info: {
-            job: "${data.job}", 
-            bio:"${data.bio}", 
-            interests: [${interestsString}]}) {
-               content
-          }	}`
-		}
-		fetch('http://localhost:3001/graphql', {
-			method: 'POST',
-			body: JSON.stringify(mutation),
-			headers: {
-				Authorization: 'Bearer ' + this.props.token,
-				'Content-Type': 'application/json'
+		const query = insertBioInfoMutation(data.job, data.bio, interestsString)
+		const cb = resData => {
+			if (resData.errors && resData.errors[0].status === 422) {
+				throw new Error(
+					"Validation failed. Make sure the email address isn't used yet!"
+				)
 			}
-		})
-			.then(res => {
-				return res.json()
-			})
-			.then(resData => {
-				if (resData.errors && resData.errors[0].status === 422) {
-					throw new Error(
-						"Validation failed. Make sure the email address isn't used yet!"
-					)
-				}
-				if (resData.errors) {
-					throw new Error('PROBLEM')
-				}
-				console.log(resData.data.insertBioInfo.content)
-				this.markOnboarded()
-			})
-			.catch(err => {
-				console.log(err)
-				this.setState(defaultState)
-			})
-
+			if (resData.errors) {
+				throw new Error('PROBLEM')
+			}
+			console.log(resData.data.insertBioInfo.content)
+			this.markOnboarded()
+		}
+		fetchGraphql(query, cb, this.props.token, () => this.setState(defaultState))
 	}
 
 
