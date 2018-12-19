@@ -38,6 +38,7 @@ export const usedInterestsQuery = {
 export const getUserDataQuery = (userId) => ({
 	query: `{
                 getUserData(id: ${userId}) {
+                    id
                     firstName
 										lastName
 										password

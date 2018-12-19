@@ -11,6 +11,7 @@ import ChatBubbleFull from '@material-ui/icons/ChatBubbleOutline'
 import Block from '@material-ui/icons/Block'
 import {getUserDataQuery, relationsDataQuery} from "../../graphql/queries";
 import {fetchGraphql} from "../../utils/graphql";
+import {toggleBlockMutation, toggleLikeMutation} from "../../graphql/mutations";
 
 
 const getRandomBackground = () => {
@@ -24,12 +25,12 @@ class UserProfile extends Component {
 	}
 
 	componentDidMount() {
-		this.setState({userId: this.props.match.params.id, background: getRandomBackground()})
 		const token = localStorage.getItem('token')
 		if (!token) {
 			this.props.history.push('/')
 			return
 		}
+		this.setState({token: token})
 		this.getUserData(token)
 		this.getRelationsData(token)
 	}
@@ -49,7 +50,7 @@ class UserProfile extends Component {
 
 	getRelationsData = (token) => {
 		console.log("GET RELATIONS DATA")
-		const query =  relationsDataQuery(this.props.match.params.id)
+		const query = relationsDataQuery(this.props.match.params.id)
 		const cb = resData => {
 			if (resData.errors) {
 				throw new Error("Relations data retrieval failed .")
@@ -77,6 +78,29 @@ class UserProfile extends Component {
 		this.setState({currentImage: this.state.currentImage + 1})
 	}
 
+	toggleLike = () => {
+		const query = toggleLikeMutation(this.state.user.id, !this.state.likeTo)
+		const cb = resData => {
+			if (resData.errors) {
+				throw new Error(resData.errors[0].message)
+			}
+			console.log("like toggled")
+			this.setState({likeTo: !this.state.likeTo})
+		}
+		fetchGraphql(query, cb, this.state.token)
+	}
+
+	toggleBlock = () => {
+		const query = toggleBlockMutation(this.state.user.id, !this.state.blockTo)
+		const cb = resData => {
+			if (resData.errors) {
+				throw new Error(resData.errors[0].message)
+			}
+			console.log("block toggled")
+			this.setState({blockTo: !this.state.blockTo})
+		}
+		fetchGraphql(query, cb, this.state.token)
+	}
 
 	render() {
 		const {firstName, lastName, dob, gender, orientation, interests, job, bio, profilePic, picture2, picture3, picture4, picture5} = this.state.user
@@ -90,7 +114,7 @@ class UserProfile extends Component {
 				? <FullHeart onClick={this.toggleLike} color={"error"}/>
 				: <EmptyHeart onClick={this.toggleLike}/>
 		const renderBlockIcon = () =>
-			<Block onClick={this.blockUser} color={this.state.blockTo ? "error" : "inherit"}/>
+			<Block onClick={this.toggleBlock} color={this.state.blockTo ? "primary" : "inherit"}/>
 		const renderChatIcon = () =>
 			<ChatBubbleEmpty/>
 
@@ -111,15 +135,16 @@ class UserProfile extends Component {
 							<div className={styles.minorInfo}><JobIcon style={{fontSize: 15}}/> {job} </div>
 						</div>
 					</div>
-					<div className={styles.body}>
 
-					<div className={styles.actionBlocks}>
-						<div className={styles.iconBlock}> {renderLikeIcon()} Like</div>
-						<div className={styles.iconBlock}> {renderBlockIcon()} Block</div>
-						{this.state.likeTo && this.state.likeFrom &&
-						<div className={styles.iconBlock}> {renderChatIcon()} Chat</div>}
+					<div className={styles.body}>
+						<div className={styles.actionBlocks}>
+							<div className={styles.iconBlock} > {renderLikeIcon()} Like</div>
+							<div className={styles.iconBlock}> {renderBlockIcon()} Block</div>
+							{this.state.likeTo && this.state.likeFrom &&
+							<div className={styles.iconBlock}> {renderChatIcon()} Chat</div>}
+						</div>
 					</div>
-					</div>
+
 					<div className={styles.body}>
 						<div className={styles.title}> Bio</div>
 						<div>{bio}</div>

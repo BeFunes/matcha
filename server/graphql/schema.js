@@ -58,7 +58,7 @@ module.exports = buildSchema(`
     }
     
     type UserData {
-        id: Int!
+        id: Int
         firstName: String!
         lastName: String!
         password: String

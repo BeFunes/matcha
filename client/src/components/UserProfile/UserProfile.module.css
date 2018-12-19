@@ -80,12 +80,15 @@
 .actionBlocks {
     display: flex;
 }
+
 .iconBlock {
     border: 1px solid gray;
     border-radius: 5%;
     background-color: #dcdcdc;
     display: flex;
     flex-direction: column;
-    justify-content:center;
+    justify-content: center;
+    align-items: center;
     margin-left: -1px;
+    width: 70px;
 }

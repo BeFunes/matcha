@@ -52,6 +52,7 @@ const query = {
 			throw error
 		}
 		const data = {
+			id: user[0].id,
 			firstName: user[0].first_name,
 			lastName: user[0].last_name,
 			password: user[0].password,
