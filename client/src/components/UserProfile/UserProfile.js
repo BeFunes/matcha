@@ -69,10 +69,22 @@ class UserProfile extends Component {
 			})
 	}
 
+	openLightbox = (index) => {
+		console.log(index)
+		this.setState({lightboxIsOpen: true, currentImage: index})
+	}
+
+	closeLightbox = () => { this.setState({lightboxIsOpen: false})}
+
+	gotoImage = (index) => {this.setState({currentImage: index})}
+
+	previousImage = () => {this.setState({currentImage: this.state.currentImage - 1})}
+	nextImage = () => {this.setState({currentImage: this.state.currentImage + 1})}
 
 	render() {
 		const {firstName, lastName, dob, gender, orientation, job, bio, interests, profilePic, picture2, picture3, picture4, picture5} = this.state.user
-		const imagesArray = [profilePic, picture2, picture3, picture4, picture5].map(x => ({src: x}))
+		const images = [picture2, picture3, picture4, picture5].filter(x => x !== null && typeof x !== 'undefined')
+		const imagesArray = [profilePic, ...images].map(x => ({src: x}))
 		const city = "Paris"
 		const country = "France"
 		const age = dob && getAge(dob)
@@ -82,7 +94,10 @@ class UserProfile extends Component {
 
 				<div className={styles.page}>
 					<div className={styles.header}>
-						<img className={styles.profilePic} src={profilePic}/>
+						<img className={styles.profilePic}
+						     src={profilePic}
+								onClick={this.openLightbox.bind(this, 0)}
+						/>
 						<div className={styles.infoBox}>
 							<div className={styles.name}>{firstName} {lastName}</div>
 							<div className={styles.minorInfo}> {age} years old </div>
@@ -96,11 +111,31 @@ class UserProfile extends Component {
 					</div>
 					<div className={styles.body}>
 					<div className={styles.title}> Photos </div>
+
+						{!images.length
+						? "No photos added"
+						: <div className={styles.photos}>
+								{images.map((x, i) =>
+									<div className={styles.pic}
+									     style={{ backgroundImage: `url(${x})` }}
+									     key={i}
+									     onClick={this.openLightbox.bind(this, (i+1))}
+									/>
+								)}
+
+								</div>
+						}
+						<Lightbox
+							currentImage={this.state.currentImage}
+							images={imagesArray}
+							isOpen={this.state.lightboxIsOpen}
+							onClose={this.closeLightbox}
+							onClickThumbnail={this.gotoImage}
+							onClickNext={this.nextImage}
+							onClickPrev={this.previousImage}
+						/>
 					</div>
-
 				</div>
-
-
 				}
 
 			</div>
@@ -109,8 +144,4 @@ class UserProfile extends Component {
 }
 
 export default UserProfile
-// <Lightbox
-// 	images={imagesArray}
-// 	isOpen={true}
-// 	onClose={alert}
-// 	/>
+

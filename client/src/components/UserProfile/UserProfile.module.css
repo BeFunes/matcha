@@ -1,8 +1,9 @@
 .component {
     background-color: white;
     display: flex;
-    width: 70%;
-    min-width: 700px;
+    /*max-width: 70%;*/
+    max-width: 750px;
+    min-width: 420px;
     height: 100%;
 }
 
@@ -17,19 +18,25 @@
 
 .profilePic {
     border-radius: 100%;
-    height: 150px;
-    margin-left: 10px;
+    max-height: 150px;
+    max-width: 150px;
+    min-height: 150px;
+    min-width: 150px;
+    /*margin-left: 10px;*/
 }
 
 .header {
     display: flex;
+    justify-content: space-around;
 }
 
 .infoBox {
     display: flex;
     flex-direction: column;
-    margin-left: 50px;
-    margin-top: 16px;
+    flex: 1;
+    margin-left: 30px;
+    justify-content: center;
+    /*margin-top: 16px;*/
 }
 
 .name {
@@ -53,4 +60,19 @@
     display: flex;
     flex-direction: column;
     margin-top: 20px;
+}
+
+.photos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.pic {
+    border: 2px solid black;
+    height: 150px;
+    width: 150px;
+    background-repeat: noRepeat;
+    background-size: cover;
+    background-position: center;
 }
