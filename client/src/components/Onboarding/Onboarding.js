@@ -61,7 +61,7 @@ class Onboarding extends React.Component {
 				)
 			}
 			if (resData.errors) {
-				throw new Error('PROBLEM')
+				throw new Error(resData.errors[0].message)
 			}
 			console.log(resData)
 			this.nextPage()
@@ -81,7 +81,7 @@ class Onboarding extends React.Component {
 		const query = markOnboardedMutation
 		const cb = resData => {
 			if (resData.errors) {
-				throw new Error('PROBLEM')
+				throw new Error(resData.errors[0].message)
 			}
 			console.log(resData.data.markOnboarded.content)
 			this.props.onboardingHandler()
@@ -119,7 +119,7 @@ class Onboarding extends React.Component {
 				)
 			}
 			if (resData.errors) {
-				throw new Error('PROBLEM')
+				throw new Error(resData.errors[0].message)
 			}
 			console.log(resData.data.insertBioInfo.content)
 			this.markOnboarded()

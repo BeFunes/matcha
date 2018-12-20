@@ -21,7 +21,12 @@ const getRandomBackground = () => {
 
 class UserProfile extends Component {
 	state = {
-		user: {}
+		user: {},
+		likeTo: false,
+		likeFrom: false,
+		blockTo: false,
+		blockFrom: false,
+		chatStarted: false
 	}
 
 	componentDidMount() {
@@ -116,7 +121,9 @@ class UserProfile extends Component {
 		const renderBlockIcon = () =>
 			<Block onClick={this.toggleBlock} color={this.state.blockTo ? "primary" : "inherit"}/>
 		const renderChatIcon = () =>
-			<ChatBubbleEmpty/>
+			this.state.chatStarted
+				? <ChatBubbleFull className={styles.chat}/>
+				: <ChatBubbleEmpty className={styles.chat}/>
 
 		return (
 			<div className={styles.component}>
@@ -124,10 +131,18 @@ class UserProfile extends Component {
 
 				<div className={styles.page}>
 					<div className={styles.header}>
+						<div className={styles.pictureBlock}>
 						<img className={styles.profilePic}
 						     src={profilePic}
 						     onClick={this.openLightbox.bind(this, 0)}
 						/>
+							<div className={styles.actionBlocks}>
+								<div className={styles.iconBlock} > {renderLikeIcon()} Like</div>
+								<div className={styles.iconBlock}> {renderBlockIcon()} Block</div>
+								{this.state.likeTo && this.state.likeFrom && !this.state.blockTo &&
+								<div className={styles.iconBlock}> {renderChatIcon()} Chat</div>}
+							</div>
+						</div>
 						<div className={styles.infoBox}>
 							<div className={styles.name}>{firstName} {lastName}</div>
 							<div className={styles.minorInfo}> {age} years old</div>
@@ -136,14 +151,6 @@ class UserProfile extends Component {
 						</div>
 					</div>
 
-					<div className={styles.body}>
-						<div className={styles.actionBlocks}>
-							<div className={styles.iconBlock} > {renderLikeIcon()} Like</div>
-							<div className={styles.iconBlock}> {renderBlockIcon()} Block</div>
-							{this.state.likeTo && this.state.likeFrom &&
-							<div className={styles.iconBlock}> {renderChatIcon()} Chat</div>}
-						</div>
-					</div>
 
 					<div className={styles.body}>
 						<div className={styles.title}> Bio</div>
