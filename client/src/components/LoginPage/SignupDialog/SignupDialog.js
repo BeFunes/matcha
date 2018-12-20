@@ -49,7 +49,8 @@ class SignupDialog extends React.Component {
 	};
 
 	signupHandler = () => {
-		const query = createUserMutation(this.state.email.value, this.state.password.value)
+		const password = JSON.stringify(this.state.password.value)
+		const query = createUserMutation(this.state.email.value, password)
 		const cb = resData => {
 			if (resData.errors && resData.errors[0].status === 422) {
 				throw new Error(
