@@ -14,7 +14,7 @@ const query = {
 			error.code = 422
 			throw error
 		}
-		const [user] = await db.query('SELECT isOnboarded, password, id, email FROM users WHERE email=?', email)
+		const [user] = await db.query('SELECT isOnboarded, password, id, email, isConfirmed FROM users WHERE email=?', email)
 		if (user.length === 0) {
 			const error = new Error('User not found.')
 			error.code = 401
@@ -23,6 +23,11 @@ const query = {
 		const isEqual = await bcrypt.compare(password, user[0].password)
 		if (!isEqual) {
 			const error = new Error('Password is incorrect.')
+			error.code = 401
+			throw error
+		}
+		if (!user[0].isConfirmed){
+			const error = new Error('User is not confirmed.')
 			error.code = 401
 			throw error
 		}
