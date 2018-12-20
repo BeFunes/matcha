@@ -7,59 +7,71 @@ import TextInput from "../UI/TextInput/TextInput";
 import {passwordCriteria, validator} from "../../utils/string";
 import {fetchGraphql} from "../../utils/graphql";
 import {resetPasswordMutation} from "../../graphql/mutations";
+import {Route} from 'react-router-dom';
+import LoginPage from "../../components/LoginPage/LoginPage";
+
 
 
 class ResetPassword extends Component {
-	state = {
-		password: {
-			label: 'New Password',
-			type: 'password',
-			tooltip: passwordCriteria,
-			placeholder: 'New Password',
-			value: '',
-			valid: true,
-			rules: {
-				minLength: 8,
-				maxLength: 40,
+
+
+	constructor(props) {
+		super(props)
+
+		this.state = {
+			reset: false,
+			inputField: {
+				password: {
+					label: 'New Password',
+					type: 'password',
+					tooltip: passwordCriteria,
+					placeholder: 'New Password',
+					value: '',
+					valid: true,
+					rules: {
+						minLength: 8,
+						maxLength: 40,
+					}
+				},
+				confirmPassword: {
+					label: 'Password',
+					type: 'password',
+					tooltip: passwordCriteria,
+					placeholder: 'Confirm Your Password',
+					value: '',
+					valid: true,
+					rules: {
+						minLength: 8,
+						maxLength: 40,
+					}
+				},	
 			}
-		},
-		confirmPassword: {
-			label: 'Password',
-			type: 'password',
-			tooltip: passwordCriteria,
-			placeholder: 'Confirm Your Password',
-			value: '',
-			valid: true,
-			rules: {
-				minLength: 8,
-				maxLength: 40,
-			}
-		},
-	};
+		};
+	}
+	
 
 	inputChangeHandler = (type, {target}) => {
 		const sanitisedValue = target.value.trim()
-		const valid = validator(sanitisedValue, this.state[type].rules, target.type)
+		const valid = validator(sanitisedValue, this.state.inputField[type].rules, target.type)
 
 		const checkConfirmationPassword = () => {
 			if (type === 'confirmPassword' || type === 'password') {
-				const pass2valid = (type === 'confirmPassword') ? valid : this.state.confirmPassword.valid
-				const equal = this.state.password.value === this.state.confirmPassword.value
-				this.setState({confirmPassword: {...this.state.confirmPassword, valid: pass2valid && equal}})
+				const pass2valid = (type === 'confirmPassword') ? valid : this.state.inputField.confirmPassword.valid
+				const equal = this.state.inputField.password.value === this.state.inputField.confirmPassword.value
+				this.setState({inputField: {...this.state.inputField, confirmPassword: {...this.state.inputField.confirmPassword, valid: pass2valid && equal}}})
 			}
 		}
-		if (this.state[type] !== sanitisedValue) {
-			this.setState({[type]: {...this.state[type], value: sanitisedValue, valid: valid}}, checkConfirmationPassword);
+		if (this.state.inputField[type] !== sanitisedValue) {
+			this.setState({inputField: {...this.state.inputField, [type]: {...this.state.inputField[type], value: sanitisedValue, valid: valid}}}, checkConfirmationPassword);
 		}
 	}
 
 	resetPassword = () => {
 		console.log("RESET PASSWORD")
 		//////// todo: WHY stringify the password?
-		const password = JSON.stringify(this.state.password.value)
-		const confirmPassword = JSON.stringify(this.state.confirmPassword.value)
+		const password = JSON.stringify(this.state.inputField.password.value)
+		const confirmPassword = JSON.stringify(this.state.inputField.confirmPassword.value)
 		const token = this.props.location.pathname.split("/reset_password/")[1]
-
 		const query = resetPasswordMutation(token, password, confirmPassword)
 		const cb = resData => {
 			if (resData.errors) {
@@ -67,19 +79,22 @@ class ResetPassword extends Component {
 					"Validation failed."
 				)
 			}
+			this.setState({reset: true})
+			setTimeout(() => {this.props.history.push('/')}, 2000)
 		}
 		fetchGraphql(query, cb)
 	}
 
 	render() {
 		const elementsArray = [];
-		for (let key in this.state) {
+		for (let key in this.state.inputField) {
 			elementsArray.push({
-				...this.state[key],
+				...this.state.inputField[key],
 				id: key
 			});
 		}
 		const allValid = elementsArray.every((x) => x.valid && x.value !== '')
+		console.log("hey")
 		return (
 			<div className={styles.element}>
 				{elementsArray.map(element =>
@@ -109,6 +124,11 @@ class ResetPassword extends Component {
 						onClick={allValid ? () => this.resetPassword() : null}>
 						Reset Password
 					</Button>
+				</div>
+				<div >	
+				{this.state.reset ? (<div className={styles.password}>
+							Password succesfully reset
+						</div>) : null}
 				</div>
 			</div>
 		)
