@@ -134,6 +134,7 @@ module.exports = buildSchema(`
         resendConfirmationEmail(email: String): Message 
         toggleLike(info: LikeInput): Message
         toggleBlock(info: BlockInput): Message
+        saveLocation(lat: Float!, long: Float!) : Message
     }
 
     schema {
