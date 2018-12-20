@@ -41,7 +41,6 @@ export const getUserDataQuery = (userId) => ({
                     id
                     firstName
 										lastName
-										password
 										email
 										dob
 										gender
