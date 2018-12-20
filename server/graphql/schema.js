@@ -73,6 +73,8 @@ module.exports = buildSchema(`
         picture3: String
         picture4: String
         picture5: String
+        latitude: Float
+        longitude: Float
         isOnboarded: Boolean!
         interests: [String]
         blocked: Boolean
@@ -114,6 +116,7 @@ module.exports = buildSchema(`
     type RootQuery {
         login(email: String!, password: String!): AuthData!
         getUserData(id: Int!): UserData
+        getUserAgentData: UserData
         relationsData(id: Int!): RelationsData
         isOnboarded: Boolean!
         match(filters: MatchFilter) : [UserData]

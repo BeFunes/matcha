@@ -1,9 +1,9 @@
 const db = require('../../util/db')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const { validate } = require('./../../util/validator')
+const {validate} = require('./../../util/validator')
 const CONST = require('../../../constants')
-const _ = require ('lodash')
+const _ = require('lodash')
 
 
 const query = {
@@ -26,7 +26,7 @@ const query = {
 			error.code = 401
 			throw error
 		}
-		if (!user[0].isConfirmed){
+		if (!user[0].isConfirmed) {
 			const error = new Error('User is not confirmed.')
 			error.code = 401
 			throw error
@@ -37,8 +37,8 @@ const query = {
 			{expiresIn: '1h'}
 		)
 		return {token: token, userId: user[0].id, isOnboarded: !!user[0].isOnboarded}
-    },
-    
+	},
+
 	getUserData: async function ({id}, req) {
 		console.log("GET USER INFO")
 		if (!req.isAuth) {
@@ -56,7 +56,44 @@ const query = {
 			error.code = 401
 			throw error
 		}
-		const data = {
+		return {
+			id: user[0].id,
+			firstName: user[0].first_name,
+			lastName: user[0].last_name,
+			dob: user[0].dob,
+			gender: user[0].gender,
+			orientation: user[0].orientation,
+			job: user[0].job,
+			bio: user[0].bio,
+			interests: user[0].interests.split(','),
+			profilePic: user[0].profilePic,
+			picture2: user[0].picture2,
+			picture3: user[0].picture3,
+			picture4: user[0].picture4,
+			picture5: user[0].picture5,
+			latitude: user[0].latitude,
+			longitude: user[0].longitude
+		}
+	},
+
+	getUserAgentData: async function (_, req) {
+		console.log("GET USER INFO")
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!')
+			error.code = 401
+			throw error
+		}
+		const query = `SELECT U.*, GROUP_CONCAT(I.title) interests FROM (SELECT * from users WHERE id=?) U
+		JOIN users_interests UI on U.id = UI.user_id
+		JOIN interests I ON I.id = UI.interest_id
+		GROUP BY UI.user_id `
+		const [user] = await db.query(query, req.userId)
+		if (user.length === 0) {
+			const error = new Error('User not found.')
+			error.code = 401
+			throw error
+		}
+		return {
 			id: user[0].id,
 			firstName: user[0].first_name,
 			lastName: user[0].last_name,
@@ -73,12 +110,13 @@ const query = {
 			picture3: user[0].picture3,
 			picture4: user[0].picture4,
 			picture5: user[0].picture5,
-			isOnboarded: user[0].isOnboarded
+			isOnboarded: user[0].isOnboarded,
+			latitude: user[0].latitude,
+			longitude: user[0].longitude
 		}
-		return data
-    },
-    
-	isOnboarded: async function(_, req) {
+	},
+
+	isOnboarded: async function (_, req) {
 		console.log("GET IS ONBOARDED")
 		if (!req.isAuth) {
 			const error = new Error('Not authenticated!')
@@ -93,9 +131,9 @@ const query = {
 			throw error
 		}
 		return user[0].isOnboarded
-    },
-    
-	match: async function({filters}, req) {
+	},
+
+	match: async function ({filters}, req) {
 		console.log("MATCH")
 		const today = new Date()
 		const maxDob = `${today.getFullYear() - filters.minAge}-${("0" + (today.getMonth() + 1)).slice(-2)}-${("0" + today.getDate()).slice(-2)}`
@@ -155,7 +193,7 @@ const query = {
 		return _.filter(result, (x) => _.difference(filters.interests, x.interests).length === 0)
 	},
 
-	usedInterests: async function(_, req) {
+	usedInterests: async function (_, req) {
 		console.log("GET USED INTERESTS")
 		if (!req.isAuth) {
 			const error = new Error('Not authenticated!')
@@ -182,7 +220,7 @@ const query = {
 		const matchToUserQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
 		const [userToMatch] = await db.query(userToMatchQuery, [req.userId, info.receiverId])
 		const [matchToUser] = await db.query(matchToUserQuery, [info.receiverId, req.userId])
-		return { likeTo: userToMatch[0].val, likeFrom: matchToUser[0].val }
+		return {likeTo: userToMatch[0].val, likeFrom: matchToUser[0].val}
 	},
 
 	relationsData: async function ({id}, req) {
@@ -205,7 +243,8 @@ const query = {
 			likeTo: userLikesMatch[0].val,
 			likeFrom: matchLikesUser[0].val,
 			blockTo: userBlocksMatch[0].val,
-			blockFrom: matchBlocksUser[0].val }
+			blockFrom: matchBlocksUser[0].val
+		}
 	}
 }
 

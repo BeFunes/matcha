@@ -41,7 +41,32 @@ export const getUserDataQuery = (userId) => ({
                     id
                     firstName
 										lastName
+										dob
+										gender
+										orientation
+										job
+										bio
+										interests
+										profilePic
+										picture2
+										picture3
+										picture4
+										picture5
+										latitude
+										longitude
+                }
+            } `
+})
+
+
+export const getUserAgentDataQuery = {
+	query: `{
+                getUserAgentData() {
+                    id
+                    firstName
+										lastName
 										email
+										password
 										dob
 										gender
 										orientation
@@ -54,9 +79,11 @@ export const getUserDataQuery = (userId) => ({
 										picture4
 										picture5
 										isOnboarded
+										latitude
+										longitude
                 }
             } `
-})
+}
 
 export const loginQuery = (email, password) => ({
 	query: `{

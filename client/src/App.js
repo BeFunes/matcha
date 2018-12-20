@@ -10,7 +10,7 @@ import Chat from "./components/Chat/Chat";
 import Confirmation from "./components/Confirmation/Confirmation"
 import Onboarding from "./components/Onboarding/Onboarding";
 import ResetPassword from './components/ResetPassword/ResetPassword';
-import {getUserDataQuery, isOnboardedQuery, usedInterestsQuery} from "./graphql/queries";
+import {getUserAgentDataQuery, getUserDataQuery, isOnboardedQuery, usedInterestsQuery} from "./graphql/queries";
 import {fetchGraphql} from "./utils/graphql";
 
 
@@ -41,14 +41,14 @@ class App extends Component {
 		}
 	}
 
-	getUserData = (token) => {
+	getUserAgentData = (token) => {
 		console.log("GET USER DATA")
-		const query = getUserDataQuery(this.state.userId)
+		const query = getUserAgentDataQuery
 		const cb = resData => {
 			if (resData.errors) {
 				throw new Error ("User data retrieval failed .")
 			}
-			this.setState({user: {...resData.data.getUserData}, isOnboarded: resData.data.getUserData.isOnboarded, isLoading: false })
+			this.setState({user: {...resData.data.getUserAgentData}, isOnboarded: resData.data.getUserData.isOnboarded, isLoading: false })
 		}
 		fetchGraphql(query, cb, token)
 	}
