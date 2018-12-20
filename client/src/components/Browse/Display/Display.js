@@ -28,16 +28,19 @@ class Display extends Component {
 
 		return (
 			<div className={styles.component}>
-				{filteredProfiles && filteredProfiles.map((item, index) => (
-					<Route
-						key={`${item.firstName}+${item.lastName}+${index}`}
-						render={(props) => <ProfileCard
-							profile={item}
-							token={token}
-							onBlock={this.blockUser}
-							{...props}
-						/>}/>
-				))}
+				{filteredProfiles && <div className={styles.scrolling}>
+					{filteredProfiles.map((item, index) => (
+						<Route
+							key={`${item.firstName}+${item.lastName}+${index}`}
+							render={(props) => <ProfileCard
+								profile={item}
+								token={token}
+								onBlock={this.blockUser}
+								{...props}
+							/>}/>
+					))}
+				</div>}
+				{filteredProfiles && <div className={styles.padding}>something</div>}
 			</div>
 		)
 	}
