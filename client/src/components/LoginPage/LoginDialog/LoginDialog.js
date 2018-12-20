@@ -63,7 +63,7 @@ class LoginDialog extends React.Component {
 		}
 		const errorCb = (err) => {
 			
-			this.setState({isAuth: false, loginFail: true, errMessage: err.message})
+			this.setState({isAuth: false, loginFail: true})
 		}
 		fetchGraphql(query, cb, null, errorCb)
 	}
