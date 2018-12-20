@@ -111,7 +111,9 @@ class Onboarding extends React.Component {
 	submitBioInfo = (data) => {
 		this.localSaveBioInfo(data)
 		const interestsString = '"' + data.tags.join('", "') + '"'
-		const query = insertBioInfoMutation(data.job, data.bio, interestsString)
+		const job = JSON.stringify(data.job)
+		const bio = JSON.stringify(data.bio)
+		const query = insertBioInfoMutation(job, bio, interestsString)
 		const cb = resData => {
 			if (resData.errors && resData.errors[0].status === 422) {
 				throw new Error(

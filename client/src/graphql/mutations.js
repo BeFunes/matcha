@@ -3,7 +3,7 @@ export const createUserMutation = (email, password) => ({
             mutation {
                 createUser(userInput: {
                     email: "${email}", 
-                    password: "${password}"
+                    password: ${password}
                     }) { email }
                }`
 })
@@ -43,8 +43,8 @@ export const markOnboardedMutation = {
 export const insertBioInfoMutation = (job, bio, interests) => ({
 	query: ` mutation {
 				 insertBioInfo(info: {
-            job: "${job}", 
-            bio:"${bio}", 
+            job: ${job}, 
+            bio: ${bio}, 
             interests: [${interests}]}) {
                content
           }	}`

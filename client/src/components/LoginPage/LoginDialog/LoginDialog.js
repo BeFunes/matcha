@@ -48,7 +48,8 @@ class LoginDialog extends React.Component {
 
 	loginHandler = (authData) => {
 		console.log("LOGIN HANDLER")  ////////////////////REMOVE
-		const query = loginQuery(authData.email, authData.password)
+		const password = JSON.stringify(authData.password)
+		const query = loginQuery(authData.email, password)
 		const cb = resData => {
 			if (resData.errors && resData.errors[0].status === 422) {
 				throw new Error(
@@ -60,7 +61,10 @@ class LoginDialog extends React.Component {
 			}
 			this.props.onLogin(resData.data.login)
 		}
-		const errorCb = () => this.setState({isAuth: false, loginFail: true})
+		const errorCb = (err) => {
+			
+			this.setState({isAuth: false, loginFail: true})
+		}
 		fetchGraphql(query, cb, null, errorCb)
 	}
 

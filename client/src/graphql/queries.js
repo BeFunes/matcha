@@ -60,7 +60,7 @@ export const getUserDataQuery = (userId) => ({
 
 export const loginQuery = (email, password) => ({
 	query: `{
-                login(email: "${email}", password: "${password}") {
+                login(email: "${email}", password: ${password}) {
                     token
                     userId
                     isOnboarded
