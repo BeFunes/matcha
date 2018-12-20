@@ -116,6 +116,11 @@ class UserProfile extends Component {
 		const city = "Paris"
 		const country = "France"
 
+		const getProfilePic = () => {
+			const profileP = profilePic && profilePic.substring(0,7) === "images/" ? `${HOST}/${profilePic}` : profilePic
+			return typeof profileP !== 'undefined' ? profileP : emptyAvatar
+		}
+
 		const age = dob && getAge(dob)
 		const renderLikeIcon = () =>
 			this.state.likeTo
@@ -136,8 +141,9 @@ class UserProfile extends Component {
 					<div className={styles.header}>
 						<div className={styles.pictureBlock}>
 						<img className={styles.profilePic}
-						     src={typeof profilePic !== 'undefined' ? `${HOST}/${profilePic}` : emptyAvatar}
+						     src={getProfilePic()}
 						     onClick={this.openLightbox.bind(this, 0)}
+						     alt={`${firstName}+${lastName}`}
 						/>
 							<div className={styles.actionBlocks}>
 								<div className={styles.iconBlock} > {renderLikeIcon()} Like</div>
