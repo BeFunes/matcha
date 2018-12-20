@@ -12,7 +12,9 @@ import Block from '@material-ui/icons/Block'
 import {getUserDataQuery, relationsDataQuery} from "../../graphql/queries";
 import {fetchGraphql} from "../../utils/graphql";
 import {toggleBlockMutation, toggleLikeMutation} from "../../graphql/mutations";
+import {HOST} from "../../constants";
 
+const emptyAvatar = 'https://us.123rf.com/450wm/pikepicture/pikepicture1612/pikepicture161200524/68824656-male-default-placeholder-avatar-profile-gray-picture-isolated-on-white-background-for-your-design-ve.jpg?ver=6'
 
 const getRandomBackground = () => {
 	const n = Math.floor(Math.random() * 999) + 1
@@ -109,10 +111,11 @@ class UserProfile extends Component {
 
 	render() {
 		const {firstName, lastName, dob, gender, orientation, interests, job, bio, profilePic, picture2, picture3, picture4, picture5} = this.state.user
-		const images = [picture2, picture3, picture4, picture5].filter(x => !!x)
+		const images = [picture2, picture3, picture4, picture5].filter(x => !!x && x !== 'undefined')
 		const imagesArray = [profilePic, ...images].map(x => ({src: x}))
 		const city = "Paris"
 		const country = "France"
+
 		const age = dob && getAge(dob)
 		const renderLikeIcon = () =>
 			this.state.likeTo
@@ -133,7 +136,7 @@ class UserProfile extends Component {
 					<div className={styles.header}>
 						<div className={styles.pictureBlock}>
 						<img className={styles.profilePic}
-						     src={profilePic}
+						     src={typeof profilePic !== 'undefined' ? `${HOST}/${profilePic}` : emptyAvatar}
 						     onClick={this.openLightbox.bind(this, 0)}
 						/>
 							<div className={styles.actionBlocks}>
