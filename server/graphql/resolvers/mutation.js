@@ -256,5 +256,16 @@ module.exports = {
 
 		await db.query(query, [req.userId, info.receiverId])
 		return { content: "User blocked successfully"}
+	},
+	saveLocation: async function ({lat, long}, req) {
+		console.log("SAVE LOCATION")
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!')
+			error.code = 401
+			throw error
+		}
+		const query = 'UPDATE users SET latitude = ?, longitude = ? WHERE id = ?'
+		await db.query(query, [lat, long, req.userId])
+		return ({ content: "location updated successfully" })
 	}
 }
