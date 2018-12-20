@@ -48,7 +48,7 @@ class App extends Component {
 			if (resData.errors) {
 				throw new Error ("User data retrieval failed .")
 			}
-			this.setState({user: {...resData.data.getUserAgentData}, isOnboarded: resData.data.getUserData.isOnboarded, isLoading: false })
+			this.setState({user: {...resData.data.getUserAgentData}, isOnboarded: resData.data.getUserAgentData.isOnboarded, isLoading: false })
 		}
 		fetchGraphql(query, cb, token)
 	}
@@ -75,7 +75,7 @@ class App extends Component {
 				throw new Error ("User data retrieval failed .")
 			}
 			if (resData.data.isOnboarded) {
-				this.getUserData(token)
+				this.getUserAgentData(token)
 				this.getUsedInterests(token)
 			}
 		}
@@ -96,7 +96,7 @@ class App extends Component {
 		localStorage.setItem('expiryDate', expiryDate.toISOString())
 		this.setAutoLogout(60*60*1000)
 		if (data.isOnboarded) {
-			this.getUserData(data.token)
+			this.getUserAgentData(data.token)
 			this.getUsedInterests(data.token)
 		}
 	}
@@ -114,12 +114,12 @@ class App extends Component {
 
 	onboardingHandler = () => {
 		this.setState({ isOnboarded: true })
-		this.getUserData(this.state.token)
+		this.getUserAgentData(this.state.token)
 		this.getUsedInterests(this.state.token)
 	}
 
 	render() {
-		// console.log(this.state)
+		console.log(this.state.user)
 		const hasAccess = this.state.isAuth && this.state.isOnboarded
 		const routeZero = () => {
 			if (this.state.isAuth && !this.state.isOnboarded && !this.state.isLoading)

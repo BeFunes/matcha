@@ -61,7 +61,7 @@ export const getUserDataQuery = (userId) => ({
 
 export const getUserAgentDataQuery = {
 	query: `{
-                getUserAgentData() {
+                getUserAgentData {
                     id
                     firstName
 										lastName
