@@ -1,11 +1,12 @@
-import React, {Component} from 'react';
-import {Route, Switch} from 'react-router-dom';
+import React, { Component } from 'react';
+import { Route, Switch } from 'react-router-dom';
 
 import styles from './App.module.css';
 import Browse from "./components/Browse/Browse";
 import LoginPage from "./components/LoginPage/LoginPage";
 import Toolbar from "./components/Navigation/Toolbar/Toolbar";
 import UserProfile from "./components/UserProfile/UserProfile";
+import EditProfile from './components/EditProfile/EditProfile'
 import Chat from "./components/Chat/Chat";
 import Confirmation from "./components/Confirmation/Confirmation"
 import Onboarding from "./components/Onboarding/Onboarding";
@@ -40,7 +41,7 @@ class App extends Component {
 		}
 		const userId = localStorage.getItem('userId')
 		const remainingTime = new Date(expiryDate).getTime() - new Date().getTime()
-		this.setState({isAuth: true, token: token, userId: userId})
+		this.setState({ isAuth: true, token: token, userId: userId })
 		this.setAutoLogout(remainingTime)
 		if (typeof this.state.isOnboarded === 'undefined') {
 			this.getIsOnboarded(token)
@@ -72,7 +73,7 @@ class App extends Component {
 			if (resData.errors) {
 				throw new Error("Interests retrieval failed .")
 			}
-			this.setState({interests: resData.data.usedInterests})
+			this.setState({ interests: resData.data.usedInterests })
 		}
 		fetchGraphql(query, cb, token)
 	}
@@ -159,7 +160,7 @@ class App extends Component {
 	}
 
 	logoutHandler = () => {
-		this.setState({isAuth: false, token: null});
+		this.setState({ isAuth: false, token: null });
 		localStorage.removeItem('token');
 		localStorage.removeItem('expiryDate');
 		localStorage.removeItem('userId');
@@ -180,15 +181,12 @@ class App extends Component {
 		const {geolocationDialogOpen, suggestedLocation} = this.state
 		const routeZero = () => {
 			if (this.state.isAuth && !this.state.isOnboarded && !this.state.isLoading)
-				return <Route path="/" render={(props) => <Onboarding token={this.state.token}
-				                                                      onboardingHandler={this.onboardingHandler} {...props}/>}/>
+				return <Route path="/" render={(props) => <Onboarding token={this.state.token} onboardingHandler={this.onboardingHandler} {...props} />} />
 			else if (!this.state.isAuth)
-				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler}/>}/>
+				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler} />} />
 			else
 				return (
-					<Route path="/" exact render={(props) => <Browse token={this.state.token} user={this.state.user}
-					                                                 interests={this.state.interests}
-					                                                 geolocation={this.state.geolocation}{...props} />}/>
+					<Route path="/" exact render={(props) => <Browse token={this.state.token} user={this.state.user} interests={this.state.interests} geolocation={this.state.geolocation}{...props} />} />
 					// 	<Route path="profile" component={UserProfile}/>
 					// 	<Route path="chat" component={Chat}/>
 				)
@@ -198,15 +196,13 @@ class App extends Component {
 			<div className={styles.app}>
 				<div>
 					<main className={hasAccess ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
-
-						{hasAccess &&
-						<Route render={(props) => <Toolbar {...props} onLogout={this.logoutHandler} user={this.state.user}/>}/>}
+						{hasAccess && <Route render={(props) => <Toolbar {...props} onLogout={this.logoutHandler} user={this.state.user} onProfileClick={this.onProfileCLick} />}/>}
 						<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
-							{!this.state.isAuth && <Route path="/confirmation/:token" render={(props) => <Confirmation {...props}
-							                                                                                           markLoggedIn={this.loginHandler}/>}/>}
-							{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword}/>}
-							{hasAccess && <Route path="/user_profile" component={UserProfile}/>}
-							{hasAccess && <Route path="/chat" component={Chat}/>}
+							{!this.state.isAuth && <Route path="/confirmation/:token" render={(props) => <Confirmation {...props} markLoggedIn={this.loginHandler} />} />}
+							{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword} />}
+							{hasAccess && <Route path="/user_profile" component={UserProfile} />}
+							{hasAccess && <Route path="/edit_profile" render={(props) => <EditProfile {...props} user={this.state.user}/>} />}
+							{hasAccess && <Route path="/chat" component={Chat} />}
 							{routeZero()}
 						</Switch>
 					</main>
