@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import styles from './UserProfile.module.css'
 import Lightbox from 'react-images';
 import {getAge} from "../../utils/date";
+import EditProfile from '../EditProfile/EditProfile'
 import LocationIcon from "@material-ui/icons/LocationOn"
 import JobIcon from "@material-ui/icons/Work"
 import FullHeart from '@material-ui/icons/Favorite'
@@ -14,14 +15,10 @@ import {fetchGraphql} from "../../utils/graphql";
 import {toggleBlockMutation, toggleLikeMutation} from "../../graphql/mutations";
 import {HOST} from "../../constants";
 import Button from '@material-ui/core/Button';
-import SaveIcon from '@material-ui/icons/Save';
 import SVGIcon from '@material-ui/core/SvgIcon';
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
-import { red, blue, green } from '@material-ui/core/colors'
 
-const greenTheme = createMuiTheme({ typography: {
-    useNextVariants: true,
-  }, palette: { primary: green } })
+
+
 
 
 
@@ -42,7 +39,6 @@ class UserProfile extends Component {
 		blockFrom: false,
 		chatStarted: false,
 		isMe: false,
-		isEditing: false,
 	}
 
 	componentDidMount() {
@@ -141,28 +137,16 @@ class UserProfile extends Component {
 
 	renderButton = () => {
 		if (this.state.isMe) {
-			if (!this.state.isEditing) {
 			return this.state.isMe && <div> 
 				<Button variant="contained" onClick={this.onEditClick} size="small" >
 				{svg}
 				Edit </Button>
 				</div> 
-			} else {
-				return this.state.isMe && <div> 
-					 <MuiThemeProvider theme={greenTheme}>
-				<Button variant="contained" onClick={this.onEditClick} color="primary" size="small" >
-				
-				<SaveIcon />
-				SAVE </Button></MuiThemeProvider>
-				</div>
-			}
 		}
-		
 	}
 
 	onEditClick = () => {
-		console.log("hello")
-		this.setState({isEditing: !this.state.isEditing})
+		this.props.history.push('/edit_profile')
 	}
 
 	render() {

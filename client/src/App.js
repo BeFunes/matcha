@@ -1,18 +1,19 @@
-import React, {Component} from 'react';
-import {Route, Switch} from 'react-router-dom';
+import React, { Component } from 'react';
+import { Route, Switch } from 'react-router-dom';
 
 import styles from './App.module.css';
 import Browse from "./components/Browse/Browse";
 import LoginPage from "./components/LoginPage/LoginPage";
 import Toolbar from "./components/Navigation/Toolbar/Toolbar";
 import UserProfile from "./components/UserProfile/UserProfile";
+import EditProfile from './components/EditProfile/EditProfile'
 import Chat from "./components/Chat/Chat";
 import Confirmation from "./components/Confirmation/Confirmation"
 import Onboarding from "./components/Onboarding/Onboarding";
 import ResetPassword from './components/ResetPassword/ResetPassword';
-import {getUserAgentDataQuery, getUserDataQuery, isOnboardedQuery, usedInterestsQuery} from "./graphql/queries";
-import {fetchGraphql} from "./utils/graphql";
-import {saveLocationMutation} from "./graphql/mutations";
+import { getUserAgentDataQuery, getUserDataQuery, isOnboardedQuery, usedInterestsQuery } from "./graphql/queries";
+import { fetchGraphql } from "./utils/graphql";
+import { saveLocationMutation } from "./graphql/mutations";
 
 
 class App extends Component {
@@ -35,7 +36,7 @@ class App extends Component {
 		}
 		const userId = localStorage.getItem('userId')
 		const remainingTime = new Date(expiryDate).getTime() - new Date().getTime()
-		this.setState({isAuth: true, token: token, userId: userId})
+		this.setState({ isAuth: true, token: token, userId: userId })
 		this.setAutoLogout(remainingTime)
 		if (typeof this.state.isOnboarded === 'undefined') {
 			this.getIsOnboarded(token)
@@ -47,9 +48,9 @@ class App extends Component {
 		const query = getUserAgentDataQuery
 		const cb = resData => {
 			if (resData.errors) {
-				throw new Error ("User data retrieval failed .")
+				throw new Error("User data retrieval failed .")
 			}
-			this.setState({user: {...resData.data.getUserAgentData}, isOnboarded: resData.data.getUserAgentData.isOnboarded, isLoading: false })
+			this.setState({ user: { ...resData.data.getUserAgentData }, isOnboarded: resData.data.getUserAgentData.isOnboarded, isLoading: false })
 		}
 		fetchGraphql(query, cb, token)
 	}
@@ -62,7 +63,7 @@ class App extends Component {
 			if (resData.errors) {
 				throw new Error("Interests retrieval failed .")
 			}
-			this.setState({interests: resData.data.usedInterests})
+			this.setState({ interests: resData.data.usedInterests })
 		}
 		fetchGraphql(query, cb, token)
 	}
@@ -73,7 +74,7 @@ class App extends Component {
 		const query = isOnboardedQuery
 		const cb = (resData) => {
 			if (resData.errors) {
-				throw new Error ("User data retrieval failed .")
+				throw new Error("User data retrieval failed .")
 			}
 			if (resData.data.isOnboarded) {
 				this.getUserAgentData(token)
@@ -89,8 +90,8 @@ class App extends Component {
 			console.log("Geolocation is not available")
 			return
 		}
-		navigator.geolocation.getCurrentPosition( (position) => {
-			this.setState({geolocation: {latitude: position.coords.latitude, longitude: position.coords.longitude}})
+		navigator.geolocation.getCurrentPosition((position) => {
+			this.setState({ geolocation: { latitude: position.coords.latitude, longitude: position.coords.longitude } })
 			const query = saveLocationMutation(position.coords.latitude, position.coords.longitude)
 			const cb = resData => {
 				if (resData.errors) {
@@ -111,11 +112,11 @@ class App extends Component {
 			isOnboarded: data.isOnboarded,
 			isLoading: false
 		})
-		const expiryDate = new Date (new Date().getTime() + 60*60*1000)
+		const expiryDate = new Date(new Date().getTime() + 60 * 60 * 1000)
 		localStorage.setItem('token', data.token)
 		localStorage.setItem('userId', data.userId)
 		localStorage.setItem('expiryDate', expiryDate.toISOString())
-		this.setAutoLogout(60*60*1000)
+		this.setAutoLogout(60 * 60 * 1000)
 		if (data.isOnboarded) {
 			this.getUserAgentData(data.token)
 			this.getUsedInterests(data.token)
@@ -123,14 +124,14 @@ class App extends Component {
 	}
 
 	logoutHandler = () => {
-		this.setState({isAuth: false, token: null});
+		this.setState({ isAuth: false, token: null });
 		localStorage.removeItem('token');
 		localStorage.removeItem('expiryDate');
 		localStorage.removeItem('userId');
 	};
 
 	setAutoLogout = milliseconds => {
-		setTimeout(this.logoutHandler , milliseconds);
+		setTimeout(this.logoutHandler, milliseconds);
 	};
 
 	onboardingHandler = () => {
@@ -141,10 +142,10 @@ class App extends Component {
 
 	onProfileCLick = () => {
 		console.log("hello")
-		this.props.history.push({ 
-			pathname: `/user_profile`, 
+		this.props.history.push({
+			pathname: `/user_profile`,
 			search: '',
-			state : { user: this.props.user , id: `${this.props.user.id}` }
+			state: { user: this.props.user, id: `${this.props.user.id}` }
 		})
 	}
 
@@ -154,28 +155,29 @@ class App extends Component {
 		const hasAccess = this.state.isAuth && this.state.isOnboarded
 		const routeZero = () => {
 			if (this.state.isAuth && !this.state.isOnboarded && !this.state.isLoading)
-				return <Route path="/" render={(props) => <Onboarding token={this.state.token} onboardingHandler={this.onboardingHandler} {...props}/>} />
+				return <Route path="/" render={(props) => <Onboarding token={this.state.token} onboardingHandler={this.onboardingHandler} {...props} />} />
 			else if (!this.state.isAuth)
-				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler} />}/>
+				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler} />} />
 			else
 				return (
-					<Route path="/" exact render={(props) => <Browse token={this.state.token} user={this.state.user} interests={this.state.interests} geolocation={this.state.geolocation}{...props} /> } />
+					<Route path="/" exact render={(props) => <Browse token={this.state.token} user={this.state.user} interests={this.state.interests} geolocation={this.state.geolocation}{...props} />} />
 					// 	<Route path="profile" component={UserProfile}/>
 					// 	<Route path="chat" component={Chat}/>
 				)
-	}
+		}
 
 		return (
 			<div className={styles.app}>
 				<div>
 					<main className={hasAccess ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
 
-						{hasAccess && <Route  render={ (props) => <Toolbar {...props} onLogout={this.logoutHandler} user={this.state.user} onProfileClick={this.onProfileCLick} />}></Route> }
+						{hasAccess && <Route render={(props) => <Toolbar {...props} onLogout={this.logoutHandler} user={this.state.user} onProfileClick={this.onProfileCLick} />}></Route>}
 						<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
-							{!this.state.isAuth && <Route path="/confirmation/:token" render={(props) => <Confirmation {...props} markLoggedIn={this.loginHandler} />}/>}
-							{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword}/>}
-							{hasAccess && <Route path="/user_profile" component={UserProfile} />}							
-							{hasAccess && <Route path="/chat" component={Chat}/>}
+							{!this.state.isAuth && <Route path="/confirmation/:token" render={(props) => <Confirmation {...props} markLoggedIn={this.loginHandler} />} />}
+							{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword} />}
+							{hasAccess && <Route path="/user_profile" component={UserProfile} />}
+							{hasAccess && <Route path="/edit_profile" render={(props) => <EditProfile {...props} user={this.state.user}></EditProfile>} />}
+							{hasAccess && <Route path="/chat" component={Chat} />}
 							{routeZero()}
 						</Switch>
 					</main>
