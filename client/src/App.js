@@ -5,7 +5,6 @@ import styles from './App.module.css';
 import Browse from "./components/Browse/Browse";
 import LoginPage from "./components/LoginPage/LoginPage";
 import Toolbar from "./components/Navigation/Toolbar/Toolbar";
-import Profile from "./components/Profile/Profile";
 import UserProfile from "./components/UserProfile/UserProfile";
 import Chat from "./components/Chat/Chat";
 import Confirmation from "./components/Confirmation/Confirmation"

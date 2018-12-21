@@ -13,6 +13,17 @@ import {getUserDataQuery, relationsDataQuery} from "../../graphql/queries";
 import {fetchGraphql} from "../../utils/graphql";
 import {toggleBlockMutation, toggleLikeMutation} from "../../graphql/mutations";
 import {HOST} from "../../constants";
+import Button from '@material-ui/core/Button';
+import SaveIcon from '@material-ui/icons/Save';
+import SVGIcon from '@material-ui/core/SvgIcon';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import { red, blue, green } from '@material-ui/core/colors'
+
+const greenTheme = createMuiTheme({ typography: {
+    useNextVariants: true,
+  }, palette: { primary: green } })
+
+
 
 const emptyAvatar = 'https://us.123rf.com/450wm/pikepicture/pikepicture1612/pikepicture161200524/68824656-male-default-placeholder-avatar-profile-gray-picture-isolated-on-white-background-for-your-design-ve.jpg?ver=6'
 
@@ -31,6 +42,7 @@ class UserProfile extends Component {
 		blockFrom: false,
 		chatStarted: false,
 		isMe: false,
+		isEditing: false,
 	}
 
 	componentDidMount() {
@@ -45,8 +57,8 @@ class UserProfile extends Component {
 		if (this.props.location.state.me) { isMe = true }
 		
 		this.setState({token: token , isMe: isMe}, () => {
-			this.getUserData(token, id)
-			this.getRelationsData(token, id)
+			if (!(typeof id === "undefined")) {this.getUserData(token, id)}
+			if (!isMe) { this.getRelationsData(token, id) }
 		})
 		
 	}
@@ -127,6 +139,32 @@ class UserProfile extends Component {
 		fetchGraphql(query, cb, this.state.token)
 	}
 
+	renderButton = () => {
+		if (this.state.isMe) {
+			if (!this.state.isEditing) {
+			return this.state.isMe && <div> 
+				<Button variant="contained" onClick={this.onEditClick} size="small" >
+				{svg}
+				Edit </Button>
+				</div> 
+			} else {
+				return this.state.isMe && <div> 
+					 <MuiThemeProvider theme={greenTheme}>
+				<Button variant="contained" onClick={this.onEditClick} color="primary" size="small" >
+				
+				<SaveIcon />
+				SAVE </Button></MuiThemeProvider>
+				</div>
+			}
+		}
+		
+	}
+
+	onEditClick = () => {
+		console.log("hello")
+		this.setState({isEditing: !this.state.isEditing})
+	}
+
 	render() {
 		
 		const {firstName, lastName, dob, gender, orientation, interests, job, bio, profilePic, picture2, picture3, picture4, picture5} = this.state.user
@@ -178,9 +216,8 @@ class UserProfile extends Component {
 							<div className={styles.minorInfo}><LocationIcon style={{fontSize: 15}}/> {city}, {country}</div>
 							<div className={styles.minorInfo}><JobIcon style={{fontSize: 15}}/> {job} </div>
 						</div>
+						{ this.renderButton() }
 					</div>
-
-
 					<div className={styles.body}>
 						<div className={styles.title}> Bio</div>
 						<div>{bio}</div>
@@ -224,6 +261,8 @@ class UserProfile extends Component {
 		)
 	}
 }
+
+const svg = <SVGIcon  width="18" height="18" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></SVGIcon> 
 
 export default UserProfile
 
