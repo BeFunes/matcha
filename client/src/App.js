@@ -5,7 +5,8 @@ import styles from './App.module.css';
 import Browse from "./components/Browse/Browse";
 import LoginPage from "./components/LoginPage/LoginPage";
 import Toolbar from "./components/Navigation/Toolbar/Toolbar";
-import Profile from "./components/UserProfile/UserProfile";
+import Profile from "./components/Profile/Profile";
+import UserProfile from "./components/UserProfile/UserProfile";
 import Chat from "./components/Chat/Chat";
 import Confirmation from "./components/Confirmation/Confirmation"
 import Onboarding from "./components/Onboarding/Onboarding";
@@ -118,6 +119,15 @@ class App extends Component {
 		this.getUsedInterests(this.state.token)
 	}
 
+	onProfileCLick = () => {
+		console.log("hello")
+		this.props.history.push({ 
+			pathname: `/user_profile`, 
+			search: '',
+			state : { user: this.props.user , id: `${this.props.user.id}` }
+		})
+	}
+
 
 
 	render() {
@@ -140,11 +150,11 @@ class App extends Component {
 				<div>
 					<main className={hasAccess ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
 
-						{hasAccess && <Toolbar onLogout={this.logoutHandler} /> }
+						{hasAccess && <Route  render={ (props) => <Toolbar {...props} onLogout={this.logoutHandler} user={this.state.user} onProfileClick={this.onProfileCLick} />}></Route> }
 						<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
 							{!this.state.isAuth && <Route path="/confirmation/:token" render={(props) => <Confirmation {...props} markLoggedIn={this.loginHandler} />}/>}
 							{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword}/>}
-							{hasAccess && <Route path="/user_profile"  render={(props) => <Profile {...props} user={this.state.user} />}/>}
+							{hasAccess && <Route path="/user_profile" component={UserProfile} />}							
 							{hasAccess && <Route path="/chat" component={Chat}/>}
 							{routeZero()}
 						</Switch>

@@ -29,26 +29,40 @@ class UserProfile extends Component {
 		likeFrom: false,
 		blockTo: false,
 		blockFrom: false,
-		chatStarted: false
+		chatStarted: false,
+		isMe: false,
 	}
 
 	componentDidMount() {
+		console.log("Profile", this.props.location)
 		const token = localStorage.getItem('token')
 		if (!token || typeof this.props.location.state === "undefined") {
 			this.props.history.push('/')
 			return
 		}
-		this.setState({token: token})
-		this.getUserData(token)
-		this.getRelationsData(token)
+		const id = this.props.location.state.id	
+		let isMe = false
+		if (this.props.location.state.me) { isMe = true }
+		
+		this.setState({token: token , isMe: isMe}, () => {
+			this.getUserData(token, id)
+			this.getRelationsData(token, id)
+		})
+		
 	}
 
-	getUserData = (token) => {
+	componentDidUpdate() {
+		if (this.state.user.id !== this.props.location.state.user.id && this.props.location.state.me) {
+			this.setState({user: this.props.location.state.user, isMe: true})
+			console.log("COMPONENT DID UPDATE", this.props)
+		}
+		
+
+	}
+
+	getUserData = (token, id) => {
 		console.log("GET USER DATA")
-
-	
-
-		const query = getUserDataQuery(this.props.location.state.id)
+		const query = getUserDataQuery(id)
 		const cb = resData => {
 			if (resData.errors) {
 				console.log(resData.errors[0].message)
@@ -59,9 +73,9 @@ class UserProfile extends Component {
 		fetchGraphql(query, cb, token)
 	}
 
-	getRelationsData = (token) => {
+	getRelationsData = (token, id) => {
 		console.log("GET RELATIONS DATA")
-		const query = relationsDataQuery(this.props.location.state.id)
+		const query = relationsDataQuery(id)
 		const cb = resData => {
 			if (resData.errors) {
 				throw new Error("Relations data retrieval failed .")
@@ -150,12 +164,13 @@ class UserProfile extends Component {
 						     onClick={this.openLightbox.bind(this, 0)}
 						     alt={`${firstName}+${lastName}`}
 						/>
-							<div className={styles.actionBlocks}>
-								<div className={styles.iconBlock} > {renderLikeIcon()} Like</div>
-								<div className={styles.iconBlock}> {renderBlockIcon()} Block</div>
-								{this.state.likeTo && this.state.likeFrom && !this.state.blockTo &&
-								<div className={styles.iconBlock}> {renderChatIcon()} Chat</div>}
-							</div>
+							{!this.state.isMe ? 
+								<div className={styles.actionBlocks}>
+									<div className={styles.iconBlock} > {renderLikeIcon()} Like</div>
+									<div className={styles.iconBlock}> {renderBlockIcon()} Block</div>
+									{this.state.likeTo && this.state.likeFrom && !this.state.blockTo &&
+									<div className={styles.iconBlock}> {renderChatIcon()} Chat</div>}
+							</div> : null}
 						</div>
 						<div className={styles.infoBox}>
 							<div className={styles.name}>{firstName} {lastName}</div>
