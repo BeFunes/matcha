@@ -76,7 +76,7 @@ export const toggleLikeMutation = (id, liked) => ({
 
 export const toggleBlockMutation = (id, bool) => ({
 	query: ` mutation {
-				toggleBlock (info: {receiverId: ${id}, blocked:${!bool}}) {
+				toggleBlock (info: {receiverId: ${id}, blocked:${bool}}) {
 					content
 				}
 			}`
