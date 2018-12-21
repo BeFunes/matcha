@@ -7,7 +7,6 @@ import Button from "@material-ui/core/es/Button/Button";
 import TextInput from "../../UI/TextInput/TextInput";
 import {loginQuery} from "../../../graphql/queries";
 import {fetchGraphql} from "../../../utils/graphql";
-import {saveLocationMutation} from "../../../graphql/mutations";
 
 
 class LoginDialog extends React.Component {

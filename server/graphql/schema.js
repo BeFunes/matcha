@@ -61,7 +61,6 @@ module.exports = buildSchema(`
         id: Int
         firstName: String!
         lastName: String!
-        password: String
         email: String!
         dob: String!
         gender: String!
@@ -78,6 +77,7 @@ module.exports = buildSchema(`
         isOnboarded: Boolean!
         interests: [String]
         blocked: Boolean
+        address: String
     }
     
     input MatchFilter {
@@ -137,7 +137,7 @@ module.exports = buildSchema(`
         resendConfirmationEmail(email: String): Message 
         toggleLike(info: LikeInput): Message
         toggleBlock(info: BlockInput): Message
-        saveLocation(lat: Float!, long: Float!) : Message
+        saveLocation(lat: Float!, long: Float!, address: String) : Message
     }
 
     schema {

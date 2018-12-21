@@ -72,7 +72,8 @@ const query = {
 			picture4: user[0].picture4,
 			picture5: user[0].picture5,
 			latitude: user[0].latitude,
-			longitude: user[0].longitude
+			longitude: user[0].longitude,
+			address: user[0].address,
 		}
 	},
 
@@ -112,7 +113,8 @@ const query = {
 			picture5: user[0].picture5,
 			isOnboarded: user[0].isOnboarded,
 			latitude: user[0].latitude,
-			longitude: user[0].longitude
+			longitude: user[0].longitude,
+			address: user[0].address
 		}
 	},
 
@@ -189,7 +191,8 @@ const query = {
 				interests: x.interests.split(","),
 				blocked: !!x.blocked,
 				latitude: x.latitude,
-				longitude: x.longitude
+				longitude: x.longitude,
+				address: x.address,
 			})
 		)
 		return _.filter(result, (x) => _.difference(filters.interests, x.interests).length === 0)

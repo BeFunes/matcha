@@ -56,6 +56,7 @@ export const getUserDataQuery = (userId) => ({
 										picture5
 										latitude
 										longitude
+										address
                 }
             } `
 })
@@ -68,7 +69,6 @@ export const getUserAgentDataQuery = {
                     firstName
 										lastName
 										email
-										password
 										dob
 										gender
 										orientation
@@ -83,6 +83,7 @@ export const getUserAgentDataQuery = {
 										isOnboarded
 										latitude
 										longitude
+										address
                 }
             } `
 }

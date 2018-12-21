@@ -5,15 +5,16 @@ import styles from './App.module.css';
 import Browse from "./components/Browse/Browse";
 import LoginPage from "./components/LoginPage/LoginPage";
 import Toolbar from "./components/Navigation/Toolbar/Toolbar";
-import Profile from "./components/Profile/Profile";
 import UserProfile from "./components/UserProfile/UserProfile";
 import Chat from "./components/Chat/Chat";
 import Confirmation from "./components/Confirmation/Confirmation"
 import Onboarding from "./components/Onboarding/Onboarding";
 import ResetPassword from './components/ResetPassword/ResetPassword';
-import {getUserAgentDataQuery, getUserDataQuery, isOnboardedQuery, usedInterestsQuery} from "./graphql/queries";
+import {getUserAgentDataQuery, isOnboardedQuery, usedInterestsQuery} from "./graphql/queries";
 import {fetchGraphql} from "./utils/graphql";
 import {saveLocationMutation} from "./graphql/mutations";
+import GeolocationDialog from "./components/GeolocationDialog/GeolocationDialog";
+import geocoder from "geocoder";
 
 
 class App extends Component {
@@ -22,14 +23,17 @@ class App extends Component {
 		isAuth: false,
 		token: null,
 		userId: null,
-		isLoading: true
+		isLoading: true,
+		geolocationDialogOpen: false
 	}
 
 	componentDidMount() {
 		console.log("COMP DID MOUNT")
 		const token = localStorage.getItem('token')
 		const expiryDate = localStorage.getItem('expiryDate')
-		if (!token || !expiryDate) { return }
+		if (!token || !expiryDate) {
+			return
+		}
 		if (new Date(expiryDate) <= new Date()) {
 			this.logoutHandler()
 			return
@@ -48,9 +52,14 @@ class App extends Component {
 		const query = getUserAgentDataQuery
 		const cb = resData => {
 			if (resData.errors) {
-				throw new Error ("User data retrieval failed .")
+				throw new Error("User data retrieval failed .")
 			}
-			this.setState({user: {...resData.data.getUserAgentData}, isOnboarded: resData.data.getUserAgentData.isOnboarded, isLoading: false })
+			this.setState({
+				user: {...resData.data.getUserAgentData},
+				isOnboarded: resData.data.getUserAgentData.isOnboarded,
+				isLoading: false
+			})
+			this.getLocation(token, resData.data.getUserAgentData.address)
 		}
 		fetchGraphql(query, cb, token)
 	}
@@ -74,7 +83,7 @@ class App extends Component {
 		const query = isOnboardedQuery
 		const cb = (resData) => {
 			if (resData.errors) {
-				throw new Error ("User data retrieval failed .")
+				throw new Error("User data retrieval failed .")
 			}
 			if (resData.data.isOnboarded) {
 				this.getUserAgentData(token)
@@ -84,27 +93,53 @@ class App extends Component {
 		fetchGraphql(query, cb, token)
 	}
 
-	saveLocation = (token) => {
-		console.log("SAVE LOCATION")
+	openGeolocationDialog = (location) => {
+		this.setState({suggestedLocation: location, geolocationDialogOpen: true})
+	}
+
+	closeGeolocationDialog = () => {
+		this.setState({geolocationDialogOpen: false})
+	}
+
+	getLocation = (token, existingAddress) => {
+		console.log("GET LOCATION")
 		if (!("geolocation" in navigator)) {
 			console.log("Geolocation is not available")
 			return
 		}
-		navigator.geolocation.getCurrentPosition( (position) => {
-			this.setState({geolocation: {latitude: position.coords.latitude, longitude: position.coords.longitude}})
-			const query = saveLocationMutation(position.coords.latitude, position.coords.longitude)
-			const cb = resData => {
-				if (resData.errors) {
-					console.log(resData.errors)
+		navigator.geolocation.getCurrentPosition((position) => {
+			const {latitude, longitude} = position.coords
+			geocoder.reverseGeocode(latitude, longitude, (err, data) => {
+				if (err) {
+					console.log("can't retrieve address")
+					return
 				}
-				console.log(resData.data)
-			}
-			fetchGraphql(query, cb, token)
+				let address = data.results[0].formatted_address.split(",")
+				while (address.length >= 3)
+					address.shift()
+				if (address.join() !== existingAddress) {
+					this.openGeolocationDialog({latitude: latitude, longitude: longitude, address: address.join(",")})
+				}
+			}, {key: 'AIzaSyDhO5lFvlxnnGx_eBwAmDsagl0tE-vxE2U'})
 		})
 	}
 
+
+	saveLocation = () => {
+		this.closeGeolocationDialog()
+		const {latitude, longitude, address} = this.state.suggestedLocation
+		this.setState({geolocation: {latitude: latitude, longitude: longitude}})
+		const query = saveLocationMutation(latitude, longitude, address)
+		const cb = resData => {
+			if (resData.errors) {
+				throw new Error (resData.errors[0].message)
+			}
+			console.log(resData.data)
+		}
+		fetchGraphql(query, cb, this.state.token)
+	}
+
 	loginHandler = (data) => {
-		this.saveLocation(data.token)
 		this.setState({
 			isAuth: true,
 			token: data.token,
@@ -112,11 +147,11 @@ class App extends Component {
 			isOnboarded: data.isOnboarded,
 			isLoading: false
 		})
-		const expiryDate = new Date (new Date().getTime() + 60*60*1000)
+		const expiryDate = new Date(new Date().getTime() + 60 * 60 * 1000)
 		localStorage.setItem('token', data.token)
 		localStorage.setItem('userId', data.userId)
 		localStorage.setItem('expiryDate', expiryDate.toISOString())
-		this.setAutoLogout(60*60*1000)
+		this.setAutoLogout(60 * 60 * 1000)
 		if (data.isOnboarded) {
 			this.getUserAgentData(data.token)
 			this.getUsedInterests(data.token)
@@ -131,56 +166,56 @@ class App extends Component {
 	};
 
 	setAutoLogout = milliseconds => {
-		setTimeout(this.logoutHandler , milliseconds);
+		setTimeout(this.logoutHandler, milliseconds);
 	};
 
 	onboardingHandler = () => {
-		this.setState({ isOnboarded: true })
+		this.setState({isOnboarded: true})
 		this.getUserAgentData(this.state.token)
 		this.getUsedInterests(this.state.token)
 	}
 
-	onProfileCLick = () => {
-		console.log("hello")
-		this.props.history.push({ 
-			pathname: `/user_profile`, 
-			search: '',
-			state : { user: this.props.user , id: `${this.props.user.id}` }
-		})
-	}
-
-
-
 	render() {
 		const hasAccess = this.state.isAuth && this.state.isOnboarded
+		const {geolocationDialogOpen, suggestedLocation} = this.state
 		const routeZero = () => {
 			if (this.state.isAuth && !this.state.isOnboarded && !this.state.isLoading)
-				return <Route path="/" render={(props) => <Onboarding token={this.state.token} onboardingHandler={this.onboardingHandler} {...props}/>} />
+				return <Route path="/" render={(props) => <Onboarding token={this.state.token}
+				                                                      onboardingHandler={this.onboardingHandler} {...props}/>}/>
 			else if (!this.state.isAuth)
-				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler} />}/>
+				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler}/>}/>
 			else
 				return (
-					<Route path="/" exact render={(props) => <Browse token={this.state.token} user={this.state.user} interests={this.state.interests} geolocation={this.state.geolocation}{...props} /> } />
+					<Route path="/" exact render={(props) => <Browse token={this.state.token} user={this.state.user}
+					                                                 interests={this.state.interests}
+					                                                 geolocation={this.state.geolocation}{...props} />}/>
 					// 	<Route path="profile" component={UserProfile}/>
 					// 	<Route path="chat" component={Chat}/>
 				)
-	}
+		}
 
 		return (
 			<div className={styles.app}>
 				<div>
 					<main className={hasAccess ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
 
-						{hasAccess && <Route  render={ (props) => <Toolbar {...props} onLogout={this.logoutHandler} user={this.state.user} onProfileClick={this.onProfileCLick} />}></Route> }
+						{hasAccess &&
+						<Route render={(props) => <Toolbar {...props} onLogout={this.logoutHandler} user={this.state.user}/>}/>}
 						<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
-							{!this.state.isAuth && <Route path="/confirmation/:token" render={(props) => <Confirmation {...props} markLoggedIn={this.loginHandler} />}/>}
+							{!this.state.isAuth && <Route path="/confirmation/:token" render={(props) => <Confirmation {...props}
+							                                                                                           markLoggedIn={this.loginHandler}/>}/>}
 							{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword}/>}
-							{hasAccess && <Route path="/user_profile" component={UserProfile} />}							
+							{hasAccess && <Route path="/user_profile" component={UserProfile}/>}
 							{hasAccess && <Route path="/chat" component={Chat}/>}
 							{routeZero()}
 						</Switch>
 					</main>
 				</div>
+				{hasAccess && this.state.suggestedLocation && <GeolocationDialog
+					open={geolocationDialogOpen}
+					onClose={this.closeGeolocationDialog}
+					onYes={this.saveLocation}
+					location={suggestedLocation}/>}
 			</div>
 
 		);

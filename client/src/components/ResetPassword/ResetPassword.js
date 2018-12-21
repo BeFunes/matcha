@@ -1,15 +1,10 @@
 import React, {Component} from 'react'
-// import { withStyles } from "@material-ui/core/styles";
-// import MenuItem from "@material-ui/core/MenuItem";
 import styles from './ResetPassword.module.css'
 import Button from "@material-ui/core/es/Button/Button";
 import TextInput from "../UI/TextInput/TextInput";
 import {passwordCriteria, validator} from "../../utils/string";
 import {fetchGraphql} from "../../utils/graphql";
 import {resetPasswordMutation} from "../../graphql/mutations";
-import {Route} from 'react-router-dom';
-import LoginPage from "../../components/LoginPage/LoginPage";
-
 
 
 class ResetPassword extends Component {

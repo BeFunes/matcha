@@ -4,13 +4,13 @@ import NavigationItems from "../NavigationItems/NavigationItems";
 import {Route} from 'react-router-dom';
 
 const toolbar = (props) => {
-	const {onLogout, onProfileClick, user} = props
+	const {onLogout, user} = props
 	return (
 		<header className={styles.toolbar}>
 
 			{/*<Logo />*/}
 			<nav>
-				<Route render={(props) =>  <NavigationItems  {...props} onLogout={onLogout} user={user} onProfileClick={onProfileClick} />}/>
+				<Route render={(props) =>  <NavigationItems  {...props} onLogout={onLogout} user={user} />}/>
 			</nav>
 			<div onClick={onLogout}>Logout</div>
 		</header>

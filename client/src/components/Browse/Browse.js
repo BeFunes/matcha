@@ -7,7 +7,6 @@ import {getAge} from "../../utils/date";
 import Route from "react-router-dom/es/Route";
 import {matchesQuery} from './../../graphql/queries'
 import {fetchGraphql} from "../../utils/graphql";
-import {getLocation} from "../../utils/geolocation"
 import geolib from 'geolib';
 
 class Browse extends Component {
@@ -26,12 +25,6 @@ class Browse extends Component {
 		this.getProfiles({...this.state.filters, interests: this.props.interests || []})
 	}
 
-	// static getDerivedStateFromProps(nextProps, prevState) {
-	// 	console.log(" GET DERIVED STATE FROM PROPS")
-	// 	if (nextProps.geolocation !== prevState.geolocation) {
-	// 		return ({ geolocation: nextProps.geolocation })
-	// 	}
-	// }
 
 	componentDidUpdate() {
 		console.log( "COMPONENT DID UPDATE")

@@ -86,6 +86,7 @@ const createUsersTable = `CREATE TABLE users (
     picture5 varchar(255),
     latitude decimal(20,17),
 		longitude decimal(20,17),
+		address varchar(255),
 		isOnboarded tinyint(1) NOT NULL DEFAULT 0,
 		isConfirmed tinyint(1) NOT NULL DEFAULT 0,
     PRIMARY KEY (id)

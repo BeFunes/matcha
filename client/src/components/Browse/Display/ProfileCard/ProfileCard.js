@@ -9,8 +9,6 @@ import Block from '@material-ui/icons/Block'
 import {likeInfoQuery } from "../../../../graphql/queries";
 import {fetchGraphql} from "../../../../utils/graphql";
 import {toggleBlockMutation, toggleLikeMutation} from "../../../../graphql/mutations";
-import {Route} from 'react-router-dom';
-import UserProfile from '../../../UserProfile/UserProfile'
 
 
 class ProfileCard extends Component {

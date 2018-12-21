@@ -34,19 +34,16 @@ class UserProfile extends Component {
 	}
 
 	componentDidMount() {
-		console.log("Profile", this.props.location)
 		const token = localStorage.getItem('token')
 		if (!token || typeof this.props.location.state === "undefined") {
 			this.props.history.push('/')
 			return
 		}
-		const id = this.props.location.state.id	
-		let isMe = false
-		if (this.props.location.state.me) { isMe = true }
-		
+		const id = this.props.location.state.id
+		const isMe = !!this.props.location.state.me
 		this.setState({token: token , isMe: isMe}, () => {
-			this.getUserData(token, id)
-			this.getRelationsData(token, id)
+			!isMe && this.getUserData(token, id)
+			!isMe && this.getRelationsData(token, id)
 		})
 		
 	}
@@ -54,10 +51,7 @@ class UserProfile extends Component {
 	componentDidUpdate() {
 		if (this.state.user.id !== this.props.location.state.user.id && this.props.location.state.me) {
 			this.setState({user: this.props.location.state.user, isMe: true})
-			console.log("COMPONENT DID UPDATE", this.props)
 		}
-		
-
 	}
 
 	getUserData = (token, id) => {
@@ -80,7 +74,6 @@ class UserProfile extends Component {
 			if (resData.errors) {
 				throw new Error("Relations data retrieval failed .")
 			}
-			console.log(resData.data.relationsData)
 			this.setState({...resData.data.relationsData})
 		}
 		fetchGraphql(query, cb, token)
@@ -129,11 +122,10 @@ class UserProfile extends Component {
 
 	render() {
 		
-		const {firstName, lastName, dob, gender, orientation, interests, job, bio, profilePic, picture2, picture3, picture4, picture5} = this.state.user
+		const {firstName, lastName, dob, gender, orientation, address, interests, job, bio, profilePic, picture2, picture3, picture4, picture5} = this.state.user
 		const images = [picture2, picture3, picture4, picture5].filter(x => !!x && x !== 'undefined')
 		const imagesArray = [profilePic, ...images].map(x => ({src: x}))
-		const city = "Paris"
-		const country = "France"
+		// const printableAddress = address && address.replace(/[0-9]/g, '')
 
 		const getProfilePic = () => {
 			const profileP = profilePic && profilePic.substring(0,7) === "images/" ? `${HOST}/${profilePic}` : profilePic
@@ -175,7 +167,7 @@ class UserProfile extends Component {
 						<div className={styles.infoBox}>
 							<div className={styles.name}>{firstName} {lastName}</div>
 							<div className={styles.minorInfo}> {age} years old</div>
-							<div className={styles.minorInfo}><LocationIcon style={{fontSize: 15}}/> {city}, {country}</div>
+							<div className={styles.minorInfo}><LocationIcon style={{fontSize: 15}}/> {address}</div>
 							<div className={styles.minorInfo}><JobIcon style={{fontSize: 15}}/> {job} </div>
 						</div>
 					</div>

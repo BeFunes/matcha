@@ -97,9 +97,9 @@ export const resetPasswordMutation = (token, password, confirmPassword ) => ({
               } }`
 })
 
-export const saveLocationMutation = (lat, long) => ({
+export const saveLocationMutation = (lat, long, address) => ({
 	query: `mutation {
-				saveLocation(lat: ${lat}, long: ${long}) {
+				saveLocation(lat: ${lat}, long: ${long}, address: "${address}") {
 				content 
 				}}
 	`
