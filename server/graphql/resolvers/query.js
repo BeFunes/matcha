@@ -77,7 +77,7 @@ const query = {
 	},
 
 	getUserAgentData: async function (_, req) {
-		console.log("GET USER INFO")
+		console.log("GET AGENT USER INFO")
 		if (!req.isAuth) {
 			const error = new Error('Not authenticated!')
 			error.code = 401
@@ -187,7 +187,9 @@ const query = {
 				picture4: x.picture4,
 				picture5: x.picture5,
 				interests: x.interests.split(","),
-				blocked: !!x.blocked
+				blocked: !!x.blocked,
+				latitude: x.latitude,
+				longitude: x.longitude
 			})
 		)
 		return _.filter(result, (x) => _.difference(filters.interests, x.interests).length === 0)

@@ -22,6 +22,8 @@ export const matchesQuery = (gender, orientation, ageMin, ageMax, interests) => 
 				    interests
 				    profilePic
 				    blocked
+				    latitude
+				    longitude
 				  }  }     `
 })
 

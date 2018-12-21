@@ -7,6 +7,8 @@ import {getAge} from "../../utils/date";
 import Route from "react-router-dom/es/Route";
 import {matchesQuery} from './../../graphql/queries'
 import {fetchGraphql} from "../../utils/graphql";
+import {getLocation} from "../../utils/geolocation"
+import geolib from 'geolib';
 
 class Browse extends Component {
 
@@ -24,9 +26,21 @@ class Browse extends Component {
 		this.getProfiles({...this.state.filters, interests: this.props.interests || []})
 	}
 
+	// static getDerivedStateFromProps(nextProps, prevState) {
+	// 	console.log(" GET DERIVED STATE FROM PROPS")
+	// 	if (nextProps.geolocation !== prevState.geolocation) {
+	// 		return ({ geolocation: nextProps.geolocation })
+	// 	}
+	// }
+
 	componentDidUpdate() {
+		console.log( "COMPONENT DID UPDATE")
 		if (typeof this.state.matches === 'undefined') {
 			this.getProfiles({...this.state.filters, interests: this.props.interests || []})
+		}
+		if (this.state.sortValue === "location" && this.state.geolocation !== this.props.geolocation) {
+			let newMatches = this.sort(this.state.matches, "location")
+			this.setState({matches: newMatches, geolocation: this.props.geolocation})
 		}
 	}
 
@@ -55,8 +69,13 @@ class Browse extends Component {
 				return _.orderBy(array, ['age'], ['asc'])
 			case "age>":
 				return _.orderBy(array, ['age'], ['desc'])
-			case "location":
-				return array
+			case "location": {
+				if (typeof this.props.geolocation === 'undefined')
+					return array
+				const {latitude, longitude} = this.props.geolocation
+				const f = (x) => geolib.getDistance({latitude: x.latitude, longitude: x.longitude}, {latitude: latitude, longitude: longitude})
+				return _.orderBy(array, [f], ['asc'])
+			}
 			case "interests":
 				return _.orderBy(array, [x => _.intersection(x.interests, this.props.user.interests).length], ['desc']);
 			default:

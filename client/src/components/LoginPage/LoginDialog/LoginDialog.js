@@ -47,24 +47,7 @@ class LoginDialog extends React.Component {
 			this.setState({inputFields: {...this.state.inputFields, [type]: {...this.state.inputFields[type], value: sanitisedValue, valid: valid}}});
 	}
 
-	saveLocation = (token) => {
-		console.log("SAVE LOCATION")
-		if (!("geolocation" in navigator)) {
-			console.log("Geolocation is not available")
-			return
-		}
-		navigator.geolocation.getCurrentPosition( (position) => {
-			const query = saveLocationMutation(position.coords.latitude, position.coords.longitude)
-			const cb = resData => {
-				if (resData.errors) {
-					console.log(resData.errors)
-					// throw new Error (resData.errors[0].message)
-				}
-				console.log(resData.data)
-			}
-			fetchGraphql(query, cb, token)
-		})
-	}
+
 
 	loginHandler = (authData) => {
 		console.log("LOGIN HANDLER")  ////////////////////REMOVE
@@ -79,7 +62,6 @@ class LoginDialog extends React.Component {
 			if (resData.errors) {
 				throw new Error ("User login failed.")
 			}
-			this.saveLocation(resData.data.login.token)
 			this.props.onLogin(resData.data.login)
 		}
 		const errorCb = () => {
