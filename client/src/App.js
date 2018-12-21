@@ -13,6 +13,7 @@ import Onboarding from "./components/Onboarding/Onboarding";
 import ResetPassword from './components/ResetPassword/ResetPassword';
 import {getUserAgentDataQuery, getUserDataQuery, isOnboardedQuery, usedInterestsQuery} from "./graphql/queries";
 import {fetchGraphql} from "./utils/graphql";
+import {saveLocationMutation} from "./graphql/mutations";
 
 
 class App extends Component {
@@ -83,7 +84,27 @@ class App extends Component {
 		fetchGraphql(query, cb, token)
 	}
 
+	saveLocation = (token) => {
+		console.log("SAVE LOCATION")
+		if (!("geolocation" in navigator)) {
+			console.log("Geolocation is not available")
+			return
+		}
+		navigator.geolocation.getCurrentPosition( (position) => {
+			this.setState({geolocation: {latitude: position.coords.latitude, longitude: position.coords.longitude}})
+			const query = saveLocationMutation(position.coords.latitude, position.coords.longitude)
+			const cb = resData => {
+				if (resData.errors) {
+					console.log(resData.errors)
+				}
+				console.log(resData.data)
+			}
+			fetchGraphql(query, cb, token)
+		})
+	}
+
 	loginHandler = (data) => {
+		this.saveLocation(data.token)
 		this.setState({
 			isAuth: true,
 			token: data.token,
@@ -139,7 +160,7 @@ class App extends Component {
 				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler} />}/>
 			else
 				return (
-					<Route path="/" exact render={(props) => <Browse token={this.state.token} user={this.state.user} interests={this.state.interests} {...props} /> } />
+					<Route path="/" exact render={(props) => <Browse token={this.state.token} user={this.state.user} interests={this.state.interests} geolocation={this.state.geolocation}{...props} /> } />
 					// 	<Route path="profile" component={UserProfile}/>
 					// 	<Route path="chat" component={Chat}/>
 				)
