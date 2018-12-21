@@ -139,8 +139,9 @@ class App extends Component {
 		this.getUsedInterests(this.state.token)
 	}
 
+
+
 	render() {
-		console.log("APP geolocation", this.state.geolocation)
 		const hasAccess = this.state.isAuth && this.state.isOnboarded
 		const routeZero = () => {
 			if (this.state.isAuth && !this.state.isOnboarded && !this.state.isLoading)
@@ -160,12 +161,11 @@ class App extends Component {
 				<div>
 					<main className={hasAccess ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
 
-						{hasAccess && <Toolbar onLogout={this.logoutHandler}/> }
+						{hasAccess && <Toolbar onLogout={this.logoutHandler} /> }
 						<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
 							{!this.state.isAuth && <Route path="/confirmation/:token" render={(props) => <Confirmation {...props} markLoggedIn={this.loginHandler} />}/>}
 							{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword}/>}
-							{hasAccess && <Route path="/user_profile/:id" component={Profile}/>}
-							{/*{hasAccess && <Route path="/profile" component={Profile}/>}*/}
+							{hasAccess && <Route path="/user_profile"  render={(props) => <Profile {...props} user={this.state.user} />}/>}
 							{hasAccess && <Route path="/chat" component={Chat}/>}
 							{routeZero()}
 						</Switch>

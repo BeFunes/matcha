@@ -34,6 +34,7 @@ class Display extends Component {
 							key={`${item.firstName}+${item.lastName}+${index}`}
 							render={(props) => <ProfileCard
 								profile={item}
+								user={this.props.user}
 								token={token}
 								onBlock={this.blockUser}
 								{...props}

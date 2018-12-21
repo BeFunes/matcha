@@ -9,6 +9,8 @@ import Block from '@material-ui/icons/Block'
 import {likeInfoQuery } from "../../../../graphql/queries";
 import {fetchGraphql} from "../../../../utils/graphql";
 import {toggleBlockMutation, toggleLikeMutation} from "../../../../graphql/mutations";
+import {Route} from 'react-router-dom';
+import UserProfile from '../../../UserProfile/UserProfile'
 
 
 class ProfileCard extends Component {
@@ -90,7 +92,12 @@ class ProfileCard extends Component {
 					     backgroundImage: `url(${profilePic})`,
 					     backgroundRepeat: 'noRepeat', backgroundSize: 'cover'
 				     }}
-				     onClick={() => {this.props.history.push(`/user_profile/${id}`)}}
+					 onClick={() => {this.props.history.push({ 
+						 pathname: `/user_profile`, 
+						 search: '',
+						 state : { user: this.props.user , id: `${id}` }
+					 })}}
+
 				/>
 					<div className={styles.icons}>
 						{renderHeart()}

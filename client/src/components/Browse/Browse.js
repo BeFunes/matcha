@@ -113,6 +113,7 @@ class Browse extends Component {
 				/>}
 				<Route render={(props) => <Display
 					profiles={matches}
+					user={this.props.user}
 					token={this.props.token}
 					allowBlocked={this.state.filters.allowBlocked}
 					{...props}

@@ -24,6 +24,7 @@ const getRandomBackground = () => {
 class UserProfile extends Component {
 	state = {
 		user: {},
+		authUser: {},
 		likeTo: false,
 		likeFrom: false,
 		blockTo: false,
@@ -33,7 +34,7 @@ class UserProfile extends Component {
 
 	componentDidMount() {
 		const token = localStorage.getItem('token')
-		if (!token) {
+		if (!token || typeof this.props.location.state === "undefined") {
 			this.props.history.push('/')
 			return
 		}
@@ -44,7 +45,10 @@ class UserProfile extends Component {
 
 	getUserData = (token) => {
 		console.log("GET USER DATA")
-		const query = getUserDataQuery(this.props.match.params.id)
+
+	
+
+		const query = getUserDataQuery(this.props.location.state.id)
 		const cb = resData => {
 			if (resData.errors) {
 				console.log(resData.errors[0].message)
@@ -57,7 +61,7 @@ class UserProfile extends Component {
 
 	getRelationsData = (token) => {
 		console.log("GET RELATIONS DATA")
-		const query = relationsDataQuery(this.props.match.params.id)
+		const query = relationsDataQuery(this.props.location.state.id)
 		const cb = resData => {
 			if (resData.errors) {
 				throw new Error("Relations data retrieval failed .")
@@ -110,6 +114,7 @@ class UserProfile extends Component {
 	}
 
 	render() {
+		
 		const {firstName, lastName, dob, gender, orientation, interests, job, bio, profilePic, picture2, picture3, picture4, picture5} = this.state.user
 		const images = [picture2, picture3, picture4, picture5].filter(x => !!x && x !== 'undefined')
 		const imagesArray = [profilePic, ...images].map(x => ({src: x}))
