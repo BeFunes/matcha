@@ -267,5 +267,10 @@ module.exports = {
 		const query = 'UPDATE users SET latitude = ?, longitude = ?, address = ? WHERE id = ?'
 		await db.query(query, [lat, long, address, req.userId])
 		return ({ content: "location updated successfully" })
+	},
+	editUser: async function ({userInput}, req) {
+		console.log(userInput)
+		return {content: "User modified"}
 	}
+	
 }

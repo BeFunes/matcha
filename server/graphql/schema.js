@@ -1,4 +1,4 @@
-const {buildSchema} = require('graphql');
+const { buildSchema } = require('graphql');
 
 module.exports = buildSchema(`
 
@@ -22,6 +22,17 @@ module.exports = buildSchema(`
         email: String!
         oldPassword: String!
         newPassword: String!
+    }
+
+    input EditUser{
+        requestEmail: String!
+        name: String!
+        lastName: String!
+        email: String!
+        interests: [String!]!
+        bio: String!
+        gender: String!
+        orientation: String!
     }
 		
 		input UserProfileInfo {
@@ -126,6 +137,7 @@ module.exports = buildSchema(`
     
     type RootMutation {
         createUser(userInput: UserInputData) : User!
+        editUser(userInput: EditUser): Message
         emailConfirmation(token: String!): AuthData!
         passwordResetEmail(data: emailData) : Message
         resetPassword(token: String!, password: String!, confirmationPassword: String!): AuthData!

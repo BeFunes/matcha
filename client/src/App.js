@@ -176,6 +176,12 @@ class App extends Component {
 		this.getUsedInterests(this.state.token)
 	}
 
+	checkUser() {
+		if (typeof this.state.user === "undefined") {
+			console.log("hello")
+		} else { return <Route path="/edit_profile" render={(props) => <EditProfile {...props} user={this.state.user}/>} />}
+	}
+
 	render() {
 		const hasAccess = this.state.isAuth && this.state.isOnboarded
 		const {geolocationDialogOpen, suggestedLocation} = this.state
@@ -191,7 +197,7 @@ class App extends Component {
 					// 	<Route path="chat" component={Chat}/>
 				)
 		}
-
+		console.log("logging ", this.state)
 		return (
 			<div className={styles.app}>
 				<div>
@@ -201,7 +207,7 @@ class App extends Component {
 							{!this.state.isAuth && <Route path="/confirmation/:token" render={(props) => <Confirmation {...props} markLoggedIn={this.loginHandler} />} />}
 							{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword} />}
 							{hasAccess && <Route path="/user_profile" component={UserProfile} />}
-							{hasAccess && <Route path="/edit_profile" render={(props) => <EditProfile {...props} user={this.state.user}/>} />}
+							{hasAccess && this.checkUser()}
 							{hasAccess && <Route path="/chat" component={Chat} />}
 							{routeZero()}
 						</Switch>

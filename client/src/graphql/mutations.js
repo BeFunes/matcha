@@ -90,7 +90,7 @@ export const passwordResetEmailMutation = (email) => ({
               } `
 })
 
-export const resetPasswordMutation = (token, password, confirmPassword ) => ({
+export const resetPasswordMutation = (token, password, confirmPassword) => ({
 	query: `mutation {
 				resetPassword(token: "${token}", password: ${password}, confirmationPassword: ${confirmPassword}) {
 				   userId
@@ -103,4 +103,19 @@ export const saveLocationMutation = (lat, long, address) => ({
 				content 
 				}}
 	`
+})
+
+export const editUserMutation = (data) => ({
+	query: `mutation {
+		editUser(userInput: {
+			requestEmail: "${data.requestEmail}",
+			name: "${data.name}",
+			lastName: "${data.lastName}",
+			email: ${data.email},
+			interests: [${data.interests}],
+			bio: ${data.bio},
+			gender: "${data.gender}",
+			orientation: "${data.orientation}"
+		}) {content}
+	}`
 })
