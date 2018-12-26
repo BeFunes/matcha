@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import styles from './UserProfile.module.css'
 import Lightbox from 'react-images';
 import {getAge} from "../../utils/date";
-import EditProfile from '../EditProfile/EditProfile'
 import LocationIcon from "@material-ui/icons/LocationOn"
 import JobIcon from "@material-ui/icons/Work"
 import FullHeart from '@material-ui/icons/Favorite'

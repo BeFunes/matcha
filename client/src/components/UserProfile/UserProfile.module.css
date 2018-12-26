@@ -2,8 +2,9 @@
     background-color: white;
     display: flex;
     /*max-width: 70%;*/
-    max-width: 750px;
-    min-width: 600px;
+    /* max-width: 750px;
+    min-width: 600px; */
+    width: 50%;
     height: 100%;
 }
 

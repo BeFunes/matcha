@@ -268,8 +268,32 @@ module.exports = {
 		await db.query(query, [lat, long, address, req.userId])
 		return ({ content: "location updated successfully" })
 	},
+
 	editUser: async function ({userInput}, req) {
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!')
+			error.code = 401
+			throw error
+		}
 		console.log(userInput)
+
+		const query = `UPDATE users SET first_name = ?, last_name = ?, email = ?, bio = ?, gender = ?, orientation = ? WHERE id = ?`
+		await db.query(query, [userInput.name, userInput.lastName, userInput.email, userInput.bio, userInput.gender, userInput.orientation, req.userId])
+		const [inter] = await db.query('Select title from interests')
+		const existingInterests = inter.map(y => y.title)
+		const newInterests = userInput.interests.filter(element => !existingInterests.includes(element))
+		const interestQuery = `INSERT INTO interests (title) values ?`
+		const interests = newInterests.map(x => [x])
+		if (interests.length > 0) { 
+			const [resInterests] = await db.query(interestQuery, [interests])
+			console.log("resinter ", resInterests)
+		}
+		const interestsIdQuery = `SELECT id FROM interests WHERE title IN (${userInput.interests.map(() => "?").join()})`
+		const [ids] = await db.query(interestsIdQuery, userInput.interests)
+		const deleteInterest = 'DELETE FROM users_interests WHERE user_id = ?'
+		await db.query(deleteInterest, req.userId)
+		const usersInterestsQuery = 'INSERT INTO users_interests (interest_id, user_id) values ?'
+		await db.query(usersInterestsQuery, [ids.map((x) => [ x.id, req.userId ])])
 		return {content: "User modified"}
 	}
 	

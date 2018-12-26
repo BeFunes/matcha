@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import styles from './EditProfile.module.css'
 import TextInput from "../UI/TextInput/TextInput";
-import { capitalise, sanitise, validator } from "../../utils/string";
+import { sanitise, validator } from "../../utils/string";
 import FormSelector from "../UI/FormSelector";
 import Chip from "@material-ui/core/es/Chip/Chip";
 import TextField from "@material-ui/core/es/TextField/TextField";
@@ -9,9 +9,21 @@ import Button from '@material-ui/core/Button';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 import { blue } from '@material-ui/core/colors'
 import { editUserMutation } from "../../graphql/mutations";
-import {fetchGraphql} from "../../utils/graphql";
+import { fetchGraphql } from "../../utils/graphql";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Divider from '@material-ui/core/Divider';
+import ResetPassword from '../ResetPassword/ResetPassword'
 
-const blueTheme = createMuiTheme({ palette: { primary: blue } })
+const blueTheme = createMuiTheme({
+    palette: {
+        primary: blue
+    },
+    typography: {
+        useNextVariants: true,
+    },
+})
+
 
 
 class EditProfile extends Component {
@@ -173,7 +185,7 @@ class EditProfile extends Component {
         console.log("here", data.interests)
         data.bio = JSON.stringify(this.state.bio.value)
         data.email = JSON.stringify(this.state.textFields.email.value)
-        data.gender = this.state.gender.value === 'Man' ? "M" : "W"
+        data.gender = this.state.gender.value === 'Man' ? "M" : "F"
         data.orientation = (function (orient) {
             switch (orient) {
                 case 'Woman': return 'F'
@@ -181,18 +193,33 @@ class EditProfile extends Component {
                 default: return 'FM'
             }
         })(this.state.orientation.value)
-		const query = editUserMutation(data)
-		const cb = resData => {
-			if (resData.errors) {
-				throw new Error(
-					"Edit failed."
-				)
-			}
-			console.log(resData)
-	
-		}
-		fetchGraphql(query, cb)
+        const query = editUserMutation(data)
+        const cb = resData => {
+            if (resData.errors) {
+                throw new Error(
+                    "Edit failed."
+                )
+            }
+            console.log(resData)
+            this.props.refreshUser(this.props.token)
+            this.notify()
+            setTimeout(() => {
+                this.props.history.push({
+                    pathname: `/user_profile`,
+                    search: '',
+                    state: { user: this.props.user, me: true }
+                })
+            }, 2700)
+        }
+        console.log(this.props.token)
+        fetchGraphql(query, cb, this.props.token)
     }
+
+    notify = () => toast.success("Profile modified !", {
+        position: toast.POSITION.BOTTOM_RIGHT,
+        autoClose: 2000
+    });
+
 
 
     render() {
@@ -210,6 +237,7 @@ class EditProfile extends Component {
 
         return (
             <div className={styles.component}>
+                <ToastContainer />
                 <div className={styles.headerName}>
                     <div className={styles.name}>
                         {elementsArray.map(element => (
@@ -224,8 +252,11 @@ class EditProfile extends Component {
                                     error={!element.valid}
                                 /></div>))}
                     </div>
-                    <FormSelector options={['Woman', 'Man']} formName={"Gender"} onChange={this.updateGender} value={this.state.gender.value} />
-                    <FormSelector options={['Any', 'Woman', 'Man']} formName={"Looking for"} onChange={this.updateOrientation} value={this.state.orientation.value} />
+                    <div>
+                        <FormSelector options={['Woman', 'Man']} formName={"Gender"} onChange={this.updateGender} value={this.state.gender.value} /></div>
+                    <div>
+                        <FormSelector options={['Any', 'Woman', 'Man']} formName={"Looking for"} onChange={this.updateOrientation} value={this.state.orientation.value} />
+                    </div>
                 </div>
                 <TextInput
                     ref={(input) => { this.bioInpyt = input; }}
@@ -263,6 +294,8 @@ class EditProfile extends Component {
                 <MuiThemeProvider theme={blueTheme}>
                     <Button color="primary" variant={allValid ? "contained" : "outlined"} onClick={this.onSaveClick} size="small" style={{ marginTop: "10px" }}  >
                         Save </Button></MuiThemeProvider>
+                <Divider variant="middle" style={{ marginTop: 20 }} />
+                <ResetPassword></ResetPassword>
             </div>
 
         )

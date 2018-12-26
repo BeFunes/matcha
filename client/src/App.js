@@ -17,7 +17,6 @@ import {saveLocationMutation} from "./graphql/mutations";
 import GeolocationDialog from "./components/GeolocationDialog/GeolocationDialog";
 import geocoder from "geocoder";
 
-
 class App extends Component {
 
 	state = {
@@ -179,7 +178,7 @@ class App extends Component {
 	checkUser() {
 		if (typeof this.state.user === "undefined") {
 			console.log("hello")
-		} else { return <Route path="/edit_profile" render={(props) => <EditProfile {...props} user={this.state.user}/>} />}
+		} else { return <Route path="/edit_profile" render={(props) => <EditProfile {...props} user={this.state.user} token={this.state.token} refreshUser={this.getUserAgentData}/>} />}
 	}
 
 	render() {
