@@ -4,21 +4,18 @@
     width: 90%;
     display: flex;
     flex: 1;
-    flex-wrap: wrap;
     flex-direction: column;
-    /* justify-content: center; */
-    /* align-items: center; */
-    /* align-items: center; */
-    margin-top: 20px;
     -webkit-flex: 1 1 auto;
-    overflow: auto;
-    min-height: 0px;
+    overflow-y: auto;
+    min-height: 0; 
 }
 
 .headerName {
     display: flex;
     flex-direction: row;
+    /* flex: 8; */
     justify-content: space-evenly;
+
 }
 
 .name {

@@ -295,9 +295,8 @@ class EditProfile extends Component {
                     <Button color="primary" variant={allValid ? "contained" : "outlined"} onClick={this.onSaveClick} size="small" style={{ marginTop: "10px" }}  >
                         Save </Button></MuiThemeProvider>
                 <Divider variant="middle" style={{ marginTop: 20 }} />
-                <ResetPassword></ResetPassword>
             </div>
-
+        
         )
     }
 }
