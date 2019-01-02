@@ -12,21 +12,14 @@ import Block from '@material-ui/icons/Block'
 import {getUserDataQuery, relationsDataQuery} from "../../graphql/queries";
 import {fetchGraphql} from "../../utils/graphql";
 import {toggleBlockMutation, toggleLikeMutation} from "../../graphql/mutations";
-import {HOST} from "../../constants";
+import {EMPTYAVATAR, HOST} from "../../constants";
 import Button from '@material-ui/core/Button';
 import SVGIcon from '@material-ui/core/SvgIcon';
 
-
-
-
-
-
-const emptyAvatar = 'https://us.123rf.com/450wm/pikepicture/pikepicture1612/pikepicture161200524/68824656-male-default-placeholder-avatar-profile-gray-picture-isolated-on-white-background-for-your-design-ve.jpg?ver=6'
-
-const getRandomBackground = () => {
-	const n = Math.floor(Math.random() * 999) + 1
-	return `https://picsum.photos/800/150/?image=${n}`
-}
+// const getRandomBackground = () => {
+// 	const n = Math.floor(Math.random() * 999) + 1
+// 	return `https://picsum.photos/800/150/?image=${n}`
+// }
 
 class UserProfile extends Component {
 	state = {
@@ -150,7 +143,7 @@ class UserProfile extends Component {
 
 		const getProfilePic = () => {
 			const profileP = profilePic && profilePic.substring(0,7) === "images/" ? `${HOST}/${profilePic}` : profilePic
-			return typeof profileP !== 'undefined' ? profileP : emptyAvatar
+			return typeof profileP !== 'undefined' ? profileP : EMPTYAVATAR
 		}
 
 		const age = dob && getAge(dob)

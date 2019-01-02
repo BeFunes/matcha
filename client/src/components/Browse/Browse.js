@@ -28,8 +28,6 @@ class Browse extends Component {
 
 	componentDidUpdate() {
 		console.log( "COMPONENT DID UPDATE Browse")
-		console.log("State", this.state)
-		console.log("Props", this.props)
 		if (typeof this.state.matches === 'undefined') {
 			this.getProfiles({...this.state.filters, interests: this.props.interests || []})
 		}

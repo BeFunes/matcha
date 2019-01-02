@@ -174,10 +174,9 @@ class App extends Component {
 		this.getUserAgentData(this.state.token)
 		this.getUsedInterests(this.state.token)
 	}
-
+//////////// todo: this seems weird? Why do we need it?
 	checkUser() {
 		if (typeof this.state.user === "undefined") {
-			console.log("hello")
 		} else { return <Route path="/edit_profile" render={(props) => <EditProfile {...props} user={this.state.user} token={this.state.token} refreshUser={this.getUserAgentData}/>} />}
 	}
 
@@ -196,7 +195,6 @@ class App extends Component {
 					// 	<Route path="chat" component={Chat}/>
 				)
 		}
-		console.log("logging ", this.state)
 		return (
 			<div className={styles.app}>
 				<div>

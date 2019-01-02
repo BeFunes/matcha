@@ -26,23 +26,28 @@ const getOrientation = (gender, orientation) => {
 const paris = {
 	latitude: 48.8529717,
 	longitude: 2.3477134,
+	address: "Paris"
 }
 
 const london = {
 	latitude: 51.5074,
 	longitude: 0.1278,
+	address: "London"
+
 }
 
 const newYork = {
 	latitude: 40.7128,
-	longitude: 74.0060
+	longitude: -74.0060,
+	address: "New York"
 }
 
 const getLocation = () => {
 	const locations = [paris, london, newYork]
+	const city = locations[Math.floor(Math.random() * locations.length)]
 	const radius = Math.floor(Math.random() * (10000-100)) + 100
-	const center = locations[Math.floor(Math.random() * locations.length)]
-	return randomLocation.randomCircumferencePoint(center, radius)
+	const {latitude, longitude} = (randomLocation.randomCircumferencePoint({latitude: city.latitude, longitude: city.longitude}, radius))
+	return {latitude, longitude, address: city.address}
 }
 
 const dummyPassword = "$2a$12$rZHGfYxrMBjazgmd.OXq3OiH5wiocqYo6QB5Mxp6I2msv/JnGQL2K"
@@ -58,13 +63,13 @@ const getData = (gender, orient) => {
 	const date = moment(faker.date.past()).format("YYYY-MM-DD")
 	const dob = year.toString() + date.substr(4)
 	const orientation = getOrientation(gender, orient)
-	const position = getLocation()
+	const {latitude, longitude, address} = getLocation()
 	faker.locale = "en";
 	const job = faker.name.jobTitle()
 	const bio = faker.lorem.paragraph()
 	const randomN = Math.floor(Math.random() * 100)
 	const profilePicture = `https://randomuser.me/api/portraits/${gender === 'M' ? 'men' : 'women'}/${randomN}.jpg`
-	return [firstName, lastName, email, password, dob, gender, orientation, job, bio, profilePicture, position.latitude, position.longitude]
+	return [firstName, lastName, email, password, dob, gender, orientation, job, bio, profilePicture, latitude, longitude, address]
 }
 
 
@@ -93,9 +98,8 @@ const createUsersTable = `CREATE TABLE users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
 
 const populateUsersTable = `INSERT INTO users (first_name, last_name, email, password,
-dob, gender, orientation, job, bio, profilePic, latitude, longitude,
-picture2, picture3, picture4, picture5, isOnboarded, isConfirmed)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, 1, 1)`
+dob, gender, orientation, job, bio, profilePic, latitude, longitude, address, isOnboarded, isConfirmed)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1)`
 
 const createInterestsTable = `CREATE TABLE interests (
 		id int(11) unsigned NOT NULL AUTO_INCREMENT,
