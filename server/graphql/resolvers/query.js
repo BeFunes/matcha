@@ -250,7 +250,32 @@ const query = {
 			blockTo: userBlocksMatch[0].val,
 			blockFrom: matchBlocksUser[0].val
 		}
+	},
+
+	userMessages: async function (req) {
+		console.log('GET USER MESSAGES')
+		// if (!req.isAuth) {
+		// 	const error = new Error('Not authenticated!')
+		// 	error.code = 401
+		// 	throw error
+		// }
+		req.userId = 1
+		const query = `SELECT * FROM messages WHERE (sender_id = ? OR receiver_id = ?)`
+		const [raw] = await db.query(query, [req.userId, req.userId])
+		const conv = raw.map(x => ({
+			sender_id : x.sender_id,
+			receiver_id : x.receiver_id,
+			timestamp: x.time,
+			seen: x.seen,
+			content: x.content,
+			conversation_id: x.conversation_id
+		}))
+		///order by timestamp
+		const conversations = _.groupBy(conv, x => x.conversation_id)
+		const c =  Object.keys(conversations).map(x => conversations[x])
+		console.log(c)
+		return c
 	}
-}
+ }
 
 module.exports = query

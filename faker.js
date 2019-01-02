@@ -128,6 +128,23 @@ const createBlocksTable = `CREATE TABLE blocks (
 		receiver_id int(11) unsigned NOT NULL REFERENCES users(id)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`
 
+const createChatsTable = `CREATE TABLE messages (
+		conversation_id varchar(10) NOT NULL,
+		sender_id int(11) unsigned NOT NULL REFERENCES users(id),
+		receiver_id int(11) unsigned NOT NULL REFERENCES USERS(id),
+		content varchar(2000) NOT NULL,
+		time timestamp,
+		seen tinyint(1) NOT NULL DEFAULT 0
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 `
+
+
+const populateChatsTable = `INSERT INTO messages (conversation_id, sender_id, receiver_id, content, time, seen) values 
+		( "1:2", 1, 2, "Hi", '2019-01-01 08:23', 1), 
+		( "1:2", 2, 1, "Hi to you too", '2019-01-01 08:40', 1 ),
+		( "1:2", 1, 2, "How are you? This message is a bit longer because I need to see what it looks like", '2019-01-01 09:23', 1),
+		( "1:2", 2, 1, "1 has not yet seen this message", '2019-01-01 09:40', 0)
+		`
+
 const getRandomUser = () => {
 	const sex = ['M', 'F']
 	const orient = ['straight', 'straight', 'straight', 'gay', 'bisexual']
@@ -153,6 +170,9 @@ db.connect()
 		return db.query("DROP TABLE IF EXISTS blocks") })
 	.then(() => {
 		console.log("Table 'blocks' deleted")
+		return db.query("DROP TABLE IF EXISTS messages") })
+	.then(() => {
+		console.log("Table 'messages' deleted")
 		return db.query(createUsersTable) })
 	.then( async function () {
 		console.log("Table 'users' created");
@@ -183,8 +203,14 @@ db.connect()
 	.then(async function () {
 		console.log("Table 'likes' created")
 		await db.query(createBlocksTable) })
-	.then(() => {
+	.then(async function () {
 		console.log("Table 'blocks' created")
+		await db.query(createChatsTable) })
+	.then(async function () {
+		console.log("Table 'messages' created")
+		await db.query(populateChatsTable) })
+	.then(() => {
+		console.log("Chats data inserted")
 		db.end()
 	})
 	.catch((err) => {

@@ -124,6 +124,17 @@ module.exports = buildSchema(`
         blockFrom: Boolean!
     }
     
+    type UserMessage {
+        sender_id: Int!
+        receiver_id: Int!
+        content: String!
+        timestamp: String!
+        seen: Boolean!
+    }
+    
+    type Conversation {
+        messages: [UserMessage]
+    }
     type RootQuery {
         login(email: String!, password: String!): AuthData!
         getUserData(id: Int!): UserData
@@ -133,6 +144,9 @@ module.exports = buildSchema(`
         match(filters: MatchFilter) : [UserData]
         usedInterests: [String]!
         likeInfo(info: LikeInput) : LikeData
+        userMessages: [Conversation]
+
+        
     }
     
     type RootMutation {
