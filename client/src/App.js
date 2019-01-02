@@ -89,6 +89,7 @@ class App extends Component {
 				this.getUserAgentData(token)
 				this.getUsedInterests(token)
 			}
+			else { this.setState({isLoading: false})}
 		}
 		fetchGraphql(query, cb, token)
 	}

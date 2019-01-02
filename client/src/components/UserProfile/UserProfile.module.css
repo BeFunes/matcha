@@ -41,6 +41,7 @@
     flex-direction: column;
     flex: 1;
     margin-left: 30px;
+    font-size: 14px;
     justify-content: center;
     /*margin-top: 16px;*/
 }
@@ -53,7 +54,7 @@
 
 .minorInfo {
     /*height: 40px;*/
-    margin: 6px 0;
+    margin: 4px 0;
 }
 
 .title {

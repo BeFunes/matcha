@@ -35,7 +35,7 @@ class Confirmation extends Component {
 			this.setState({isConfirmed: true})
 			console.log(resData.data.emailConfirmation)
 			this.props.markLoggedIn(resData.data.emailConfirmation)
-			setTimeout(() => {this.props.history.push('/')}, 2000)
+			setTimeout(() => {this.props.history.push('/')}, 3000)
 
 		}
 		fetchGraphql(query, cb)

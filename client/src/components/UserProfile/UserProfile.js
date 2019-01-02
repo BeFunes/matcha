@@ -4,6 +4,7 @@ import Lightbox from 'react-images';
 import {getAge} from "../../utils/date";
 import LocationIcon from "@material-ui/icons/LocationOn"
 import JobIcon from "@material-ui/icons/Work"
+import CakeIcon from "@material-ui/icons/Cake"
 import FullHeart from '@material-ui/icons/Favorite'
 import EmptyHeart from '@material-ui/icons/FavoriteBorder'
 import ChatBubbleEmpty from '@material-ui/icons/ChatBubbleOutline'
@@ -145,7 +146,8 @@ class UserProfile extends Component {
 			const profileP = profilePic && profilePic.substring(0,7) === "images/" ? `${HOST}/${profilePic}` : profilePic
 			return typeof profileP !== 'undefined' ? profileP : EMPTYAVATAR
 		}
-
+		const orientations = { 'F': 'woman', 'M': 'man', 'FM': "man or a woman"}
+		const preference = orientations[orientation]
 		const age = dob && getAge(dob)
 		const renderLikeIcon = () =>
 			this.state.likeTo
@@ -157,6 +159,7 @@ class UserProfile extends Component {
 			this.state.chatStarted
 				? <ChatBubbleFull className={styles.chat}/>
 				: <ChatBubbleEmpty className={styles.chat}/>
+		const iconStyle = { fontSize: 14, marginBottom: -2}
 
 		return (
 			<div className={styles.component}>
@@ -180,9 +183,10 @@ class UserProfile extends Component {
 						</div>
 						<div className={styles.infoBox}>
 							<div className={styles.name}>{firstName} {lastName}</div>
-							<div className={styles.minorInfo}> {age} years old</div>
-							<div className={styles.minorInfo}><LocationIcon style={{fontSize: 15}}/> {address}</div>
-							<div className={styles.minorInfo}><JobIcon style={{fontSize: 15}}/> {job} </div>
+							<div className={styles.minorInfo}><CakeIcon style={iconStyle}/> {age} years old</div>
+							<div className={styles.minorInfo}><LocationIcon style={iconStyle}/> {address}</div>
+							<div className={styles.minorInfo}><JobIcon style={iconStyle}/> {job} </div>
+							<div className={styles.minorInfo}><EmptyHeart style={iconStyle}/> Looking for a {preference} </div>
 						</div>
 						{ this.renderButton() }
 					</div>
