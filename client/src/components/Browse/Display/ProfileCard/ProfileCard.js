@@ -5,8 +5,9 @@ import FullHeart from '@material-ui/icons/Favorite'
 import EmptyHeart from '@material-ui/icons/FavoriteBorder'
 import ChatBubbleEmpty from '@material-ui/icons/ChatBubbleOutline'
 import ChatBubbleFull from '@material-ui/icons/ChatBubbleOutline'
+import FameStar from '@material-ui/icons/Star'
 import Block from '@material-ui/icons/Block'
-import {likeInfoQuery } from "../../../../graphql/queries";
+import {likeInfoQuery} from "../../../../graphql/queries";
 import {fetchGraphql} from "../../../../utils/graphql";
 import {toggleBlockMutation, toggleLikeMutation} from "../../../../graphql/mutations";
 
@@ -80,13 +81,13 @@ class ProfileCard extends Component {
 
 		const renderHeart = () => {
 			return (this.state.likeTo)
-				? <FullHeart onClick={this.toggleLike} />
+				? <FullHeart onClick={this.toggleLike}/>
 				: <EmptyHeart onClick={this.toggleLike}/>
 		}
 
 		const renderChat = () => {
 			return (this.state.hasChatted)
-			? <ChatBubbleFull/> : <ChatBubbleEmpty/>
+				? <ChatBubbleFull/> : <ChatBubbleEmpty/>
 		}
 
 		const renderBlock = () =>
@@ -100,18 +101,22 @@ class ProfileCard extends Component {
 					     backgroundImage: `url(${profilePic})`,
 					     backgroundRepeat: 'noRepeat', backgroundSize: 'cover'
 				     }}
-					 onClick={() => {this.props.history.push({ 
-						 pathname: `/user_profile`, 
-						 search: '',
-						 state : { user: this.props.user , id: `${id}` }
-					 })}}
-
-				/>
-					<div className={styles.icons}>
-						{renderHeart()}
-						{chat && renderChat()}
-						{renderBlock()}
+				     onClick={() => {
+					     this.props.history.push({
+						     pathname: `/user_profile`,
+						     search: '',
+						     state: {user: this.props.user, id: `${id}`}
+					     })
+				     }}>
+					<div className={styles.fame}>
+						<FameStar className={styles.starIcon}/> 7767
 					</div>
+				</div>
+				<div className={styles.icons}>
+					{renderHeart()}
+					{chat && renderChat()}
+					{renderBlock()}
+				</div>
 				{/*</div>*/}
 				<div className={styles.name}>
 					{firstName}, {age}

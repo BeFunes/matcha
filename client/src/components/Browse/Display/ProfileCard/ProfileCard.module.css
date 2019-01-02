@@ -15,6 +15,8 @@
     border-top-right-radius: 18px;
     width: 140px;
     height: 180px;
+    display: flex;
+    align-items: flex-end;
 }
 
 .img:hover {
@@ -52,6 +54,21 @@
     /*margin-left: 23px;*/
 }
 
-.block {
+.fame {
+    background-color: rgba(0, 0, 0, 0.6);;
+    color: yellow;
+    font-size: 11px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    height: 20px;
+    padding: 1px 5px;
+    margin: 6px;
+    font-weight: 600;
+}
 
+.starIcon {
+    font-size: 17px !important;
+    height: 10px;
+    margin: 0 2px 0 0;
 }
