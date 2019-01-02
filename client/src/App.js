@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import React, {Component} from 'react';
+import {Route, Switch} from 'react-router-dom';
 
 import styles from './App.module.css';
 import Browse from "./components/Browse/Browse";
@@ -40,7 +40,7 @@ class App extends Component {
 		}
 		const userId = localStorage.getItem('userId')
 		const remainingTime = new Date(expiryDate).getTime() - new Date().getTime()
-		this.setState({ isAuth: true, token: token, userId: userId })
+		this.setState({isAuth: true, token: token, userId: userId})
 		this.setAutoLogout(remainingTime)
 		if (typeof this.state.isOnboarded === 'undefined') {
 			this.getIsOnboarded(token)
@@ -72,7 +72,7 @@ class App extends Component {
 			if (resData.errors) {
 				throw new Error("Interests retrieval failed .")
 			}
-			this.setState({ interests: resData.data.usedInterests })
+			this.setState({interests: resData.data.usedInterests})
 		}
 		fetchGraphql(query, cb, token)
 	}
@@ -101,24 +101,41 @@ class App extends Component {
 		this.setState({geolocationDialogOpen: false})
 	}
 
+
 	getLocation = (token, existingAddress) => {
 		console.log("GET LOCATION")
-		if (!("geolocation" in navigator)) {
-			console.log("Geolocation is not available")
-			return
+		const openDialog = (lat, long, address) => {
+			if (address !== existingAddress) {
+				this.openGeolocationDialog({latitude: lat, longitude: long, address: address })
+			}
 		}
+		if (!("geolocation" in navigator)) {
+			console.log("geolocation not available")
+			fetch('http://www.geoplugin.net/json.gp')
+				.then((res) => res.json())
+				.then((data) => {
+						openDialog (data.geoplugin_latitude, data.geoplugin_longitude, data.geoplugin_city + ", " + data.geoplugin_countryName)
+					}
+				)
+				.catch((err) => console.log(err))
+		}
+		console.log("here")
 		navigator.geolocation.getCurrentPosition((position) => {
 			const {latitude, longitude} = position.coords
 			geocoder.reverseGeocode(latitude, longitude, (err, data) => {
 				if (err) {
-					console.log("can't retrieve address")
-					return
+					fetch('http://www.geoplugin.net/json.gp')
+						.then((res) => res.json())
+						.then((data) => {
+								openDialog (data.geoplugin_latitude, data.geoplugin_longitude, data.geoplugin_city + ", " + data.geoplugin_countryName)
+							}
+						)
+						.catch((err) => console.log(err))
 				}
-				let address = data.results[0].formatted_address.split(",")
-				while (address.length >= 3)
-					address.shift()
-				if (address.join() !== existingAddress) {
-					this.openGeolocationDialog({latitude: latitude, longitude: longitude, address: address.join(",")})
+				else {
+					let address = data.results[0].formatted_address.split(",")
+					while (address.length >= 3) { address.shift() }
+					openDialog(latitude, longitude, address.join())
 				}
 			}, {key: 'AIzaSyDhO5lFvlxnnGx_eBwAmDsagl0tE-vxE2U'})
 		})
@@ -132,7 +149,7 @@ class App extends Component {
 		const query = saveLocationMutation(latitude, longitude, address)
 		const cb = resData => {
 			if (resData.errors) {
-				throw new Error (resData.errors[0].message)
+				throw new Error(resData.errors[0].message)
 			}
 			console.log(resData.data)
 		}
@@ -159,7 +176,7 @@ class App extends Component {
 	}
 
 	logoutHandler = () => {
-		this.setState({ isAuth: false, token: null });
+		this.setState({isAuth: false, token: null});
 		localStorage.removeItem('token');
 		localStorage.removeItem('expiryDate');
 		localStorage.removeItem('userId');
@@ -174,10 +191,15 @@ class App extends Component {
 		this.getUserAgentData(this.state.token)
 		this.getUsedInterests(this.state.token)
 	}
+
 //////////// todo: this seems weird? Why do we need it?
 	checkUser() {
 		if (typeof this.state.user === "undefined") {
-		} else { return <Route path="/edit_profile" render={(props) => <EditProfile {...props} user={this.state.user} token={this.state.token} refreshUser={this.getUserAgentData}/>} />}
+		} else {
+			return <Route path="/edit_profile"
+			              render={(props) => <EditProfile {...props} user={this.state.user} token={this.state.token}
+			                                              refreshUser={this.getUserAgentData}/>}/>
+		}
 	}
 
 	render() {
@@ -185,12 +207,15 @@ class App extends Component {
 		const {geolocationDialogOpen, suggestedLocation} = this.state
 		const routeZero = () => {
 			if (this.state.isAuth && !this.state.isOnboarded && !this.state.isLoading)
-				return <Route path="/" render={(props) => <Onboarding token={this.state.token} onboardingHandler={this.onboardingHandler} {...props} />} />
+				return <Route path="/" render={(props) => <Onboarding token={this.state.token}
+				                                                      onboardingHandler={this.onboardingHandler} {...props} />}/>
 			else if (!this.state.isAuth)
-				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler} />} />
+				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler}/>}/>
 			else
 				return (
-					<Route path="/" exact render={(props) => <Browse token={this.state.token} user={this.state.user} interests={this.state.interests} geolocation={this.state.geolocation}{...props} />} />
+					<Route path="/" exact render={(props) => <Browse token={this.state.token} user={this.state.user}
+					                                                 interests={this.state.interests}
+					                                                 geolocation={this.state.geolocation}{...props} />}/>
 					// 	<Route path="profile" component={UserProfile}/>
 					// 	<Route path="chat" component={Chat}/>
 				)
@@ -199,13 +224,16 @@ class App extends Component {
 			<div className={styles.app}>
 				<div>
 					<main className={hasAccess ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
-						{hasAccess && <Route render={(props) => <Toolbar {...props} onLogout={this.logoutHandler} user={this.state.user} onProfileClick={this.onProfileCLick} />}/>}
+						{hasAccess && <Route
+							render={(props) => <Toolbar {...props} onLogout={this.logoutHandler} user={this.state.user}
+							                            onProfileClick={this.onProfileCLick}/>}/>}
 						<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
-							{!this.state.isAuth && <Route path="/confirmation/:token" render={(props) => <Confirmation {...props} markLoggedIn={this.loginHandler} />} />}
-							{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword} />}
-							{hasAccess && <Route path="/user_profile" component={UserProfile} />}
+							{!this.state.isAuth && <Route path="/confirmation/:token" render={(props) => <Confirmation {...props}
+							                                                                                           markLoggedIn={this.loginHandler}/>}/>}
+							{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword}/>}
+							{hasAccess && <Route path="/user_profile" component={UserProfile}/>}
 							{hasAccess && this.checkUser()}
-							{hasAccess && <Route path="/chat" component={Chat} />}
+							{hasAccess && <Route path="/chat" component={Chat}/>}
 							{routeZero()}
 						</Switch>
 					</main>
