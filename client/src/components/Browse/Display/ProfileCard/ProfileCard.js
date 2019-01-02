@@ -12,6 +12,7 @@ import {toggleBlockMutation, toggleLikeMutation} from "../../../../graphql/mutat
 
 
 class ProfileCard extends Component {
+	_isMounted = false
 
 	state = {
 		likeTo: false,
@@ -19,7 +20,12 @@ class ProfileCard extends Component {
 	}
 
 	componentDidMount() {
+		this._isMounted = true;
 		this.getLikeInfo()
+	}
+
+	componentWillUnmount() {
+		this._isMounted = false;
 	}
 
 	toggleLike = () => {
@@ -29,7 +35,9 @@ class ProfileCard extends Component {
 				throw new Error(resData.errors[0].message)
 			}
 			// console.log(resData.data.toggleLike.content)
-			this.setState({likeTo: !this.state.likeTo})
+			if (this._isMounted) {
+				this.setState({likeTo: !this.state.likeTo})
+			}
 		}
 		fetchGraphql(query, cb, this.props.token)
 	}
@@ -45,7 +53,9 @@ class ProfileCard extends Component {
 				console.log(resData.data.likeInfo)
 			}
 			const {likeTo, likeFrom} = resData.data.likeInfo
-			this.setState({likeTo: likeTo, likeFrom: likeFrom})
+			if (this._isMounted) {
+				this.setState({likeTo: likeTo, likeFrom: likeFrom})
+			}
 		}
 		fetchGraphql(query, cb, this.props.token)
 	}
