@@ -7,7 +7,8 @@ const _ = require('lodash')
 
 
 const query = {
-	login: async function ({email, password}) {
+	login: async function (_, {email, password} , {req}) {
+
 		console.log("LOGIN")
 		if (!validate(email, "email") || !validate(password, "password")) {
 			const error = new Error('Validation Error')

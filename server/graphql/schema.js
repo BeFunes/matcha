@@ -1,7 +1,7 @@
-const { buildSchema } = require('graphql');
+const { gql } = require('apollo-server-express');
+const resolvers = require('./resolvers/index')
 
-module.exports = buildSchema(`
-
+const typeDefs = gql`
     type User {
         id: ID
         email: String!
@@ -148,6 +148,10 @@ module.exports = buildSchema(`
 
         
     }
+
+    type RootSubscription {
+        likeToggled: Boolean!
+    }
     
     type RootMutation {
         createUser(userInput: UserInputData) : User!
@@ -169,5 +173,8 @@ module.exports = buildSchema(`
     schema {
         query: RootQuery
         mutation: RootMutation
+        subscription: RootSubscription
     }
-`);
+`
+
+module.exports = typeDefs

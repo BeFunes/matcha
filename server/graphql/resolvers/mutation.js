@@ -4,6 +4,9 @@ const bcrypt = require('bcryptjs')
 const { validate } = require('./../../util/validator')
 const emailUtil = require('../../util/email')
 const CONST = require('../../../constants')
+const { PubSub } = require('graphql-subscriptions')
+
+const pubsub = new PubSub()
 
 
 module.exports = {
@@ -241,6 +244,9 @@ module.exports = {
 			: 'DELETE FROM likes WHERE sender_id = ? AND receiver_id = ?'
 
 		await db.query(query, [req.userId, info.receiverId])
+
+		pubsub.publish('likeToggled', { likeToggled: true })
+
 		return { content: "Liked updated successfully"}
 	},
 	toggleBlock: async function ({info}, req) {

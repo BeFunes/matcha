@@ -7,11 +7,18 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const graphqlHttp = require('express-graphql')
 const multer = require('multer')
+const { createServer } = require('http')
 
 const auth = require('./middleware/auth')
+const { ApolloServer } = require('apollo-server-express');
 
 const graphqlSchema = require('./graphql/schema')
-const graphqlResolver = require('./graphql/resolvers/')
+const graphqlResolvers = require('./graphql/resolvers/index')
+
+
+const { execute, subscribe } = require('graphql')
+
+const { SubscriptionServer } = require('subscriptions-transport-ws')
 
 const app = express()
 
@@ -52,24 +59,63 @@ app.put('/post-image', (req, res, next) => {
 		.json({ message: 'File stored.', filePath: req.file.path });
 });
 
+const apolloServer = new ApolloServer({ 
+	typeDefs: graphqlSchema, 
+	resolvers: graphqlResolvers,
+	context: async ({req}) => {
+		return {
+			req: {
+			userId: req.userId,
+			email: req.email,
+			isAuth: req.isAuth }
+		}
+	}
+ })
+apolloServer.applyMiddleware({ app })
 
-app.use(
-    '/graphql',
-    graphqlHttp({
-        schema: graphqlSchema,
-        rootValue: graphqlResolver,
-        graphiql: true,
-        formatError(err) {
-            if (!err.originalError) {
-                return err
-            }
-            const data = err.originalError.data
-            const message = err.message || 'An error occurred.'
-            const code = err.originalError.code || 500
-            return { message: message, status: code, data: data }
-        }
-    })
-)
+const httpServer = createServer(app)
+apolloServer.installSubscriptionHandlers(httpServer)
+
+const PORT = 3002
+httpServer.listen({ port: PORT }, () =>{
+	console.log(`🚀 Server ready at http://localhost:${PORT}${apolloServer.graphqlPath}`)
+	console.log(`🚀 Subscriptions ready at ws://localhost:${PORT}${apolloServer.subscriptionsPath}`)
+  })
+
+// app.use(
+// 	'/graphql',
+// 	graphqlExpress({
+// 		schema: graphqlSchema
+// 	})
+//   );
+  
+//   app.use(
+// 	'/graphiql',
+// 	graphiqlExpress({
+// 	  endpointURL: '/graphql',
+// 	  subscriptionsEndpoint: 'ws://localhost:3000/subscriptionscd'
+// 	})
+//   );
+  
+
+// app.use(
+    // '/graphql',
+    // graphqlHttp({
+    //     schema: graphqlSchema,
+    //     rootValue: graphqlResolver,
+    //     graphiql: true,
+    //     formatError(err) {
+    //         if (!err.originalError) {
+    //             return err
+    //         }
+    //         const data = err.originalError.data
+    //         const message = err.message || 'An error occurred.'
+    //         const code = err.originalError.code || 500
+    //         return { message: message, status: code, data: data }
+    //     }
+    // })
+// )
+
 
 
 
