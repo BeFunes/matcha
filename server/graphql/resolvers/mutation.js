@@ -166,7 +166,7 @@ module.exports = {
 		console.log(resUserInterests)
 		return {content: "Bio data updated successfully"}
 	},
-	markOnboarded: async function(_, _, {req}) {
+	markOnboarded: async function(_, x, {req}) {
 		console.log("MARK ONBOARDED")
 		checkAuth(req)
 		const query = `UPDATE users SET isOnboarded = ? WHERE email = ?`

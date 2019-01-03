@@ -78,7 +78,7 @@ const query = {
 		}
 	},
 
-	getUserAgentData: async function (_, _, {req}) {
+	getUserAgentData: async function (_, x, {req}) {
 		console.log("GET AGENT USER INFO")
 		if (!req.isAuth) {
 			const error = new Error('Not authenticated!')
@@ -119,7 +119,7 @@ const query = {
 		}
 	},
 
-	isOnboarded: async function (_, _, {req}) {
+	isOnboarded: async function (_, x, {req}) {
 		console.log("GET IS ONBOARDED")
 		if (!req.isAuth) {
 			const error = new Error('Not authenticated!')
@@ -199,7 +199,7 @@ const query = {
 		return _.filter(result, (x) => _.difference(filters.interests, x.interests).length === 0)
 	},
 
-	usedInterests: async function (_, _, {req}) {
+	usedInterests: async function (_, x, {req}) {
 		console.log("GET USED INTERESTS")
 		if (!req.isAuth) {
 			const error = new Error('Not authenticated!')
@@ -253,7 +253,7 @@ const query = {
 		}
 	},
 
-	userMessages: async function (_, _, {req}) {
+	userMessages: async function (_, x, {req}) {
 		console.log('GET USER MESSAGES')
 		// if (!req.isAuth) {
 		// 	const error = new Error('Not authenticated!')
