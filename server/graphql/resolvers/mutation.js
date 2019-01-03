@@ -4,9 +4,7 @@ const bcrypt = require('bcryptjs')
 const { validate } = require('./../../util/validator')
 const emailUtil = require('../../util/email')
 const CONST = require('../../../constants')
-const { PubSub } = require('graphql-subscriptions')
-
-const pubsub = new PubSub()
+const pubsub = require('./pubsub')
 
 const checkAuth = (req) => {
 	if (!req.isAuth) {
