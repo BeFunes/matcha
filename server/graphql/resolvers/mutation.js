@@ -229,7 +229,7 @@ module.exports = {
 
 		await db.query(query, [req.userId, info.receiverId])
 
-		pubsub.publish('likeToggled', { likeToggled: true })
+		pubsub.publish('likeToggled', { value: info.liked, receiver: info.receiverId, sender: req.userId })
 
 		return { content: "Liked updated successfully"}
 	},
