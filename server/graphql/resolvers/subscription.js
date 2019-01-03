@@ -1,4 +1,4 @@
-const pubsub = requre('./pubsub')
+const pubsub = require('./pubsub')
 
 const subscription = {
     likeToggled: {
