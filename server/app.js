@@ -63,6 +63,8 @@ const apolloServer = new ApolloServer({
 	typeDefs: graphqlSchema, 
 	resolvers: graphqlResolvers,
 	context: async ({req}) => {
+		if (!req) return {}
+		// console.log(req.userId, req.isAuth, req.email)
 		return {
 			req: {
 			userId: req.userId,
