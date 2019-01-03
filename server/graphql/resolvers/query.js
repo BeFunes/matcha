@@ -40,7 +40,7 @@ const query = {
 		return {token: token, userId: user[0].id, isOnboarded: !!user[0].isOnboarded}
 	},
 
-	getUserData: async function ({id}, req) {
+	getUserData: async function (_, {id}, {req}) {
 		console.log("GET USER INFO")
 		if (!req.isAuth) {
 			const error = new Error('Not authenticated!')
@@ -78,7 +78,7 @@ const query = {
 		}
 	},
 
-	getUserAgentData: async function (_, req) {
+	getUserAgentData: async function (_, _, {req}) {
 		console.log("GET AGENT USER INFO")
 		if (!req.isAuth) {
 			const error = new Error('Not authenticated!')
@@ -119,7 +119,7 @@ const query = {
 		}
 	},
 
-	isOnboarded: async function (_, req) {
+	isOnboarded: async function (_, _, {req}) {
 		console.log("GET IS ONBOARDED")
 		if (!req.isAuth) {
 			const error = new Error('Not authenticated!')
@@ -136,7 +136,7 @@ const query = {
 		return user[0].isOnboarded
 	},
 
-	match: async function ({filters}, req) {
+	match: async function (_, {filters}, {req}) {
 		console.log("MATCH")
 		const today = new Date()
 		const maxDob = `${today.getFullYear() - filters.minAge}-${("0" + (today.getMonth() + 1)).slice(-2)}-${("0" + today.getDate()).slice(-2)}`
@@ -199,7 +199,7 @@ const query = {
 		return _.filter(result, (x) => _.difference(filters.interests, x.interests).length === 0)
 	},
 
-	usedInterests: async function (_, req) {
+	usedInterests: async function (_, _, {req}) {
 		console.log("GET USED INTERESTS")
 		if (!req.isAuth) {
 			const error = new Error('Not authenticated!')
@@ -216,7 +216,7 @@ const query = {
 		}
 		return interests.map(x => x.title)
 	},
-	likeInfo: async function ({info}, req) {
+	likeInfo: async function (_, {info}, {req}) {
 		if (!req.isAuth) {
 			const error = new Error('Not authenticated!')
 			error.code = 401
@@ -229,7 +229,7 @@ const query = {
 		return {likeTo: userToMatch[0].val, likeFrom: matchToUser[0].val}
 	},
 
-	relationsData: async function ({id}, req) {
+	relationsData: async function (_, {id}, {req}) {
 		console.log("GET RELATIONS DATA")
 		if (!req.isAuth) {
 			const error = new Error('Not authenticated!')
@@ -253,7 +253,7 @@ const query = {
 		}
 	},
 
-	userMessages: async function (req) {
+	userMessages: async function (_, _, {req}) {
 		console.log('GET USER MESSAGES')
 		// if (!req.isAuth) {
 		// 	const error = new Error('Not authenticated!')
