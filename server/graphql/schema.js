@@ -148,9 +148,14 @@ const typeDefs = gql`
 
         
     }
+    
+    type Like {
+      value: Boolean
+      sender: Int
+    }
 
     type RootSubscription {
-        likeToggled: Boolean!
+        likeToggled (userId: Int) : Like
     }
     
     type RootMutation {
