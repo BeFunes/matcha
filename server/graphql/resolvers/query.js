@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const {validate} = require('./../../util/validator')
 const CONST = require('../../../constants')
-const _ = require('lodash')
+const lodash = require('lodash')
 
 
 const query = {
@@ -196,7 +196,7 @@ const query = {
 				address: x.address,
 			})
 		)
-		return _.filter(result, (x) => _.difference(filters.interests, x.interests).length === 0)
+		return lodash.filter(result, (x) => lodash.difference(filters.interests, x.interests).length === 0)
 	},
 
 	usedInterests: async function (_, x, {req}) {
@@ -272,7 +272,7 @@ const query = {
 			conversation_id: x.conversation_id
 		}))
 		///order by timestamp
-		const conversations = _.groupBy(conv, x => x.conversation_id)
+		const conversations = lodash.groupBy(conv, x => x.conversation_id)
 		const c =  Object.keys(conversations).map(x => conversations[x])
 		console.log(c)
 		return c
