@@ -8,6 +8,7 @@ const subscription = {
         subscribe: withFilter(() => pubsub.asyncIterator('likeToggled'), ({receiver}, variables) => {
             console.log("__________ ", variables)
             console.log("_________ ", receiver)
+            return true
         })
     }
 }
