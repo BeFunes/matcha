@@ -249,7 +249,7 @@ module.exports = {
 			: 'DELETE FROM likes WHERE sender_id = ? AND receiver_id = ?'
 		await db.query(query, [req.userId, info.receiverId])
 
-		pubsub.publish('likeToggled', { likeToggled: { value: likeResult, receiver: info.receiverId, sender: req.userId } })
+		pubsub.publish('likeToggled', { likeToggled: { value: info.liked, receiver: info.receiverId, sender: req.userId } })
 
 		return { content: "Liked updated successfully"}
 	},
