@@ -16,7 +16,7 @@ import {fetchGraphql} from "./utils/graphql";
 import {saveLocationMutation} from "./graphql/mutations";
 import GeolocationDialog from "./components/GeolocationDialog/GeolocationDialog";
 import geocoder from "geocoder";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 
 class App extends Component {
 

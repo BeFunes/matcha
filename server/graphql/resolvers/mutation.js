@@ -237,9 +237,12 @@ module.exports = {
 		checkAuth(req)
 
 		const likeExist = 'SELECT * FROM likes WHERE (sender_id = ?) AND (receiver_id = ?)'
-		const [senderLike]  = await db.query(likeExist, [req.userId, info.receiverId])
-		const [receiverLike] = await db.query(likeExist, [info.receiverId, req.userId])
-		const likeResult = typeOflike(senderLike.length, receiverLike.length, info.liked)
+
+		const [senderLikesReceiver]  = await db.query(likeExist, [req.userId, info.receiverId])
+
+		const [receiverLikesSender] = await db.query(likeExist, [info.receiverId, req.userId])
+
+		const likeResult = typeOflike(senderLikesReceiver.length, receiverLikesSender.length, info.liked)
 
 		const query = info.liked
 			? 'INSERT INTO likes (sender_id, receiver_id) VALUES (?, ?)'
