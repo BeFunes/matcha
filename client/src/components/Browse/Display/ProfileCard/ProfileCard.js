@@ -12,7 +12,8 @@ import {fetchGraphql} from "../../../../utils/graphql";
 import {toggleBlockMutation, toggleLikeMutation} from "../../../../graphql/mutations";
 import { graphql }  from 'react-apollo'
 import gql from 'graphql-tag';
-
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 const SUBSCRIPTION = gql`
@@ -42,9 +43,10 @@ class ProfileCard extends Component {
 	}
 
 	componentWillReceiveProps({data}) {
-		console.log("********************", data)
+			// toast("liked!")
 		if (!!data && !!data.likeToggled && data.likeToggled.sender === this.props.profile.id) {
 			this.setState({likeFrom: data.likeToggled.value})
+			console.log("SOME ONE LIKES YOU")
 		}
 	}
 

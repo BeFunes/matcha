@@ -17,6 +17,12 @@ import {saveLocationMutation} from "./graphql/mutations";
 import GeolocationDialog from "./components/GeolocationDialog/GeolocationDialog";
 import geocoder from "geocoder";
 import { ToastContainer } from 'react-toastify';
+import {graphql} from "react-apollo/index";
+import gql from "graphql-tag";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 
 class App extends Component {
 
@@ -45,6 +51,12 @@ class App extends Component {
 		this.setAutoLogout(remainingTime)
 		if (typeof this.state.isOnboarded === 'undefined') {
 			this.getIsOnboarded(token)
+		}
+	}
+
+	componentWillReceiveProps({data}) {
+		if (!!data && !!data.trackNotification) {
+			toast(data.trackNotification.type + "FROM " + data.trackNotification.sender)
 		}
 	}
 
@@ -252,7 +264,28 @@ class App extends Component {
 	}
 }
 
-export default App;
+
+
+
+const NOTIFICATION_SUBSCRIPTION = gql`
+	subscription trackNotification($userId: Int!) {
+		trackNotification(userId: $userId) {
+			sender
+			type
+		}	
+	}
+`
+
+export default (graphql(NOTIFICATION_SUBSCRIPTION, {
+	options: (state) => {
+		console.log(state)
+		return ({
+			variables: {
+				userId: 1
+			},
+		})
+	}
+})(App))
 
 
 /// direct components that are accessed through routing have access to
