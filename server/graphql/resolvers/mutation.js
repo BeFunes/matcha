@@ -248,7 +248,7 @@ module.exports = {
 			console.log("hey")
 			const notificationQuery =  'INSERT INTO notifications (user_id, from_id, type, open) VALUES (?, ?, ?, ?)'
 			await db.query(notificationQuery, [info.receiverId, req.userId, likeResult, 0, 'current_timestamp()'])	
-			pubsub.publish('likeToggled', { likeToggled: { value: likeResult, receiver: info.receiverId, sender: req.userId }})
+			pubsub.publish('likeToggled', { likeToggled: { value: info.liked, receiver: info.receiverId, sender: req.userId }})
 			pubsub.publish('notification', { trackNotification: { type: likeResult, receiver: info.receiverId, sender: req.userId }})
 		}
 		await db.query(query, [req.userId, info.receiverId])

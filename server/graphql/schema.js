@@ -150,7 +150,7 @@ const typeDefs = gql`
     }
     
     type Like {
-      value: String!
+      value: Boolean
       sender: Int
     }
 

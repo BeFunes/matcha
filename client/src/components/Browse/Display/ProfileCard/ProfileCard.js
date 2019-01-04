@@ -10,7 +10,19 @@ import Block from '@material-ui/icons/Block'
 import {likeInfoQuery} from "../../../../graphql/queries";
 import {fetchGraphql} from "../../../../utils/graphql";
 import {toggleBlockMutation, toggleLikeMutation} from "../../../../graphql/mutations";
+import { graphql }  from 'react-apollo'
+import gql from 'graphql-tag';
 
+
+
+const SUBSCRIPTION = gql`
+	subscription likeToggled($userId: Int!) {
+		likeToggled(userId: $userId) {
+			value
+			sender
+		}	
+	}
+`
 
 class ProfileCard extends Component {
 	_isMounted = false
@@ -27,6 +39,13 @@ class ProfileCard extends Component {
 
 	componentWillUnmount() {
 		this._isMounted = false;
+	}
+
+	componentWillReceiveProps({data}) {
+		console.log("********************", data)
+		if (!!data && !!data.likeToggled && data.likeToggled.sender === this.props.profile.id) {
+			this.setState({likeFrom: data.likeToggled.value})
+		}
 	}
 
 	toggleLike = () => {
@@ -127,4 +146,10 @@ class ProfileCard extends Component {
 	}
 }
 
-export default ProfileCard
+export default (graphql(SUBSCRIPTION, {
+	options: (props) => ({
+		variables: {
+			userId: props.user.id
+		},
+	})
+})(ProfileCard))
