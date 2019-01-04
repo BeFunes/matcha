@@ -8,6 +8,11 @@ const subscription = {
         subscribe: withFilter(() => pubsub.asyncIterator('likeToggled'), ({likeToggled}, {userId}) => {
         	return likeToggled.receiver === userId
         })
+    },
+    trackProfileVisited: {
+        subscribe: withFilter(() => pubsub.asyncIterator('profileVisited'), ({trackProfileVisited}, {userId}) => {
+            return trackProfileVisited.receiverId === userId && trackProfileVisited.receiverId !== trackProfileVisited.sender
+        })
     }
 }
 

@@ -10,7 +10,7 @@ import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 import { blue } from '@material-ui/core/colors'
 import { editUserMutation } from "../../graphql/mutations";
 import { fetchGraphql } from "../../utils/graphql";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Divider from '@material-ui/core/Divider';
 import ResetPassword from '../ResetPassword/ResetPassword'
@@ -237,7 +237,7 @@ class EditProfile extends Component {
 
         return (
             <div className={styles.component}>
-                <ToastContainer />
+               
                 <div className={styles.headerName}>
                     <div className={styles.name}>
                         {elementsArray.map(element => (

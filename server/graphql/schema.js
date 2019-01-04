@@ -150,12 +150,17 @@ const typeDefs = gql`
     }
     
     type Like {
-      value: Boolean
+      value: String!
       sender: Int
     }
 
+    type Visited {
+        sender: Int!
+    }
+
     type RootSubscription {
-        likeToggled (userId: Int) : Like
+        likeToggled (userId: Int!) : Like
+        trackProfileVisited (userId: Int!) :  Visited
     }
     
     type RootMutation {
@@ -172,6 +177,7 @@ const typeDefs = gql`
         resendConfirmationEmail(email: String): Message 
         toggleLike(info: LikeInput): Message
         toggleBlock(info: BlockInput): Message
+        profileVisited(receiverId: Int!): Message
         saveLocation(lat: Float!, long: Float!, address: String) : Message
     }
 

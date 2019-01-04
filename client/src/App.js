@@ -16,6 +16,7 @@ import {fetchGraphql} from "./utils/graphql";
 import {saveLocationMutation} from "./graphql/mutations";
 import GeolocationDialog from "./components/GeolocationDialog/GeolocationDialog";
 import geocoder from "geocoder";
+import { ToastContainer, toast } from 'react-toastify';
 
 class App extends Component {
 
@@ -223,6 +224,7 @@ class App extends Component {
 		}
 		return (
 			<div className={styles.app}>
+			 <ToastContainer />
 				<div>
 					<main className={hasAccess ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
 						{hasAccess && <Route

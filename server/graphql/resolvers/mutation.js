@@ -14,6 +14,18 @@ const checkAuth = (req) => {
 	}
 }
 
+const typeOflike = (sender, receiver, like) => {
+	switch (true) {
+		case sender == 0 && receiver == 0 && like:
+			return "like"
+		case sender == 0 && receiver == 1 && like:
+			return "match"
+		case sender == 1 && receiver == 1 && !like:
+			return "unmatch"
+	}
+	return "unlike"
+}
+
 module.exports = {
 	createUser: async function (_, {userInput}) {
 		console.log("CREATE USER")
@@ -223,13 +235,18 @@ module.exports = {
 	toggleLike: async function (_, {info}, {req}) {
 		console.log("TOGGLE LIKE")
 		checkAuth(req)
+
+		const likeExist = 'SELECT * FROM likes WHERE (sender_id = ?) AND (receiver_id = ?)'
+		const [senderLike]  = await db.query(likeExist, [req.userId, info.receiverId])
+		const [receiverLike] = await db.query(likeExist, [info.receiverId, req.userId])
+		const likeResult = typeOflike(senderLike.length, receiverLike.length, info.liked)
+
 		const query = info.liked
 			? 'INSERT INTO likes (sender_id, receiver_id) VALUES (?, ?)'
 			: 'DELETE FROM likes WHERE sender_id = ? AND receiver_id = ?'
-
 		await db.query(query, [req.userId, info.receiverId])
 
-		pubsub.publish('likeToggled', { likeToggled: {value: info.liked, receiver: info.receiverId, sender: req.userId } })
+		pubsub.publish('likeToggled', { likeToggled: { value: likeResult, receiver: info.receiverId, sender: req.userId } })
 
 		return { content: "Liked updated successfully"}
 	},
@@ -274,6 +291,14 @@ module.exports = {
 		const usersInterestsQuery = 'INSERT INTO users_interests (interest_id, user_id) values ?'
 		await db.query(usersInterestsQuery, [ids.map((x) => [ x.id, req.userId ])])
 		return {content: "User modified"}
-	}
+	},
+
+	profileVisited: async function(_, {receiverId}, {req}) {
+		checkAuth(req)
+		//Insert notification in db 
+
+		pubsub.publish('profileVisited', { trackProfileVisited : { sender: req.userId, receiverId: receiverId, }} )
+		return {content: "User visited"}
+	},
 	
 }
