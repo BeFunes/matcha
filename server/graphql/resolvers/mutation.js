@@ -235,22 +235,23 @@ module.exports = {
 	toggleLike: async function (_, {info}, {req}) {
 		console.log("TOGGLE LIKE")
 		checkAuth(req)
-
 		const likeExist = 'SELECT * FROM likes WHERE (sender_id = ?) AND (receiver_id = ?)'
-
 		const [senderLikesReceiver]  = await db.query(likeExist, [req.userId, info.receiverId])
-
 		const [receiverLikesSender] = await db.query(likeExist, [info.receiverId, req.userId])
-
 		const likeResult = typeOflike(senderLikesReceiver.length, receiverLikesSender.length, info.liked)
 
 		const query = info.liked
 			? 'INSERT INTO likes (sender_id, receiver_id) VALUES (?, ?)'
 			: 'DELETE FROM likes WHERE sender_id = ? AND receiver_id = ?'
+
+		if (likeResult != "unlike") {
+			console.log("hey")
+			const notificationQuery =  'INSERT INTO notifications (user_id, from_id, type, open) VALUES (?, ?, ?, ?)'
+			await db.query(notificationQuery, [info.receiverId, req.userId, likeResult, 0, 'current_timestamp()'])	
+			pubsub.publish('likeToggled', { likeToggled: { value: likeResult, receiver: info.receiverId, sender: req.userId }})
+			pubsub.publish('notification', { trackNotification: { type: likeResult, receiver: info.receiverId, sender: req.userId }})
+		}
 		await db.query(query, [req.userId, info.receiverId])
-
-		pubsub.publish('likeToggled', { likeToggled: { value: likeResult, receiver: info.receiverId, sender: req.userId } })
-
 		return { content: "Liked updated successfully"}
 	},
 	toggleBlock: async function (_, {info}, {req}) {
@@ -300,7 +301,8 @@ module.exports = {
 		checkAuth(req)
 		//Insert notification in db 
 
-		pubsub.publish('profileVisited', { trackProfileVisited : { sender: req.userId, receiverId: receiverId, }} )
+		// pubsub.publish('profileVisited', { trackProfileVisited : { sender: req.userId, receiverId: receiverId, }} )
+		pubsub.publish('notification', { trackNotification: { type: "visited", receiver: receiverId, sender: req.userId }})
 		return {content: "User visited"}
 	},
 	

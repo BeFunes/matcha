@@ -154,12 +154,18 @@ const typeDefs = gql`
       sender: Int
     }
 
+    type Notification {
+        sender: Int!
+        type: String!
+    }
+
     type Visited {
         sender: Int!
     }
 
     type RootSubscription {
         likeToggled (userId: Int!) : Like
+        trackNotification (userId: Int!): Notification
         trackProfileVisited (userId: Int!) :  Visited
     }
     

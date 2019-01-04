@@ -9,9 +9,9 @@ const subscription = {
         	return likeToggled.receiver === userId
         })
     },
-    trackProfileVisited: {
-        subscribe: withFilter(() => pubsub.asyncIterator('profileVisited'), ({trackProfileVisited}, {userId}) => {
-            return trackProfileVisited.receiverId === userId && trackProfileVisited.receiverId !== trackProfileVisited.sender
+    trackNotification: {
+        subscribe: withFilter( () => pubsub.asyncIterator('notification'), ({trackNotification}, {userId}) => {
+            return trackNotification.receiver === userId && trackNotification.receiver !== trackNotification.sender
         })
     }
 }

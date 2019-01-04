@@ -5,18 +5,18 @@ const moment = require('moment')
 const fakerUtils = require('./fakerUtils')
 
 const db = mysql.createConnection({
- host: "localhost",
- user: "root",
- password: "Apple123",
- database: "matchadb"
+	host: "localhost",
+	user: "root",
+	password: "Apple123",
+	database: "matchadb"
 }).promise()
 
 const getOrientation = (gender, orientation) => {
 	const oppositeSex = gender === 'M' ? 'F' : 'M'
 	switch (orientation) {
-		case "straight" :
+		case "straight":
 			return oppositeSex
-		case "gay" :
+		case "gay":
 			return gender
 		default:
 			return "FM"
@@ -45,9 +45,9 @@ const newYork = {
 const getLocation = () => {
 	const locations = [paris, london, newYork]
 	const city = locations[Math.floor(Math.random() * locations.length)]
-	const radius = Math.floor(Math.random() * (10000-100)) + 100
-	const {latitude, longitude} = (randomLocation.randomCircumferencePoint({latitude: city.latitude, longitude: city.longitude}, radius))
-	return {latitude, longitude, address: city.address}
+	const radius = Math.floor(Math.random() * (10000 - 100)) + 100
+	const { latitude, longitude } = (randomLocation.randomCircumferencePoint({ latitude: city.latitude, longitude: city.longitude }, radius))
+	return { latitude, longitude, address: city.address }
 }
 
 const dummyPassword = "$2a$12$rZHGfYxrMBjazgmd.OXq3OiH5wiocqYo6QB5Mxp6I2msv/JnGQL2K"
@@ -59,11 +59,11 @@ const getData = (gender, orient) => {
 	const lastName = faker.name.lastName(genderCode);
 	const email = `${firstName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()}.${lastName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()}@hotmail.com`
 	const password = dummyPassword
-	const year = Math.floor(Math.random() * (2000-1970)) + 1970
+	const year = Math.floor(Math.random() * (2000 - 1970)) + 1970
 	const date = moment(faker.date.past()).format("YYYY-MM-DD")
 	const dob = year.toString() + date.substr(4)
 	const orientation = getOrientation(gender, orient)
-	const {latitude, longitude, address} = getLocation()
+	const { latitude, longitude, address } = getLocation()
 	faker.locale = "en";
 	const job = faker.name.jobTitle()
 	const bio = faker.lorem.paragraph()
@@ -145,50 +145,72 @@ const populateChatsTable = `INSERT INTO messages (conversation_id, sender_id, re
 		( "1:2", 2, 1, "1 has not yet seen this message", '2019-01-01 09:40', 0)
 		`
 
+const createNotificationTable = `CREATE TABLE notifications (
+	user_id int(11) unsigned NOT NULL REFERENCES users(id),
+	from_id int(11) unsigned NOT NULL REFERENCES users(id),
+	type varchar(15) NOT NULL,
+	open tinyint(1) NOT NULL DEFAULT 0,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 `
+
 const getRandomUser = () => {
 	const sex = ['M', 'F']
 	const orient = ['straight', 'straight', 'straight', 'gay', 'bisexual']
-	return { gender : sex[Math.floor(Math.random()*sex.length)], orientation : orient[Math.floor(Math.random()*orient.length)]}
+	return { gender: sex[Math.floor(Math.random() * sex.length)], orientation: orient[Math.floor(Math.random() * orient.length)] }
 }
 
 
 db.connect()
-	.then( () => {
+	.then(() => {
 		console.log("Connected!")
-		return db.query("DROP TABLE IF EXISTS users_interests") })
-	.then( () => {
+		return db.query("DROP TABLE IF EXISTS users_interests")
+	})
+	.then(() => {
 		console.log("Table 'users_interest' deleted")
-		return db.query("DROP TABLE IF EXISTS users") })
-	.then( () => {
+		return db.query("DROP TABLE IF EXISTS users")
+	})
+	.then(() => {
 		console.log("Table 'users' deleted")
-		return db.query("DROP TABLE IF EXISTS interests") })
-	.then( () => {
+		return db.query("DROP TABLE IF EXISTS interests")
+	})
+	.then(() => {
 		console.log("Table 'interests' deleted")
-		return db.query("DROP TABLE IF EXISTS likes") })
+		return db.query("DROP TABLE IF EXISTS likes")
+	})
 	.then(() => {
 		console.log("Table 'likes' deleted")
-		return db.query("DROP TABLE IF EXISTS blocks") })
+		return db.query("DROP TABLE IF EXISTS blocks")
+	})
 	.then(() => {
 		console.log("Table 'blocks' deleted")
-		return db.query("DROP TABLE IF EXISTS messages") })
+		return db.query("DROP TABLE IF EXISTS messages")
+	})
+	.then(() => {
+		console.log("Table 'notifications' deleted")
+		return db.query("DROP TABLE IF EXISTS notifications")
+	})
 	.then(() => {
 		console.log("Table 'messages' deleted")
-		return db.query(createUsersTable) })
-	.then( async function () {
+		return db.query(createUsersTable)
+	})
+	.then(async function () {
 		console.log("Table 'users' created");
 		for (let i = 0; i < 300; i++) {
 			let user = getRandomUser()
 			const data = getData(user.gender, user.orientation)
 			await db.query(populateUsersTable, data)
-			}
+		}
 		console.log("User data inserted")
-		return db.query(createInterestsTable) })
+		return db.query(createInterestsTable)
+	})
 	.then(async function () {
 		console.log("Table 'interests' created");
-		await db.query(populateInterestsTable, [fakerUtils.interests.map(x => [x])]) })
+		await db.query(populateInterestsTable, [fakerUtils.interests.map(x => [x])])
+	})
 	.then(async function () {
 		console.log("Interests data inserted")
-		return db.query(createUsersInterestsTable) })
+		return db.query(createUsersInterestsTable)
+	})
 	.then(async function () {
 		console.log("Table 'users_interests' created")
 		let users_interests = []
@@ -199,16 +221,24 @@ db.connect()
 	})
 	.then(async function () {
 		console.log("Interests data inserted")
-		await db.query(createLikesTable) })
+		await db.query(createLikesTable)
+	})
+	.then(async function () {
+		console.log("Notification table created")
+		await db.query(createNotificationTable)
+	})
 	.then(async function () {
 		console.log("Table 'likes' created")
-		await db.query(createBlocksTable) })
+		await db.query(createBlocksTable)
+	})
 	.then(async function () {
 		console.log("Table 'blocks' created")
-		await db.query(createChatsTable) })
+		await db.query(createChatsTable)
+	})
 	.then(async function () {
 		console.log("Table 'messages' created")
-		await db.query(populateChatsTable) })
+		await db.query(populateChatsTable)
+	})
 	.then(() => {
 		console.log("Chats data inserted")
 		db.end()
