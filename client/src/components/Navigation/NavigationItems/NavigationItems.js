@@ -22,7 +22,6 @@ class navigationItems extends Component {
 					state: { user: this.props.user, me: true }
 				}}  >Profile</Link></li>
 				<li className={styles.item}><Link to="/chat">Chat</Link></li>
-				<li className={styles.item}><Link to="/edit_profile"></Link></li>
 			</ul>
 		)
 	}
