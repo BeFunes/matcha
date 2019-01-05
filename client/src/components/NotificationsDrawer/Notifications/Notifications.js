@@ -14,10 +14,10 @@ class Notifications extends Component {
 		return (
 			<div className={styles.component}>
 				<div className={styles.header}>
-					<div className={styles.closeIcon}>
-						<IconButton onClick={close}>
-							<CloseIcon/>
-						</IconButton>
+					<div className={styles.closeIcon} onClick={close}>
+							<CloseIcon style={{fontSize: 30}}/>
+						{/*</
+						IconButton>*/}
 					</div>
 					Notifications
 				</div>

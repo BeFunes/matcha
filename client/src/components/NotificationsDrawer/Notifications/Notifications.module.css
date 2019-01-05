@@ -13,5 +13,13 @@
 }
 
 .closeIcon {
-    margin: 30px;
+    margin: 23px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.closeIcon:hover {
+    background-color: #be0d47;
+    padding: 10px;
+    border-radius: 100%;
 }
