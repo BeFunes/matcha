@@ -73,7 +73,6 @@ const NotificationsDrawer = (props) => {
 				paper: props.classes.drawerPaper,
 			}}
 		>
-			something
 			<Notifications
 				close={close}
 			/>

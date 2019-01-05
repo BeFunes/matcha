@@ -1,3 +1,17 @@
 .component {
 
+
+}
+
+.header {
+    background-color: #DD0E52;
+    height: 72px;
+    color: white;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.closeIcon {
+    margin: 30px;
 }
