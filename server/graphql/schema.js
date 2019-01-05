@@ -189,6 +189,7 @@ const typeDefs = gql`
         toggleBlock(info: BlockInput): Message
         profileVisited(receiverId: Int!): Message
         saveLocation(lat: Float!, long: Float!, address: String) : Message
+        markNotificationsAsSeen : Message
     }
 
     schema {

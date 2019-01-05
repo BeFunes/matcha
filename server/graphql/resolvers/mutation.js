@@ -246,9 +246,13 @@ module.exports = {
 
 		if (likeResult != "unlike") {
 			const notificationQuery =  'INSERT INTO notifications (user_id, from_id, type, open) VALUES (?, ?, ?, ?)'
-			await db.query(notificationQuery, [info.receiverId, req.userId, likeResult, 0, 'current_timestamp()'])	
+			await db.query(notificationQuery, [info.receiverId, req.userId, likeResult, 0, 'current_timestamp()'])
+
+			const [r] = await db.query('SELECT first_name, last_name FROM users WHERE id = ?', [req.userId])
+			console.log(r[0])
+			const name = r[0].first_name + " " + r[0].last_name
 			pubsub.publish('likeToggled', { likeToggled: { value: info.liked, receiver: info.receiverId, sender: req.userId }})
-			pubsub.publish('notification', { trackNotification: { type: likeResult, receiver: info.receiverId, senderId: req.userId }})
+			pubsub.publish('notification', { trackNotification: { type: likeResult, receiver: info.receiverId, senderId: req.userId, seen: false, senderName: name }})
 		}
 		await db.query(query, [req.userId, info.receiverId])
 		return { content: "Liked updated successfully"}
@@ -304,5 +308,12 @@ module.exports = {
 		pubsub.publish('notification', { trackNotification: { type: "visited", receiver: receiverId, sender: req.userId }})
 		return {content: "User visited"}
 	},
-	
+
+	markNotificationsAsSeen: async function(_, x, {req}) {
+		console.log("MARK NOTIFICATIONS AS SEEN FOR USER ", req.userId)
+		checkAuth(req)
+		query = `UPDATE notifications SET open = 1 WHERE user_id = ? AND open = 0`
+		await db.query(query, [req.userId])
+		return {content: "notifications marked as seen"}
+	}
 }

@@ -288,7 +288,7 @@ const query = {
 		const query = `SELECT N.*, U.first_name, U.last_name 
 					FROM notifications N
 					JOIN users U on N.from_id = U.id
-					WHERE N.user_id = ? LIMIT 100`
+					WHERE N.user_id = ? ORDER BY created_at DESC LIMIT 100`
 		const [raw] = await db.query(query, [req.userId])
 		return raw.map(x => ({
 			seen: x.open,

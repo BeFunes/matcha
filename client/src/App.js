@@ -13,7 +13,7 @@ import Onboarding from "./components/Onboarding/Onboarding";
 import ResetPassword from './components/ResetPassword/ResetPassword';
 import {getUserAgentDataQuery, isOnboardedQuery, notificationsQuery, usedInterestsQuery} from "./graphql/queries";
 import {fetchGraphql} from "./utils/graphql";
-import {saveLocationMutation} from "./graphql/mutations";
+import {markNotificationsAsSeenMutation, saveLocationMutation} from "./graphql/mutations";
 import GeolocationDialog from "./components/GeolocationDialog/GeolocationDialog";
 import geocoder from "geocoder";
 import {ToastContainer} from 'react-toastify';
@@ -22,7 +22,7 @@ import gql from "graphql-tag";
 import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import NotificationsDrawer from "./components/NotificationsDrawer/NotificationsDrawer";
-
+import _ from 'lodash'
 
 class App extends Component {
 
@@ -56,9 +56,9 @@ class App extends Component {
 	}
 
 	componentWillReceiveProps({data}) {
-		console.log("************", data)
 		if (!!data && !!data.trackNotification) {
-			this.setState({newNotifications: this.state.newNotifications + 1})
+			const newNotifications = [data.trackNotification, ...this.state.notifications]
+			this.setState({newNotifications: this.state.newNotifications + 1, notifications: newNotifications})
 			toast(data.trackNotification.type + "FROM " + data.trackNotification.senderId)
 		}
 	}
@@ -100,7 +100,8 @@ class App extends Component {
 			if (resData.errors) {
 				throw new Error(resData.errors[0].message)
 			}
-			this.setState({notifications: resData.data.notifications})
+			const count = _.filter(resData.data.notifications, x => !x.seen).length;
+			this.setState({notifications: resData.data.notifications, newNotifications: count})
 		}
 		fetchGraphql(query, cb, token)
 	}
@@ -189,6 +190,19 @@ class App extends Component {
 		fetchGraphql(query, cb, this.state.token)
 	}
 
+	markNotificationsAsSeen = () => {
+		const newNotifications = this.state.notifications.map(x => ({...x, seen: true}))
+		this.setState({notifications: newNotifications})
+		const query = markNotificationsAsSeenMutation
+		const cb = resData => {
+			if (resData.errors) {
+				throw new Error(resData.errors[0].message)
+			}
+			console.log(resData.data.markNotificationsAsSeen)
+		}
+		fetchGraphql(query, cb, this.state.token)
+	}
+
 	loginHandler = (data) => {
 		this.setState({
 			isAuth: true,
@@ -205,6 +219,7 @@ class App extends Component {
 		if (data.isOnboarded) {
 			this.getUserAgentData(data.token)
 			this.getUsedInterests(data.token)
+			this.getNotifications(data.token)
 		}
 	}
 
@@ -228,7 +243,9 @@ class App extends Component {
 		this.setState({isOnboarded: true})
 		this.getUserAgentData(this.state.token)
 		this.getUsedInterests(this.state.token)
+		this.getNotifications(this.state.token)
 	}
+
 
 	resetNotifications = () => {
 		this.setState({newNotifications: 0})
@@ -282,6 +299,8 @@ class App extends Component {
 								open={this.state.notificationsOpen}
 								close={this.toggleNotificationDrawer}
 								notifications={this.state.notifications}
+								markNotificationsAsSeen={this.markNotificationsAsSeen}
+
 							/>
 						</div>}
 
@@ -311,7 +330,9 @@ const NOTIFICATION_SUBSCRIPTION = gql`
 	subscription trackNotification($userId: Int!) {
 		trackNotification(userId: $userId) {
 			senderId
+			senderName
 			type
+			seen
 		}	
 	}
 `
@@ -321,7 +342,7 @@ export default (graphql(NOTIFICATION_SUBSCRIPTION, {
 		console.log(state)
 		return ({
 			variables: {
-				userId: parseInt(localStorage.getItem('userId'))
+				userId: parseInt(localStorage.getItem('userId')) || 0
 			},
 		})
 	}

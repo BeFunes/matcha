@@ -27,7 +27,7 @@ class Toolbar extends Component {
 	}
 
 	notificationClicked = () => {
-		this.setState({newNotifications: 0})
+		this.setState({ newNotifications: 0 })
 		this.props.resetNotifications()
 		this.props.onNotificationClick()
 	}
@@ -48,7 +48,7 @@ class Toolbar extends Component {
 				                            onClick={this.notificationClicked}
 				>
 					<Badge color="primary" badgeContent={newNotifications} classes={{badge: classes.badge}}
-					       invisible={newNotifications === 0}>
+					       invisible={!newNotifications}>
 						< NotificationIcon style={{fontSize: 35}}/>
 					</Badge>
 				</div>}

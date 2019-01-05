@@ -18,7 +18,7 @@ const drawerStyle = theme => ({
 
 
 const NotificationsDrawer = (props) => {
-	const {open, close, notifications} = props
+	const {open, close, notifications, markNotificationsAsSeen} = props
 	return (
 		<Drawer
 			className={styles.component}
@@ -32,6 +32,7 @@ const NotificationsDrawer = (props) => {
 			<Notifications
 				close={close}
 				notifications={notifications}
+				markNotificationsAsSeen={markNotificationsAsSeen}
 			/>
 		</Drawer>
 	)

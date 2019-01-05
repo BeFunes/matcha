@@ -21,9 +21,14 @@ const listTextStyle = () => ({
 
 class Notifications extends Component {
 
+	closeAndMarkAllAsSeen = () => {
+		this.props.markNotificationsAsSeen()
+		this.props.close()
+	}
+
 	render() {
 		const {close, notifications} = this.props
-
+		const cellBackground = (x) => !!x.seen ? '#ECECEC' : '#effdff'
 		const text = (name) => ({
 			"match" : <div>You matched with <h4>{name}</h4></div>,
 			"like" : <div><h4>{name}</h4> liked you</div>,
@@ -33,7 +38,7 @@ class Notifications extends Component {
 		return (
 			<div className={styles.component}>
 				<div className={styles.header}>
-					<div className={styles.closeIcon} onClick={close}>
+					<div className={styles.closeIcon} onClick={this.closeAndMarkAllAsSeen}>
 							<CloseIcon style={{fontSize: 30}}/>
 						{/*</
 						IconButton>*/}
@@ -41,9 +46,9 @@ class Notifications extends Component {
 					Notifications
 				</div >
 				{/*<Divider/>*/}
-				{notifications && <List className={styles.list} style={{backgroundColor: '#ECECEC'}} >
+				{notifications && <List className={styles.list} >
 					{notifications.map((x, i) => (
-						<ListItem button key={i} style={{borderBottom: "1px solid white"}}
+						<ListItem button key={i} style={{borderBottom: "1px solid white", backgroundColor: cellBackground(x)}}
 
 						>
 							<ListItemText
