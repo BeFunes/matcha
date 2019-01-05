@@ -8,7 +8,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 20px 0 0;
     box-sizing: border-box;
     color: white;
     font-weight: 600;
@@ -25,18 +24,20 @@
     border-radius: 7px;
     background-color: #007eff;
     position: relative;
-    bottom: 26px;
+    bottom: 18px;
     left: 18px;
 }
 
 .notificationIcon {
-    padding: 14px 30px;
+    padding: 18px 30px 1px;
 }
 
+.logoutIcon {
+    padding: 19px;
+}
 
-.notificationIcon:hover {
-    padding: 14px 30px;
+.notificationIcon:hover,
+.logoutIcon:hover{
     background-color: #be0d47;
-
 }
 

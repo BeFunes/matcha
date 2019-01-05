@@ -14,13 +14,15 @@ const toolbar = (props) => {
 
 			{/*<Logo />*/}
 			<div style={{color: iconColor}} className={styles.notificationIcon}>
-				< NotificationIcon style={{ fontSize: 35, marginBottom: -8}}/>
-				<div className={styles.newNotification}  />
+				< NotificationIcon style={{fontSize: 35}}/>
+				<div className={styles.newNotification}/>
 			</div>
 			<nav style={{flex: 1}}>
 				<Route render={(props) => <NavigationItems  {...props} onLogout={onLogout} user={user}/>}/>
 			</nav>
-			<LogOutIcon onClick={onLogout} />
+			<div className={styles.logoutIcon} >
+				<LogOutIcon style={{fontSize: 30}} onClick={onLogout}/>
+			</div>
 		</header>
 	)
 }
