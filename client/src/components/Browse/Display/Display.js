@@ -2,7 +2,17 @@ import React, {Component} from 'react';
 import styles from './Display.module.css'
 import ProfileCard from "./ProfileCard/ProfileCard";
 import Route from "react-router-dom/es/Route";
+import {graphql} from "react-apollo/index";
+import gql from 'graphql-tag';
 
+const SUBSCRIPTION = gql`
+	subscription likeToggled($userId: Int!) {
+		likeToggled(userId: $userId) {
+			value
+			sender
+		}	
+	}
+`
 class Display extends Component {
 	state = {}
 
@@ -13,6 +23,14 @@ class Display extends Component {
 	componentDidUpdate(prevProps) {
 		if (this.props.profiles !== prevProps.profiles) {
 			this.setState({profiles: this.props.profiles})
+		}
+	}
+
+	componentWillReceiveProps({data}) {
+		if (!!data && !!data.likeToggled) {
+			const { value, sender } = data.likeToggled
+			const newProfiles = this.state.profiles.map(x => x.id === sender ? {...x, likeFrom: value} : x )
+			this.setState({ profiles: newProfiles})
 		}
 	}
 
@@ -47,4 +65,11 @@ class Display extends Component {
 	}
 }
 
-export default Display
+
+export default (graphql(SUBSCRIPTION, {
+	options: () =>({
+		variables: {
+			userId: parseInt(localStorage.getItem('userId'))
+		},
+	})
+})(Display))

@@ -56,7 +56,7 @@ class App extends Component {
 
 	componentWillReceiveProps({data}) {
 		if (!!data && !!data.trackNotification) {
-			toast(data.trackNotification.type + "FROM " + data.trackNotification.sender)
+			// toast(data.trackNotification.type + "FROM " + data.trackNotification.sender)
 		}
 	}
 

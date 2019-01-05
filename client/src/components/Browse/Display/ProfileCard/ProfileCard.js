@@ -11,19 +11,9 @@ import {likeInfoQuery} from "../../../../graphql/queries";
 import {fetchGraphql} from "../../../../utils/graphql";
 import {toggleBlockMutation, toggleLikeMutation} from "../../../../graphql/mutations";
 import { graphql }  from 'react-apollo'
-import gql from 'graphql-tag';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
-const SUBSCRIPTION = gql`
-	subscription likeToggled($userId: Int!) {
-		likeToggled(userId: $userId) {
-			value
-			sender
-		}	
-	}
-`
 
 class ProfileCard extends Component {
 	_isMounted = false
@@ -42,11 +32,9 @@ class ProfileCard extends Component {
 		this._isMounted = false;
 	}
 
-	componentWillReceiveProps({data}) {
-			// toast("liked!")
-		if (!!data && !!data.likeToggled && data.likeToggled.sender === this.props.profile.id) {
-			this.setState({likeFrom: data.likeToggled.value})
-			console.log("SOME ONE LIKES YOU")
+	componentWillReceiveProps(props) {
+		if (props.profile && typeof props.profile.likeFrom !== 'undefined' ) {
+			this.setState({likeFrom: props.profile.likeFrom})
 		}
 	}
 
@@ -148,10 +136,4 @@ class ProfileCard extends Component {
 	}
 }
 
-export default (graphql(SUBSCRIPTION, {
-	options: (props) => ({
-		variables: {
-			userId: props.user.id
-		},
-	})
-})(ProfileCard))
+export default ProfileCard
