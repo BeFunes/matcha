@@ -23,3 +23,18 @@
     padding: 10px;
     border-radius: 100%;
 }
+
+h4 {
+    display: inline;
+    line-height: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.list {
+    font-size: 12px;
+}
+
+.listItem {
+    border: 2px solid black;
+}

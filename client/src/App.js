@@ -11,7 +11,7 @@ import Chat from "./components/Chat/Chat";
 import Confirmation from "./components/Confirmation/Confirmation"
 import Onboarding from "./components/Onboarding/Onboarding";
 import ResetPassword from './components/ResetPassword/ResetPassword';
-import {getUserAgentDataQuery, isOnboardedQuery, usedInterestsQuery} from "./graphql/queries";
+import {getUserAgentDataQuery, isOnboardedQuery, notificationsQuery, usedInterestsQuery} from "./graphql/queries";
 import {fetchGraphql} from "./utils/graphql";
 import {saveLocationMutation} from "./graphql/mutations";
 import GeolocationDialog from "./components/GeolocationDialog/GeolocationDialog";
@@ -90,6 +90,17 @@ class App extends Component {
 		fetchGraphql(query, cb, token)
 	}
 
+	getNotifications = (token) => {
+		console.log("GET NOTIFICATIONS")
+		const query = notificationsQuery
+		const cb = resData => {
+			if (resData.errors) {
+				throw new Error(resData.errors[0].message)
+			}
+			this.setState({notifications: resData.data.notifications})
+		}
+		fetchGraphql(query, cb, token)
+	}
 
 	getIsOnboarded = (token) => {
 		console.log("GET IS ONBOARDED")
@@ -101,6 +112,7 @@ class App extends Component {
 			if (resData.data.isOnboarded) {
 				this.getUserAgentData(token)
 				this.getUsedInterests(token)
+				this.getNotifications(token)
 			}
 			else {
 				this.setState({isLoading: false})
@@ -256,7 +268,11 @@ class App extends Component {
 								                            onProfileClick={this.onProfileCLick}
 								                            notificationsOpen={this.state.notificationsOpen}
 								                            onNotificationClick={this.toggleNotificationDrawer}/>}/>
-							<NotificationsDrawer open={this.state.notificationsOpen} close={this.toggleNotificationDrawer}/>
+							<NotificationsDrawer
+								open={this.state.notificationsOpen}
+								close={this.toggleNotificationDrawer}
+								notifications={this.state.notifications}
+							/>
 						</div>}
 
 						<Switch > {/* with switch, the route will consider only the first match rather than cascading down!*/}

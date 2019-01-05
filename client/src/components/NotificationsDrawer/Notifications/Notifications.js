@@ -1,16 +1,35 @@
 import React, {Component} from 'react'
 import styles from './Notifications.module.css'
-import IconButton from "@material-ui/core/es/IconButton/IconButton";
 import CloseIcon from "@material-ui/icons/Close"
-import Divider from "@material-ui/core/es/Divider/Divider";
 import ListItem from "@material-ui/core/es/ListItem/ListItem";
 import ListItemText from "@material-ui/core/es/ListItemText/ListItemText";
 import List from "@material-ui/core/es/List/List";
+import withStyles from "@material-ui/core/es/styles/withStyles";
+import Divider from "@material-ui/core/es/Divider/Divider";
+
+const listTextStyle = () => ({
+	listItemText:{
+		fontSize:'15px',//Insert your required size
+	},
+	secondaryText: {
+		fontSize: '12px',
+		color: 'grey',
+		// textAlign: 'right'
+	}
+});
+
 
 class Notifications extends Component {
 
 	render() {
-		const {close} = this.props
+		const {close, notifications} = this.props
+
+		const text = (name) => ({
+			"match" : <div>You matched with <h4>{name}</h4></div>,
+			"like" : <div><h4>{name}</h4> liked you</div>,
+			"unmatch" : <div>You unmatched with <h4>{name}</h4></div>
+		})
+
 		return (
 			<div className={styles.component}>
 				<div className={styles.header}>
@@ -20,19 +39,25 @@ class Notifications extends Component {
 						IconButton>*/}
 					</div>
 					Notifications
-				</div>
+				</div >
 				{/*<Divider/>*/}
-				<List>
-					{['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-						<ListItem button key={text}>
-							<ListItemText primary={text}/>
+				{notifications && <List className={styles.list} style={{backgroundColor: '#ECECEC'}} >
+					{notifications.map((x, i) => (
+						<ListItem button key={i} style={{borderBottom: "1px solid white"}}
+
+						>
+							<ListItemText
+								classes={{primary: this.props.classes.listItemText,
+													secondary: this.props.classes.secondaryText}}
+								primary={text(x.senderName)[x.type]}
+								secondary={x.createdAt}
+							/>
 						</ListItem>
 					))}
-				</List>
+				</List>}
 			</div>
 		)
 	}
 }
 
-export default Notifications
-
+export default withStyles(listTextStyle, { withTheme: true })(Notifications);

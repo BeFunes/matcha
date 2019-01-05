@@ -117,3 +117,15 @@ export const likeInfoQuery = (id) => ({
 				  }
 			}`
 })
+
+export const notificationsQuery = {
+	query: ` {
+		notifications {
+			seen
+			type
+			createdAt
+			senderId
+			senderName
+		}
+	}`
+}

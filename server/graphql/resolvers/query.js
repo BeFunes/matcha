@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken')
 const {validate} = require('./../../util/validator')
 const CONST = require('../../../constants')
 const lodash = require('lodash')
+const moment = require ("moment")
 
 
 const query = {
@@ -255,14 +256,13 @@ const query = {
 
 	userMessages: async function (_, x, {req}) {
 		console.log('GET USER MESSAGES')
-		// if (!req.isAuth) {
-		// 	const error = new Error('Not authenticated!')
-		// 	error.code = 401
-		// 	throw error
-		// }
-		req.userId = 1
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!')
+			error.code = 401
+			throw error
+		}
 		const query = `SELECT * FROM messages WHERE (sender_id = ? OR receiver_id = ?)`
-		const [raw] = await db.query(query, [req.userId, req.userId])
+		const [row] = await db.query(query, [req.userId, req.userId])
 		const conv = raw.map(x => ({
 			sender_id : x.sender_id,
 			receiver_id : x.receiver_id,
@@ -276,6 +276,27 @@ const query = {
 		const c =  Object.keys(conversations).map(x => conversations[x])
 		console.log(c)
 		return c
+	},
+
+	notifications: async function (_, x, {req}) {
+		console.log("GET NOTIFICATIONS FOR USER ", req.userId)
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!')
+			error.code = 401
+			throw error
+		}
+		const query = `SELECT N.*, U.first_name, U.last_name 
+					FROM notifications N
+					JOIN users U on N.from_id = U.id
+					WHERE N.user_id = ? LIMIT 100`
+		const [raw] = await db.query(query, [req.userId])
+		return raw.map(x => ({
+			seen: x.open,
+			senderId: x.from_id,
+			type: x.type,
+			createdAt: moment(x.created_at).format("D MMM, HH:mm"),
+			senderName: `${x.first_name} ${x.last_name}`
+		}))
 	}
  }
 

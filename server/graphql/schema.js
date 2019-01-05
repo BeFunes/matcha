@@ -135,6 +135,25 @@ const typeDefs = gql`
     type Conversation {
         messages: [UserMessage]
     }
+    
+    
+    type Like {
+      value: Boolean
+      sender: Int
+    }
+
+    type Notification {
+        senderId: Int!
+        senderName: String
+        type: String!
+        seen: Boolean
+        createdAt: String
+    }
+
+    type Visited {
+        sender: Int!
+    }
+    
     type RootQuery {
         login(email: String!, password: String!): AuthData!
         getUserData(id: Int!): UserData
@@ -145,22 +164,7 @@ const typeDefs = gql`
         usedInterests: [String]!
         likeInfo(info: LikeInput) : LikeData
         userMessages: [Conversation]
-
-        
-    }
-    
-    type Like {
-      value: Boolean
-      sender: Int
-    }
-
-    type Notification {
-        sender: Int!
-        type: String!
-    }
-
-    type Visited {
-        sender: Int!
+        notifications: [Notification]!
     }
 
     type RootSubscription {
