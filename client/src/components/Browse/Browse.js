@@ -13,8 +13,8 @@ class Browse extends Component {
 
 	state = {
 		filters: {
-			ageMin: 30,
-			ageMax: 50,
+			ageMin: 18,
+			ageMax: 99,
 			interests: [],
 			allowBlocked: false
 		},
@@ -27,7 +27,6 @@ class Browse extends Component {
 
 
 	componentDidUpdate() {
-		console.log( "COMPONENT DID UPDATE Browse")
 		if (typeof this.state.matches === 'undefined') {
 			this.getProfiles({...this.state.filters, interests: this.props.interests || []})
 		}

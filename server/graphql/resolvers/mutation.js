@@ -245,11 +245,10 @@ module.exports = {
 			: 'DELETE FROM likes WHERE sender_id = ? AND receiver_id = ?'
 
 		if (likeResult != "unlike") {
-			console.log("hey")
 			const notificationQuery =  'INSERT INTO notifications (user_id, from_id, type, open) VALUES (?, ?, ?, ?)'
 			await db.query(notificationQuery, [info.receiverId, req.userId, likeResult, 0, 'current_timestamp()'])	
 			pubsub.publish('likeToggled', { likeToggled: { value: info.liked, receiver: info.receiverId, sender: req.userId }})
-			pubsub.publish('notification', { trackNotification: { type: likeResult, receiver: info.receiverId, sender: req.userId }})
+			pubsub.publish('notification', { trackNotification: { type: likeResult, receiver: info.receiverId, senderId: req.userId }})
 		}
 		await db.query(query, [req.userId, info.receiverId])
 		return { content: "Liked updated successfully"}

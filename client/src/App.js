@@ -31,7 +31,8 @@ class App extends Component {
 		token: null,
 		userId: null,
 		isLoading: true,
-		geolocationDialogOpen: false
+		geolocationDialogOpen: false,
+		newNotifications: 0,
 	}
 
 	componentDidMount() {
@@ -55,8 +56,10 @@ class App extends Component {
 	}
 
 	componentWillReceiveProps({data}) {
+		console.log("************", data)
 		if (!!data && !!data.trackNotification) {
-			// toast(data.trackNotification.type + "FROM " + data.trackNotification.sender)
+			this.setState({newNotifications: this.state.newNotifications + 1})
+			toast(data.trackNotification.type + "FROM " + data.trackNotification.senderId)
 		}
 	}
 
@@ -227,6 +230,10 @@ class App extends Component {
 		this.getUsedInterests(this.state.token)
 	}
 
+	resetNotifications = () => {
+		this.setState({newNotifications: 0})
+	}
+
 //////////// todo: this seems weird? Why do we need it?
 	checkUser() {
 		if (typeof this.state.user === "undefined") {
@@ -267,7 +274,10 @@ class App extends Component {
 								render={(props) => <Toolbar {...props} onLogout={this.logoutHandler} user={this.state.user}
 								                            onProfileClick={this.onProfileCLick}
 								                            notificationsOpen={this.state.notificationsOpen}
-								                            onNotificationClick={this.toggleNotificationDrawer}/>}/>
+								                            onNotificationClick={this.toggleNotificationDrawer}
+								                            newNotifications={this.state.newNotifications}
+								                            resetNotifications={this.resetNotifications}
+								/>}/>
 							<NotificationsDrawer
 								open={this.state.notificationsOpen}
 								close={this.toggleNotificationDrawer}
@@ -285,7 +295,6 @@ class App extends Component {
 							{routeZero()}
 						</Switch>
 					</main>
-				{/*</div>*/}
 				{hasAccess && this.state.suggestedLocation && <GeolocationDialog
 					open={geolocationDialogOpen}
 					onClose={this.closeGeolocationDialog}
@@ -301,7 +310,7 @@ class App extends Component {
 const NOTIFICATION_SUBSCRIPTION = gql`
 	subscription trackNotification($userId: Int!) {
 		trackNotification(userId: $userId) {
-			sender
+			senderId
 			type
 		}	
 	}
@@ -312,7 +321,7 @@ export default (graphql(NOTIFICATION_SUBSCRIPTION, {
 		console.log(state)
 		return ({
 			variables: {
-				userId: 1
+				userId: parseInt(localStorage.getItem('userId'))
 			},
 		})
 	}

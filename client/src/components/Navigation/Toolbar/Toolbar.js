@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {Component} from 'react'
 import styles from './Toolbar.module.css'
 import NavigationItems from "../NavigationItems/NavigationItems";
 import {Route} from 'react-router-dom';
@@ -8,7 +8,6 @@ import Badge from "@material-ui/core/es/Badge/Badge";
 
 import {withStyles} from '@material-ui/core/styles';
 
-
 const badgeStyle = () => ({
 	badge: {
 		top: -1,
@@ -16,28 +15,54 @@ const badgeStyle = () => ({
 	}
 });
 
-const Toolbar = (props) => {
-	const {onLogout, user, notificationsOpen, onNotificationClick} = props
-	const iconColor = 1 === false ? 'white' : 'yellow'
-	return (
-		<header className={styles.toolbar} style={{ left: notificationsOpen ? 301 : 0}}>
-			{!notificationsOpen && <div style={{color: iconColor}}
-			     className={styles.notificationIcon}
-			     onClick={onNotificationClick}
-			>
-				<Badge color="primary" badgeContent={4} classes={{badge: props.classes.badge}} invisible={false}>
-					< NotificationIcon style={{fontSize: 35}}/>
-				</Badge>
-			</div>}
+class Toolbar extends Component {
 
-			<nav style={{flex: 1}}>
-				<Route render={(props) => <NavigationItems  {...props} onLogout={onLogout} user={user}/>}/>
-			</nav>
-			<div className={styles.logoutIcon}>
-				<LogOutIcon style={{fontSize: 30}} onClick={onLogout}/>
-			</div>
-		</header>
-	)
+	state = {newNotifications: 0}
+
+
+	componentWillReceiveProps({newNotifications}) {
+		if (newNotifications !== 0) {
+			this.setState({newNotifications: this.state.newNotifications + 1})
+		}
+	}
+
+	notificationClicked = () => {
+		this.setState({newNotifications: 0})
+		this.props.resetNotifications()
+		this.props.onNotificationClick()
+	}
+
+	render() {
+		const {
+			user,
+			classes,
+			onLogout,
+			notificationsOpen,
+		} = this.props
+		const {newNotifications} = this.state
+		const iconColor = 1 === false ? 'white' : 'yellow'
+		return (
+			<header className={styles.toolbar} style={{left: notificationsOpen ? 301 : 0}}>
+				{!notificationsOpen && <div style={{color: iconColor}}
+				                            className={styles.notificationIcon}
+				                            onClick={this.notificationClicked}
+				>
+					<Badge color="primary" badgeContent={newNotifications} classes={{badge: classes.badge}}
+					       invisible={newNotifications === 0}>
+						< NotificationIcon style={{fontSize: 35}}/>
+					</Badge>
+				</div>}
+
+				<nav style={{flex: 1}}>
+					<Route render={(props) => <NavigationItems  {...props} onLogout={onLogout} user={user}/>}/>
+				</nav>
+				<div className={styles.logoutIcon}>
+					<LogOutIcon style={{fontSize: 30}} onClick={onLogout}/>
+				</div>
+			</header>
+		)
+	}
 }
 
-export default withStyles(badgeStyle)(Toolbar);
+
+export default withStyles(badgeStyle)(Toolbar)
