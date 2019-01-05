@@ -16,12 +16,12 @@ import {fetchGraphql} from "./utils/graphql";
 import {saveLocationMutation} from "./graphql/mutations";
 import GeolocationDialog from "./components/GeolocationDialog/GeolocationDialog";
 import geocoder from "geocoder";
-import { ToastContainer } from 'react-toastify';
+import {ToastContainer} from 'react-toastify';
 import {graphql} from "react-apollo/index";
 import gql from "graphql-tag";
-import { toast } from 'react-toastify';
+import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import NotificationsDrawer from "./components/NotificationsDrawer/NotificationsDrawer";
 
 
 class App extends Component {
@@ -102,7 +102,9 @@ class App extends Component {
 				this.getUserAgentData(token)
 				this.getUsedInterests(token)
 			}
-			else { this.setState({isLoading: false})}
+			else {
+				this.setState({isLoading: false})
+			}
 		}
 		fetchGraphql(query, cb, token)
 	}
@@ -120,7 +122,7 @@ class App extends Component {
 		console.log("GET LOCATION")
 		const openDialog = (lat, long, address) => {
 			if (address !== existingAddress) {
-				this.openGeolocationDialog({latitude: lat, longitude: long, address: address })
+				this.openGeolocationDialog({latitude: lat, longitude: long, address: address})
 			}
 		}
 		if (!("geolocation" in navigator)) {
@@ -128,7 +130,7 @@ class App extends Component {
 			fetch('http://www.geoplugin.net/json.gp')
 				.then((res) => res.json())
 				.then((data) => {
-						openDialog (data.geoplugin_latitude, data.geoplugin_longitude, data.geoplugin_city + ", " + data.geoplugin_countryName)
+						openDialog(data.geoplugin_latitude, data.geoplugin_longitude, data.geoplugin_city + ", " + data.geoplugin_countryName)
 					}
 				)
 				.catch((err) => console.log(err))
@@ -141,14 +143,16 @@ class App extends Component {
 					fetch('http://www.geoplugin.net/json.gp')
 						.then((res) => res.json())
 						.then((data) => {
-								openDialog (data.geoplugin_latitude, data.geoplugin_longitude, data.geoplugin_city + ", " + data.geoplugin_countryName)
+								openDialog(data.geoplugin_latitude, data.geoplugin_longitude, data.geoplugin_city + ", " + data.geoplugin_countryName)
 							}
 						)
 						.catch((err) => console.log(err))
 				}
 				else {
 					let address = data.results[0].formatted_address.split(",")
-					while (address.length >= 3) { address.shift() }
+					while (address.length >= 3) {
+						address.shift()
+					}
 					openDialog(latitude, longitude, address.join())
 				}
 			}, {key: 'AIzaSyDhO5lFvlxnnGx_eBwAmDsagl0tE-vxE2U'})
@@ -200,6 +204,11 @@ class App extends Component {
 		setTimeout(this.logoutHandler, milliseconds);
 	};
 
+	toggleNotificationDrawer = () => {
+		console.log("Notifications clicked")
+		this.setState({notificationsOpen: !this.state.notificationsOpen})
+	}
+
 	onboardingHandler = () => {
 		this.setState({isOnboarded: true})
 		this.getUserAgentData(this.state.token)
@@ -236,13 +245,21 @@ class App extends Component {
 		}
 		return (
 			<div className={styles.app}>
-			 <ToastContainer />
-				<div>
-					<main className={hasAccess ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
-						{hasAccess && <Route
-							render={(props) => <Toolbar {...props} onLogout={this.logoutHandler} user={this.state.user}
-							                            onProfileClick={this.onProfileCLick}/>}/>}
-						<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
+				<ToastContainer/>
+				{/*<div >*/}
+					<main style={{marginLeft: this.state.notificationsOpen ? 301 : 0}} className={hasAccess ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
+
+						{hasAccess && <div className={styles.toolbarAndNotifications}>
+
+							<Route
+								render={(props) => <Toolbar {...props} onLogout={this.logoutHandler} user={this.state.user}
+								                            onProfileClick={this.onProfileCLick}
+								                            notificationsOpen={this.state.notificationsOpen}
+								                            onNotificationClick={this.toggleNotificationDrawer}/>}/>
+							<NotificationsDrawer open={this.state.notificationsOpen} close={this.toggleNotificationDrawer}/>
+						</div>}
+
+						<Switch > {/* with switch, the route will consider only the first match rather than cascading down!*/}
 							{!this.state.isAuth && <Route path="/confirmation/:token" render={(props) => <Confirmation {...props}
 							                                                                                           markLoggedIn={this.loginHandler}/>}/>}
 							{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword}/>}
@@ -252,7 +269,7 @@ class App extends Component {
 							{routeZero()}
 						</Switch>
 					</main>
-				</div>
+				{/*</div>*/}
 				{hasAccess && this.state.suggestedLocation && <GeolocationDialog
 					open={geolocationDialogOpen}
 					onClose={this.closeGeolocationDialog}
@@ -263,8 +280,6 @@ class App extends Component {
 		);
 	}
 }
-
-
 
 
 const NOTIFICATION_SUBSCRIPTION = gql`

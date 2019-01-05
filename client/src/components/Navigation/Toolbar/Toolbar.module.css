@@ -1,9 +1,13 @@
 .toolbar {
+    flex: 1;
     height: 72px;
-    width: 100%;
+    /*min-width: 100%;*/
+    flex: 1;
     position: fixed;
     top: 0;
-    left: 0;
+    /*left: 0;*/
+    right: 0;
+    /*right: 321px;*/
     background-color: #DD0E52;
     display: flex;
     justify-content: space-between;
@@ -33,7 +37,7 @@
 }
 
 .logoutIcon {
-    padding: 19px;
+    padding: 19px 30px;
 }
 
 .notificationIcon:hover,
