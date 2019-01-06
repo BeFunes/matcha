@@ -11,7 +11,10 @@ import Chat from "./components/Chat/Chat";
 import Confirmation from "./components/Confirmation/Confirmation"
 import Onboarding from "./components/Onboarding/Onboarding";
 import ResetPassword from './components/ResetPassword/ResetPassword';
-import {getUserAgentDataQuery, isOnboardedQuery, notificationsQuery, usedInterestsQuery} from "./graphql/queries";
+import {
+	getConversationsQuery, getUserAgentDataQuery, isOnboardedQuery, notificationsQuery,
+	usedInterestsQuery
+} from "./graphql/queries";
 import {fetchGraphql} from "./utils/graphql";
 import {markNotificationsAsSeenMutation, saveLocationMutation} from "./graphql/mutations";
 import GeolocationDialog from "./components/GeolocationDialog/GeolocationDialog";
@@ -86,6 +89,20 @@ class App extends Component {
 		fetchGraphql(query, cb, token)
 	}
 
+	getChats = (token) => {
+		console.log("GET CHATS")
+		const query = getConversationsQuery
+		const cb = resData => {
+			if (resData.errors) {
+				console.log(resData.errors[0].message)
+				throw new Error ("Can't fetch conversations")
+			}
+			const chats = resData.data.conversations.map(x => ({ name: x[0].conversationName, messages: [...x]}))
+			this.setState({conversations: chats})
+		}
+		fetchGraphql(query, cb, token)
+	}
+
 	getUsedInterests = (token) => {
 		console.log("GET USED INTERESTS")
 
@@ -123,6 +140,7 @@ class App extends Component {
 				this.getUserAgentData(token)
 				this.getUsedInterests(token)
 				this.getNotifications(token)
+				this.getChats(token)
 			}
 			else {
 				this.setState({isLoading: false})
@@ -225,6 +243,8 @@ class App extends Component {
 			this.getUserAgentData(data.token)
 			this.getUsedInterests(data.token)
 			this.getNotifications(data.token)
+			this.getChats(data.token)
+
 		}
 	}
 
@@ -249,6 +269,7 @@ class App extends Component {
 		this.getUserAgentData(this.state.token)
 		this.getUsedInterests(this.state.token)
 		this.getNotifications(this.state.token)
+		this.getChats(this.state.token)
 	}
 
 
@@ -267,6 +288,9 @@ class App extends Component {
 	}
 
 	render() {
+		if (this.state.conversations) {
+			console.log("************", this.state.conversations)
+		}
 		const hasAccess = this.state.isAuth && this.state.isOnboarded
 		const {geolocationDialogOpen, suggestedLocation} = this.state
 		const routeZero = () => {
@@ -317,7 +341,7 @@ class App extends Component {
 							{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword}/>}
 							{hasAccess && <Route path="/user_profile" component={UserProfile}/>}
 							{hasAccess && this.checkUser()}
-							{hasAccess && <Route path="/chat" component={Chat}/>}
+							{hasAccess && <Route path="/chat" render={(props) => <Chat {...props} conversations={this.state.conversations}/>}/>}
 							{routeZero()}
 						</Switch>
 					</main>

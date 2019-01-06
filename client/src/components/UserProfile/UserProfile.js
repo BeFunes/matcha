@@ -52,7 +52,7 @@ class UserProfile extends Component {
 
 	componentDidUpdate() {
 		const { user, me, id } = this.props.location.state
-		if (user && me) {
+		if (user && me && this.state.user.id !== user.id ) {
 			this.setState({user: user, isMe: true})
 		}
 		if (!me && id !== this.state.user.id) {

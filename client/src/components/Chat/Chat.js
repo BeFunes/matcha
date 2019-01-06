@@ -1,20 +1,31 @@
 import React, {Component} from 'react';
-import List from "@material-ui/core/es/List/List";
-// import styles from './Chat.module.css'
+import ChatList from "./ChatList/ChatList";
+import styles from './Chat.module.css'
+import ChatBody from "./ChatBody/ChatBody";
 
 class Chat extends Component {
 
-	conversations = [
-		[
+	state = {}
 
-		]
-	]
+
+	onChatSelect = (name) => {
+		this.setState({currentConversation : name})
+	}
+
 	render() {
+		const { conversations } = this.props
+		const currentConversation = conversations && conversations.find( x => {console.log(x.name, this.state.currentConversation); return x.name === this.state.currentConversation})
 		return (
-			<div>
-				<List>
-
-				</List>
+			<div className={styles.component}>
+				<ChatList
+					classNAme={styles.list}
+					conversations={conversations}
+					onChatSelect={this.onChatSelect}
+				/>
+				<ChatBody
+					className={styles.listBody}
+					currentConversation={currentConversation && currentConversation.messages}
+				/>
 			</div>
 		)
 	}

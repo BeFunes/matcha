@@ -131,6 +131,7 @@ const typeDefs = gql`
         timestamp: String!
         seen: Boolean!
         conversationId: String
+        conversationName: String
     }
     
     type Conversation {
@@ -164,7 +165,7 @@ const typeDefs = gql`
         match(filters: MatchFilter) : [UserData]
         usedInterests: [String]!
         likeInfo(info: LikeInput) : LikeData
-        userMessages: [Conversation]
+        conversations: [[UserMessage]]
         notifications: [Notification]!
     }
 

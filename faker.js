@@ -143,6 +143,7 @@ const populateChatsTable = `INSERT INTO messages (conversation_id, sender_id, re
 		( "1:2", 2, 1, "Hi to you too", '2019-01-01 08:40', 1 ),
 		( "1:2", 1, 2, "How are you? This message is a bit longer because I need to see what it looks like", '2019-01-01 09:23', 1),
 		( "1:2", 2, 1, "1 has not yet seen this message", '2019-01-01 09:40', 0)
+		( "1:3", 3, 1, "You are pretty", '2019-01-04 15:45', 0)
 		`
 
 const createNotificationTable = `CREATE TABLE notifications (

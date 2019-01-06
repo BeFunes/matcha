@@ -1,4 +1,3 @@
-
 export const matchesQuery = (gender, orientation, ageMin, ageMax, interests) => ({
 	query: ` {
 			      match(
@@ -28,10 +27,10 @@ export const matchesQuery = (gender, orientation, ageMin, ageMax, interests) => 
 })
 
 export const isOnboardedQuery = {
-		query: `{
+	query: `{
             isOnboarded
             } `
-	}
+}
 
 export const usedInterestsQuery = {
 	query: `{ usedInterests } `
@@ -86,6 +85,20 @@ export const getUserAgentDataQuery = {
 										address
                 }
             } `
+}
+
+export const getConversationsQuery = {
+	query: `{
+								conversations {
+							    seen
+							    content
+							    senderId
+							    receiverId
+							    timestamp
+							    conversationId
+							    conversationName
+      }
+	}`
 }
 
 export const loginQuery = (email, password) => ({

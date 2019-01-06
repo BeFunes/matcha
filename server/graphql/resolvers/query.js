@@ -254,31 +254,38 @@ const query = {
 		}
 	},
 
-	userMessages: async function (_, x, {req}) {
+	conversations: async function (_, x, {req}) {
 		console.log('GET USER MESSAGES')
-		// if (!req.isAuth) {
-		// 	const error = new Error('Not authenticated!')
-		// 	error.code = 401
-		// 	throw error
-		// }
-		req.userId = 1
-		const query = `SELECT * FROM messages WHERE (sender_id = ? OR receiver_id = ?)`
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!')
+			error.code = 401
+			throw error
+		}
+
+		const query = `SELECT M.*, CONCAT(Sender.first_name, ' ', Sender.last_name) sender_name, 
+CONCAT(Receiver.first_name, ' ', Receiver.last_name) receiver_name
+				FROM messages M
+				JOIN USERS Sender
+				ON Sender.id = M.sender_id
+				JOIN USERS Receiver
+				ON Receiver.id = M.receiver_id
+				WHERE (sender_id = 1 OR receiver_id = 1)`
 		const [row] = await db.query(query, [req.userId, req.userId])
+		const convName = (id, senderId, receiverId, senderName, receiverName) => {
+			return id === senderId ? receiverName : senderName
+		}
 		const conv = row.map(x => ({
 			senderId: x.sender_id,
 			receiverId: x.receiver_id,
 			timestamp: x.time,
 			seen: x.seen,
 			content: x.content,
-			conversationId: x.conversation_id
+			conversationId: x.conversation_id,
+			conversationName: req.userId === x.sender_id ? x.receiver_name : x.sender_name
 		}))
 		///order by timestamp
 		const conversations = lodash.groupBy(conv, x => x.conversationId)
-		console.log(conversations)
-		const c = Object.keys(conversations).map(x => conversations[x])
-		console.log(c);
-		return c
-		// return [[{senderId: 1, receiverId: 2, timestamp: "fds", seen: true, content: "Some content", conversationId: "Convid"}]]
+		return Object.keys(conversations).map(x => conversations[x])
 	},
 
 	notifications: async function (_, x, {req}) {

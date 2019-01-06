@@ -1,0 +1,5 @@
+.component {
+    display: flex;
+    background-color: green;
+    height: 200px;
+}
