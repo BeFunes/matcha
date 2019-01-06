@@ -50,7 +50,14 @@ class Chat extends Component {
 				if (conversations && this.state.currentConversation !== conversations[0].name)
 					this.setState({currentConversation: conversations[0].name})
 			})
+	}
 
+	redirectToProfile = (id) => {
+		this.props.history.push({
+			pathname: `/user_profile`,
+			search: '',
+			state: { id: id}
+		})
 	}
 
 	render() {
@@ -63,6 +70,7 @@ class Chat extends Component {
 					conversations={conversations}
 					onChatSelect={this.onChatSelect}
 					currentConversation={this.state.currentConversation}
+					redirectToProfile={this.redirectToProfile}
 				/>
 				<ChatBody
 					className={styles.listBody}

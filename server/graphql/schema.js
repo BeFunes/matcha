@@ -133,6 +133,7 @@ const typeDefs = gql`
         conversationId: String
         conversationName: String
         otherId: Int
+        picture: String
     }
     
     type Conversation {

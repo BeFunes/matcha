@@ -263,7 +263,7 @@ const query = {
 		}
 
 		const query = `SELECT M.*, CONCAT(Sender.first_name, ' ', Sender.last_name) sender_name, 
-CONCAT(Receiver.first_name, ' ', Receiver.last_name) receiver_name
+CONCAT(Receiver.first_name, ' ', Receiver.last_name) receiver_name, Sender.profilePic sender_pic, Receiver.profilePic receiver_pic
 				FROM messages M
 				JOIN USERS Sender
 				ON Sender.id = M.sender_id
@@ -281,6 +281,7 @@ CONCAT(Receiver.first_name, ' ', Receiver.last_name) receiver_name
 			seen: x.seen,
 			content: x.content,
 			conversationId: x.conversation_id,
+			picture: req.userId === x.sender_id ? x.receiver_pic : x.sender_pic,
 			conversationName: req.userId === x.sender_id ? x.receiver_name : x.sender_name,
 			otherId: req.userId === x.sender_id ? x.receiver_id : x.sender_id,
 		}))

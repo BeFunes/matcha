@@ -98,6 +98,7 @@ export const getConversationsQuery = {
 							    conversationId
 							    conversationName
 							    otherId
+							    picture
       }
 	}`
 }
