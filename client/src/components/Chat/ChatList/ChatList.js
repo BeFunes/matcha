@@ -18,7 +18,7 @@ class ChatList extends Component {
 					<ListItem
 						button
 						key={i}
-						style={{borderBottom: "1px solid white"}}
+						style={{borderBottom: "1px solid white", backgroundColor: '#f1f1f5'}}
 						onClick={this.props.onChatSelect.bind(this, x.name)}
 					>
 						<ListItemText
