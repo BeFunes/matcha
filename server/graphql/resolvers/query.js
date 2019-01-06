@@ -269,7 +269,7 @@ CONCAT(Receiver.first_name, ' ', Receiver.last_name) receiver_name, Sender.profi
 				ON Sender.id = M.sender_id
 				JOIN USERS Receiver
 				ON Receiver.id = M.receiver_id
-				WHERE (sender_id = 1 OR receiver_id = 1)`
+				WHERE (sender_id = ? OR receiver_id = ?)`
 		const [row] = await db.query(query, [req.userId, req.userId])
 		const convName = (id, senderId, receiverId, senderName, receiverName) => {
 			return id === senderId ? receiverName : senderName
