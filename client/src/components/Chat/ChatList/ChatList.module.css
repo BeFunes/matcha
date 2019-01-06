@@ -2,3 +2,13 @@
     width: 260px;
     background-color: #f1f1f5;
 }
+
+.unreadBadge {
+    background-color: #00b101;
+    padding: 2px 5px;
+    border-radius: 10px;
+    font-size: 12px;
+    margin: 15px;
+    font-weight: bold;
+    color: white;
+}
