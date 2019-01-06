@@ -256,26 +256,29 @@ const query = {
 
 	userMessages: async function (_, x, {req}) {
 		console.log('GET USER MESSAGES')
-		if (!req.isAuth) {
-			const error = new Error('Not authenticated!')
-			error.code = 401
-			throw error
-		}
+		// if (!req.isAuth) {
+		// 	const error = new Error('Not authenticated!')
+		// 	error.code = 401
+		// 	throw error
+		// }
+		req.userId = 1
 		const query = `SELECT * FROM messages WHERE (sender_id = ? OR receiver_id = ?)`
 		const [row] = await db.query(query, [req.userId, req.userId])
-		const conv = raw.map(x => ({
-			sender_id : x.sender_id,
-			receiver_id : x.receiver_id,
+		const conv = row.map(x => ({
+			senderId: x.sender_id,
+			receiverId: x.receiver_id,
 			timestamp: x.time,
 			seen: x.seen,
 			content: x.content,
-			conversation_id: x.conversation_id
+			conversationId: x.conversation_id
 		}))
 		///order by timestamp
-		const conversations = lodash.groupBy(conv, x => x.conversation_id)
-		const c =  Object.keys(conversations).map(x => conversations[x])
-		console.log(c)
+		const conversations = lodash.groupBy(conv, x => x.conversationId)
+		console.log(conversations)
+		const c = Object.keys(conversations).map(x => conversations[x])
+		console.log(c);
 		return c
+		// return [[{senderId: 1, receiverId: 2, timestamp: "fds", seen: true, content: "Some content", conversationId: "Convid"}]]
 	},
 
 	notifications: async function (_, x, {req}) {

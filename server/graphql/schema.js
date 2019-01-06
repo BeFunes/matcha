@@ -125,11 +125,12 @@ const typeDefs = gql`
     }
     
     type UserMessage {
-        sender_id: Int!
-        receiver_id: Int!
+        senderId: Int!
+        receiverId: Int!
         content: String!
         timestamp: String!
         seen: Boolean!
+        conversationId: String
     }
     
     type Conversation {
