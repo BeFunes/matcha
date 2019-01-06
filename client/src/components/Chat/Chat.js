@@ -12,9 +12,14 @@ class Chat extends Component {
 		this.setState({currentConversation : name})
 	}
 
+	componentWillReceiveProps ({conversations}) {
+		if (conversations && this.state.currentConversation !== conversations[0].name)
+			this.setState({currentConversation: conversations[0].name})
+	}
+
 	render() {
 		const { conversations } = this.props
-		const currentConversation = conversations && conversations.find( x => {console.log(x.name, this.state.currentConversation); return x.name === this.state.currentConversation})
+		const currentConversation = conversations && conversations.find( x => x.name === this.state.currentConversation)
 		return (
 			<div className={styles.component}>
 				<ChatList
