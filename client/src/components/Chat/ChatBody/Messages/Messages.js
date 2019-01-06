@@ -4,6 +4,18 @@ import Bubble from "./Bubble/Bubble";
 
 class Messages extends Component {
 
+	scrollToBottom = () => {
+		this.messagesEnd.scrollIntoView({ });
+	}
+
+	componentDidMount() {
+		this.scrollToBottom();
+	}
+
+	componentDidUpdate() {
+		this.scrollToBottom();
+	}
+
 	render() {
 		const { messages } = this.props
 		return (
@@ -16,6 +28,9 @@ class Messages extends Component {
 						fromYou={x.senderId === parseInt(localStorage.getItem('userId'))}
 					/>
 				))}
+				<div style={{ float:"left", clear: "both" }}
+				     ref={(el) => { this.messagesEnd = el; }}>
+				</div>
 			</div>
 		)
 	}

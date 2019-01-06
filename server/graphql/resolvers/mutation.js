@@ -336,5 +336,14 @@ module.exports = {
 		query = `UPDATE notifications SET open = 1 WHERE user_id = ? AND open = 0`
 		await db.query(query, [req.userId])
 		return {content: "notifications marked as seen"}
+	},
+
+	sendMessage: async function (_, { content, receiverId}, {req}) {
+		console.log("SEND MESSAGE")
+		checkAuth(req)
+		const convId = req.userId < receiverId ? `${req.userId}:${receiverId}` : `${receiverId}:${req.userId}`
+		query = `INSERT INTO messages (conversation_id, sender_id, receiver_id, content) VALUES (?, ?, ?, ?)`
+		await db.query(query, [convId, req.userId, receiverId, content])
+		return {content: "message added successfully"}
 	}
 }

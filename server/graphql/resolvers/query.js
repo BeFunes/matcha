@@ -281,7 +281,8 @@ CONCAT(Receiver.first_name, ' ', Receiver.last_name) receiver_name
 			seen: x.seen,
 			content: x.content,
 			conversationId: x.conversation_id,
-			conversationName: req.userId === x.sender_id ? x.receiver_name : x.sender_name
+			conversationName: req.userId === x.sender_id ? x.receiver_name : x.sender_name,
+			otherId: req.userId === x.sender_id ? x.receiver_id : x.sender_id,
 		}))
 		///order by timestamp
 		const conversations = lodash.groupBy(conv, x => x.conversationId)

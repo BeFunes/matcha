@@ -97,7 +97,7 @@ class App extends Component {
 				console.log(resData.errors[0].message)
 				throw new Error ("Can't fetch conversations")
 			}
-			const chats = resData.data.conversations.map(x => ({ name: x[0].conversationName, messages: [...x]}))
+			const chats = resData.data.conversations.map(x => ({ name: x[0].conversationName, id: x[0].otherId, messages: [...x]}))
 			this.setState({conversations: chats})
 		}
 		fetchGraphql(query, cb, token)
@@ -341,7 +341,7 @@ class App extends Component {
 							{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword}/>}
 							{hasAccess && <Route path="/user_profile" component={UserProfile}/>}
 							{hasAccess && this.checkUser()}
-							{hasAccess && <Route path="/chat" render={(props) => <Chat {...props} conversations={this.state.conversations}/>}/>}
+							{hasAccess && <Route path="/chat" render={(props) => <Chat {...props} token={this.state.token} conversations={this.state.conversations}/>}/>}
 							{routeZero()}
 						</Switch>
 					</main>

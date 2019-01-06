@@ -126,3 +126,11 @@ export const editUserMutation = (data) => ({
 		}) {content}
 	}`
 })
+
+export const sendMessageMutation = (content, receiverId) => ({
+	query: `mutation {
+		sendMessage (content: ${content}, receiverId: ${receiverId}) {
+			content
+		}
+	}`
+})

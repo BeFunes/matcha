@@ -97,6 +97,7 @@ export const getConversationsQuery = {
 							    timestamp
 							    conversationId
 							    conversationName
+							    otherId
       }
 	}`
 }
