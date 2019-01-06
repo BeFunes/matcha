@@ -35,13 +35,14 @@ class UserProfile extends Component {
 	}
 
 	componentDidMount() {
+		console.log("Component did mount")
 		const token = localStorage.getItem('token')
 		if (!token || typeof this.props.location.state === "undefined") {
 			this.props.history.push('/')
 			return
 		}
 		const id = this.props.location.state.id
-		const isMe = !!this.props.location.state.me
+		const isMe = this.props.location.state.me
 		this.setState({token: token, isMe: isMe}, () => {
 			!isMe && this.getUserData(token, id)
 			!isMe && this.getRelationsData(token, id)
@@ -50,8 +51,13 @@ class UserProfile extends Component {
 	}
 
 	componentDidUpdate() {
-		if (this.state.user.id !== this.props.location.state.user.id && this.props.location.state.me) {
-			this.setState({user: this.props.location.state.user, isMe: true})
+		const { user, me, id } = this.props.location.state
+		if (user && me) {
+			this.setState({user: user, isMe: true})
+		}
+		if (!me && id !== this.state.user.id) {
+				this.getUserData(this.state.token, id)
+				this.getRelationsData(this.state.token, id)
 		}
 	}
 

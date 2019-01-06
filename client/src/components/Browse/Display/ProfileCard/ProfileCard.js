@@ -107,7 +107,7 @@ class ProfileCard extends Component {
 					     this.props.history.push({
 						     pathname: `/user_profile`,
 						     search: '',
-						     state: {user: this.props.user, id: `${id}`}
+						     state: {id: id}
 					     })
 				     }}>
 					<div className={styles.fame}>

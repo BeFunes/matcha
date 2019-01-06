@@ -299,14 +299,16 @@ class App extends Component {
 								                            onNotificationClick={this.toggleNotificationDrawer}
 								                            newNotifications={this.state.newNotifications}
 								                            resetNotifications={this.resetNotifications}
+
 								/>}/>
-							<NotificationsDrawer
+							<Route render={(props) => <NotificationsDrawer
 								open={this.state.notificationsOpen}
 								close={this.toggleNotificationDrawer}
 								notifications={this.state.notifications}
 								markNotificationsAsSeen={this.markNotificationsAsSeen}
-
-							/>
+								user={this.state.user}
+								{...props}
+							/>}/>
 						</div>}
 
 						<Switch > {/* with switch, the route will consider only the first match rather than cascading down!*/}
@@ -343,8 +345,7 @@ const NOTIFICATION_SUBSCRIPTION = gql`
 `
 
 export default (graphql(NOTIFICATION_SUBSCRIPTION, {
-	options: (state) => {
-		console.log(state)
+	options: () => {
 		return ({
 			variables: {
 				userId: parseInt(localStorage.getItem('userId')) || 0

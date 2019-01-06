@@ -46,6 +46,13 @@ class Notifications extends Component {
 					{notifications.map((x, i) => (
 						<ListItem button key={i}
 						          style={{borderBottom: "1px solid white", backgroundColor: cellBackground(x)}}
+						          onClick={() => {
+							          this.props.history.push({
+								          pathname: `/user_profile`,
+								          search: '',
+								          state: { id: parseInt(x.senderId)}
+							          })
+						          }}
 						>
 							<ListItemText
 								classes={{primary: this.props.classes.listItemText,
