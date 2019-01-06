@@ -27,7 +27,7 @@ class Notifications extends Component {
 
 	render() {
 		const {notifications} = this.props
-		const cellBackground = (x) => !!x.seen ? '#ECECEC' : '#effdff'
+		const cellBackground = (x) => !!x.seen ? '#ECECEC' : '#ffe4e8'
 		const text = (name) => ({
 			"match" : <div>You matched with <h4>{name}</h4></div>,
 			"like" : <div><h4>{name}</h4> liked you</div>,

@@ -157,7 +157,6 @@ class App extends Component {
 				)
 				.catch((err) => console.log(err))
 		}
-		console.log("here")
 		navigator.geolocation.getCurrentPosition((position) => {
 			const {latitude, longitude} = position.coords
 			geocoder.reverseGeocode(latitude, longitude, (err, data) => {
@@ -204,7 +203,7 @@ class App extends Component {
 			if (resData.errors) {
 				throw new Error(resData.errors[0].message)
 			}
-			console.log(resData.data.markNotificationsAsSeen)
+			console.log(resData.data.markNotificationsAsSeen.content)
 		}
 		fetchGraphql(query, cb, this.state.token)
 	}
