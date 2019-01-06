@@ -2,7 +2,10 @@ import React, {Component} from 'react';
 import ChatList from "./ChatList/ChatList";
 import styles from './Chat.module.css'
 import ChatBody from "./ChatBody/ChatBody";
-import {sendMessageMutation} from "../../graphql/mutations";
+import {
+	markMessagesAsSeenMutation, markNotificationsAsSeenMutation,
+	sendMessageMutation
+} from "../../graphql/mutations";
 import {fetchGraphql} from "../../utils/graphql";
 
 class Chat extends Component {
@@ -38,8 +41,9 @@ class Chat extends Component {
 		fetchGraphql(query, cb, this.props.token)
 	}
 
-	onChatSelect = (name) => {
+	onChatSelect = (name, id) => {
 		this.setState({currentConversation: name})
+		setTimeout(() => {this.markNotificationsAsSeen(id)}, 200)
 	}
 
 	componentWillReceiveProps({conversations}) {
@@ -60,20 +64,36 @@ class Chat extends Component {
 		})
 	}
 
+	markNotificationsAsSeen = (convId) => {
+		const {conversations} = this.state
+		const rightConv = conversations.find(x => x.id === convId)
+		const newMessages = rightConv.messages.map(x => ({...x, seen: true}))
+		const newConversations = conversations.map(x => x.id === convId ? {...x, messages: newMessages} : x)
+		this.setState({conversations: newConversations})
+		const query = markMessagesAsSeenMutation
+		const cb = resData => {
+			if (resData.errors) {
+				throw new Error(resData.errors[0].message)
+			}
+			console.log(resData.data.markMessagesAsSeen.content)
+		}
+		fetchGraphql(query, cb, this.props.token)
+	}
+
 	render() {
 		const {conversations} = this.state
 		const currentConversationWithContent = conversations && conversations.find(x => x.name === this.state.currentConversation)
 		return (
 			<div className={styles.component}>
 				<ChatList
-					classNAme={styles.list}
+					userId={parseInt(localStorage.getItem('userId'))}
 					conversations={conversations}
 					onChatSelect={this.onChatSelect}
 					currentConversation={this.state.currentConversation}
 					redirectToProfile={this.redirectToProfile}
 				/>
 				<ChatBody
-					className={styles.listBody}
+					userId={parseInt(localStorage.getItem('userId'))}
 					sendReply={this.sendReply}
 					currentConversation={currentConversationWithContent}
 				/>

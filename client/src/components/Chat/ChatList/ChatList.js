@@ -13,8 +13,8 @@ class ChatList extends Component {
 
 
 	render() {
-		const {conversations, currentConversation, redirectToProfile} = this.props
-		const countUnread = (messages) => filter(messages, x => !x.seen).length;
+		const {conversations, currentConversation, redirectToProfile, userId} = this.props
+		const countUnread = (messages) => filter(messages, x => !x.seen && x.receiverId === userId).length;
 		const style = (x) => ({
 			borderBottom: "1px solid white",
 			backgroundColor: x.name === currentConversation ? '#f2dff5' : '#f1f1f5',
@@ -28,7 +28,7 @@ class ChatList extends Component {
 						button
 						key={i}
 						style={style(x)}
-						onClick={this.props.onChatSelect.bind(this, x.name)}
+						onClick={this.props.onChatSelect.bind(this, x.name, x.id)}
 					>
 						<ListItemAvatar
 							className={styles.avatar}

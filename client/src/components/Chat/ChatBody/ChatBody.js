@@ -6,11 +6,12 @@ import Reply from "./Reply/Reply";
 class ChatBody extends Component {
 
 	render() {
-		const { currentConversation, sendReply } = this.props
+		const { currentConversation, sendReply, userId } = this.props
 		return (
 			<div className={styles.component}>
 				<Messages
 					messages={currentConversation && currentConversation.messages}
+					userId={userId}
 				/>
 				<Reply
 					receiverId={currentConversation && currentConversation.id}

@@ -47,6 +47,13 @@ export const markNotificationsAsSeenMutation = {
 				} }	`
 }
 
+export const markMessagesAsSeenMutation = {
+	query: `mutation {
+				markMessagesAsSeen {
+				content
+				} }	`
+}
+
 export const insertBioInfoMutation = (job, bio, interests) => ({
 	query: ` mutation {
 				 insertBioInfo(info: {

@@ -25,7 +25,7 @@ class Messages extends Component {
 					<Bubble
 						key={i}
 						content={x.content}
-						fromYou={x.senderId === parseInt(localStorage.getItem('userId'))}
+						fromYou={x.senderId === this.props.userId}
 					/>
 				))}
 				<div style={{ float:"left", clear: "both" }}
