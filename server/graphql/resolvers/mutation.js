@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const db = require('../../util/db')
 const bcrypt = require('bcryptjs')
-const { validate } = require('./../../util/validator')
+const {validate} = require('./../../util/validator')
 const emailUtil = require('../../util/email')
 const CONST = require('../../../constants')
 const pubsub = require('./pubsub')
@@ -48,7 +48,7 @@ module.exports = {
 		return {email: userInput.email}
 	},
 
-	emailConfirmation: async function(_, {token}) {
+	emailConfirmation: async function (_, {token}) {
 		console.log("EMAIL CONFIRMATION")
 		let decodedToken;
 		try {
@@ -83,7 +83,7 @@ module.exports = {
 		// return { content: "Account confirmed successfully"}
 	},
 
-	passwordResetEmail: async function(_, {data}) {
+	passwordResetEmail: async function (_, {data}) {
 		const query = `SELECT id FROM users WHERE email = ?`
 		const [users] = await db.query(query, [data.email])
 		if (users.length <= 0) {
@@ -93,7 +93,7 @@ module.exports = {
 		return {content: "Reset password succesfully sent"}
 	},
 
-	resetPassword: async function(_, {token, password, confirmationPassword}) {
+	resetPassword: async function (_, {token, password, confirmationPassword}) {
 		console.log("EMAIL CONFIRMATION")
 		let decodedToken;
 		try {
@@ -136,7 +136,7 @@ module.exports = {
 		// return { content: "Account confirmed successfully"}
 	},
 
-	insertProfileInfo: async function(_, {info}, {req}) {
+	insertProfileInfo: async function (_, {info}, {req}) {
 		console.log("INSERT PROFILE INFO")
 		checkAuth(req)
 		if (!validate(info.firstName, "firstName") || !validate(info.lastName, "lastName")
@@ -152,7 +152,7 @@ module.exports = {
 		return {content: "UserProfile data updated successfully"}
 	},
 
-	insertBioInfo: async function(_, {info}, {req}) {
+	insertBioInfo: async function (_, {info}, {req}) {
 		console.log("INSERT BIO INFO")
 		checkAuth(req)
 		if (!validate(info.job, "job"), !validate(info.bio, "bio"), !validate(info.interests, "tags")) {
@@ -172,11 +172,11 @@ module.exports = {
 		const [ids] = await db.query(interestsIdQuery, info.interests)
 		console.log(ids)
 		const usersInterestsQuery = 'INSERT INTO users_interests (interest_id, user_id) values ?'
-		const [resUserInterests] = await db.query(usersInterestsQuery, [ids.map((x) => [ x.id, req.userId ])])
+		const [resUserInterests] = await db.query(usersInterestsQuery, [ids.map((x) => [x.id, req.userId])])
 		console.log(resUserInterests)
 		return {content: "Bio data updated successfully"}
 	},
-	markOnboarded: async function(_, x, {req}) {
+	markOnboarded: async function (_, x, {req}) {
 		console.log("MARK ONBOARDED")
 		checkAuth(req)
 		const query = `UPDATE users SET isOnboarded = ? WHERE email = ?`
@@ -184,7 +184,7 @@ module.exports = {
 		console.log(`User ${req.email} marked onboarded\n`, row)
 		return {content: "User successfully marked onboarded!"}
 	},
-	changePassword: async function(_, {info}, {req}) {
+	changePassword: async function (_, {info}, {req}) {
 		console.log("HERE")
 		if (!req.isAuth) {
 			return {content: "REQUEST UNAUTHORIZED"}
@@ -208,7 +208,7 @@ module.exports = {
 		await db.query('UPDATE users SET password = (?) WHERE email=?', [hashedPw, info.email])
 		return {content: "Password succesfully changed "}
 	},
-	insertPictureInfo: async function(_, {info}, {req}) {
+	insertPictureInfo: async function (_, {info}, {req}) {
 		console.log("INSERT PICTURE INFO")
 		checkAuth(req)
 		if (!validate(info.profilePic, "pic")) {
@@ -230,13 +230,13 @@ module.exports = {
 			throw new Error("Account already confirmed")
 		}
 		await emailUtil.sendEmail(CONST.EMAIL_CONFIRMATION_SECRET, email, 'confirmation')
-		return { content: "Email re-sent successfully"}
+		return {content: "Email re-sent successfully"}
 	},
 	toggleLike: async function (_, {info}, {req}) {
 		console.log("TOGGLE LIKE")
 		checkAuth(req)
 		const likeExist = 'SELECT * FROM likes WHERE (sender_id = ?) AND (receiver_id = ?)'
-		const [senderLikesReceiver]  = await db.query(likeExist, [req.userId, info.receiverId])
+		const [senderLikesReceiver] = await db.query(likeExist, [req.userId, info.receiverId])
 		const [receiverLikesSender] = await db.query(likeExist, [info.receiverId, req.userId])
 		const likeResult = typeOflike(senderLikesReceiver.length, receiverLikesSender.length, info.liked)
 
@@ -244,17 +244,39 @@ module.exports = {
 			? 'INSERT INTO likes (sender_id, receiver_id) VALUES (?, ?)'
 			: 'DELETE FROM likes WHERE sender_id = ? AND receiver_id = ?'
 
-		if (likeResult != "unlike") {
-			const notificationQuery =  'INSERT INTO notifications (user_id, from_id, type, open) VALUES (?, ?, ?, ?)'
+		if (likeResult !== "unlike") {
+			const notificationQuery = 'INSERT INTO notifications (user_id, from_id, type, open) VALUES (?, ?, ?, ?)'
 			await db.query(notificationQuery, [info.receiverId, req.userId, likeResult, 0, 'current_timestamp()'])
-
 			const [r] = await db.query('SELECT first_name, last_name FROM users WHERE id = ?', [req.userId])
 			const name = r[0].first_name + " " + r[0].last_name
-			pubsub.publish('likeToggled', { likeToggled: { value: info.liked, receiver: info.receiverId, sender: req.userId }})
-			pubsub.publish('notification', { trackNotification: { type: likeResult, receiver: info.receiverId, senderId: req.userId, seen: false, senderName: name }})
+			pubsub.publish('likeToggled', {likeToggled: {value: info.liked, receiver: info.receiverId, sender: req.userId}})
+			pubsub.publish('notification', {
+				trackNotification: {
+					type: likeResult,
+					receiver: info.receiverId,
+					senderId: req.userId,
+					seen: false,
+					senderName: name
+				}
+			})
+			if (likeResult === "match") {
+				await db.query(notificationQuery, [req.userId, info.receiverId, likeResult, 0, 'current_timestamp()'])
+				const [r] = await db.query('SELECT first_name, last_name FROM users WHERE id = ?', [info.receiverId])
+				const name = r[0].first_name + " " + r[0].last_name
+				pubsub.publish('notification', {
+					trackNotification: {
+						type: likeResult,
+						receiver: req.userId,
+						senderId: info.receiverId,
+						seen: false,
+						senderName: name
+					}
+				})
+			}
+
 		}
 		await db.query(query, [req.userId, info.receiverId])
-		return { content: "Liked updated successfully"}
+		return {content: "Liked updated successfully"}
 	},
 	toggleBlock: async function (_, {info}, {req}) {
 		console.log("TOGGLE BLOCK")
@@ -265,14 +287,14 @@ module.exports = {
 			: 'DELETE FROM blocks WHERE sender_id = ? AND receiver_id = ?'
 
 		await db.query(query, [req.userId, info.receiverId])
-		return { content: "User blocked successfully"}
+		return {content: "User blocked successfully"}
 	},
 	saveLocation: async function (_, {lat, long, address}, {req}) {
 		console.log("SAVE LOCATION")
 		checkAuth(req)
 		const query = 'UPDATE users SET latitude = ?, longitude = ?, address = ? WHERE id = ?'
 		await db.query(query, [lat, long, address, req.userId])
-		return ({ content: "location updated successfully" })
+		return ({content: "location updated successfully"})
 	},
 
 	editUser: async function (_, {userInput}, {req}) {
@@ -286,7 +308,7 @@ module.exports = {
 		const newInterests = userInput.interests.filter(element => !existingInterests.includes(element))
 		const interestQuery = `INSERT INTO interests (title) values ?`
 		const interests = newInterests.map(x => [x])
-		if (interests.length > 0) { 
+		if (interests.length > 0) {
 			const [resInterests] = await db.query(interestQuery, [interests])
 			console.log("resinter ", resInterests)
 		}
@@ -295,20 +317,20 @@ module.exports = {
 		const deleteInterest = 'DELETE FROM users_interests WHERE user_id = ?'
 		await db.query(deleteInterest, req.userId)
 		const usersInterestsQuery = 'INSERT INTO users_interests (interest_id, user_id) values ?'
-		await db.query(usersInterestsQuery, [ids.map((x) => [ x.id, req.userId ])])
+		await db.query(usersInterestsQuery, [ids.map((x) => [x.id, req.userId])])
 		return {content: "User modified"}
 	},
 
-	profileVisited: async function(_, {receiverId}, {req}) {
+	profileVisited: async function (_, {receiverId}, {req}) {
 		checkAuth(req)
 		//Insert notification in db 
 
 		// pubsub.publish('profileVisited', { trackProfileVisited : { sender: req.userId, receiverId: receiverId, }} )
-		pubsub.publish('notification', { trackNotification: { type: "visited", receiver: receiverId, sender: req.userId }})
+		pubsub.publish('notification', {trackNotification: {type: "visited", receiver: receiverId, sender: req.userId}})
 		return {content: "User visited"}
 	},
 
-	markNotificationsAsSeen: async function(_, x, {req}) {
+	markNotificationsAsSeen: async function (_, x, {req}) {
 		console.log("MARK NOTIFICATIONS AS SEEN FOR USER ", req.userId)
 		checkAuth(req)
 		query = `UPDATE notifications SET open = 1 WHERE user_id = ? AND open = 0`
