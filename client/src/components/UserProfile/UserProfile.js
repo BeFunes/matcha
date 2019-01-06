@@ -16,7 +16,6 @@ import {fetchGraphql} from "../../utils/graphql";
 import {toggleBlockMutation, toggleLikeMutation} from "../../graphql/mutations";
 import {EMPTYAVATAR, HOST} from "../../constants";
 import Button from '@material-ui/core/Button';
-import SVGIcon from '@material-ui/core/SvgIcon';
 
 // const getRandomBackground = () => {
 // 	const n = Math.floor(Math.random() * 999) + 1

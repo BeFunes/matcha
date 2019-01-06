@@ -249,7 +249,6 @@ module.exports = {
 			await db.query(notificationQuery, [info.receiverId, req.userId, likeResult, 0, 'current_timestamp()'])
 
 			const [r] = await db.query('SELECT first_name, last_name FROM users WHERE id = ?', [req.userId])
-			console.log(r[0])
 			const name = r[0].first_name + " " + r[0].last_name
 			pubsub.publish('likeToggled', { likeToggled: { value: info.liked, receiver: info.receiverId, sender: req.userId }})
 			pubsub.publish('notification', { trackNotification: { type: likeResult, receiver: info.receiverId, senderId: req.userId, seen: false, senderName: name }})

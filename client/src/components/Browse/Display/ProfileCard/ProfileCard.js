@@ -10,8 +10,6 @@ import Block from '@material-ui/icons/Block'
 import {likeInfoQuery} from "../../../../graphql/queries";
 import {fetchGraphql} from "../../../../utils/graphql";
 import {toggleBlockMutation, toggleLikeMutation} from "../../../../graphql/mutations";
-import { graphql }  from 'react-apollo'
-import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
@@ -44,7 +42,6 @@ class ProfileCard extends Component {
 			if (resData.errors) {
 				throw new Error(resData.errors[0].message)
 			}
-			// console.log(resData.data.toggleLike.content)
 			if (this._isMounted) {
 				this.setState({likeTo: !this.state.likeTo})
 			}
@@ -57,10 +54,6 @@ class ProfileCard extends Component {
 		const cb = resData => {
 			if (resData.errors) {
 				throw new Error(resData.errors[0].message)
-			}
-			// console.log(resData.data.likeInfo)
-			if (this.props.profile.id === 4) {
-				console.log(resData.data.likeInfo)
 			}
 			const {likeTo, likeFrom} = resData.data.likeInfo
 			if (this._isMounted) {

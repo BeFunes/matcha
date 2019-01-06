@@ -5,7 +5,6 @@ import ListItem from "@material-ui/core/es/ListItem/ListItem";
 import ListItemText from "@material-ui/core/es/ListItemText/ListItemText";
 import List from "@material-ui/core/es/List/List";
 import withStyles from "@material-ui/core/es/styles/withStyles";
-import Divider from "@material-ui/core/es/Divider/Divider";
 
 const listTextStyle = () => ({
 	listItemText:{
@@ -27,7 +26,7 @@ class Notifications extends Component {
 	}
 
 	render() {
-		const {close, notifications} = this.props
+		const {notifications} = this.props
 		const cellBackground = (x) => !!x.seen ? '#ECECEC' : '#effdff'
 		const text = (name) => ({
 			"match" : <div>You matched with <h4>{name}</h4></div>,
@@ -40,16 +39,13 @@ class Notifications extends Component {
 				<div className={styles.header}>
 					<div className={styles.closeIcon} onClick={this.closeAndMarkAllAsSeen}>
 							<CloseIcon style={{fontSize: 30}}/>
-						{/*</
-						IconButton>*/}
 					</div>
 					Notifications
 				</div >
-				{/*<Divider/>*/}
 				{notifications && <List className={styles.list} >
 					{notifications.map((x, i) => (
-						<ListItem button key={i} style={{borderBottom: "1px solid white", backgroundColor: cellBackground(x)}}
-
+						<ListItem button key={i}
+						          style={{borderBottom: "1px solid white", backgroundColor: cellBackground(x)}}
 						>
 							<ListItemText
 								classes={{primary: this.props.classes.listItemText,

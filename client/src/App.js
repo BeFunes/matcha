@@ -57,9 +57,15 @@ class App extends Component {
 
 	componentWillReceiveProps({data}) {
 		if (!!data && !!data.trackNotification) {
+			const { type, senderName } = data.trackNotification
 			const newNotifications = [data.trackNotification, ...this.state.notifications]
 			this.setState({newNotifications: this.state.newNotifications + 1, notifications: newNotifications})
-			toast(data.trackNotification.type + "FROM " + data.trackNotification.senderId)
+			const text = (name) => ({
+				"match" : `You matched with ${name}`,
+				"like" : `${name} liked you`,
+				"unmatch" : `You unmatched with ${name}`
+			})
+			toast(text(senderName)[type])
 		}
 	}
 

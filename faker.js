@@ -155,7 +155,7 @@ const createNotificationTable = `CREATE TABLE notifications (
 
 const getRandomUser = () => {
 	const sex = ['M', 'F']
-	const orient = ['straight', 'straight', 'straight', 'gay', 'bisexual']
+	const orient = ['straight', 'straight', 'straight', 'straight', 'straight', 'gay', 'bisexual']
 	return { gender: sex[Math.floor(Math.random() * sex.length)], orientation: orient[Math.floor(Math.random() * orient.length)] }
 }
 
