@@ -10,15 +10,20 @@ class ChatList extends Component {
 
 
 	render() {
-		const {conversations} = this.props
+		const {conversations, currentConversation } = this.props
 		const countUnread = (messages) => filter(messages, x => !x.seen).length;
+		const style = (x) => ({
+			borderBottom: "1px solid white",
+			backgroundColor: x.name === currentConversation ? '#f2dff5' : '#f1f1f5'
+		})
+
 		return (
 			<List className={styles.component}>
 				{conversations && conversations.map((x, i) => (
 					<ListItem
 						button
 						key={i}
-						style={{borderBottom: "1px solid white", backgroundColor: '#f1f1f5'}}
+						style={style(x)}
 						onClick={this.props.onChatSelect.bind(this, x.name)}
 					>
 						<ListItemText

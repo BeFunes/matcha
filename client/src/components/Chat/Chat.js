@@ -55,18 +55,19 @@ class Chat extends Component {
 
 	render() {
 		const {conversations} = this.state
-		const currentConversation = conversations && conversations.find(x => x.name === this.state.currentConversation)
+		const currentConversationWithContent = conversations && conversations.find(x => x.name === this.state.currentConversation)
 		return (
 			<div className={styles.component}>
 				<ChatList
 					classNAme={styles.list}
 					conversations={conversations}
 					onChatSelect={this.onChatSelect}
+					currentConversation={this.state.currentConversation}
 				/>
 				<ChatBody
 					className={styles.listBody}
 					sendReply={this.sendReply}
-					currentConversation={currentConversation && currentConversation}
+					currentConversation={currentConversationWithContent}
 				/>
 			</div>
 		)
