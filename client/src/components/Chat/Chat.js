@@ -3,7 +3,7 @@ import ChatList from "./ChatList/ChatList";
 import styles from './Chat.module.css'
 import ChatBody from "./ChatBody/ChatBody";
 import {
-	markMessagesAsSeenMutation, markNotificationsAsSeenMutation,
+	markMessagesAsSeenMutation,
 	sendMessageMutation
 } from "../../graphql/mutations";
 import {fetchGraphql} from "../../utils/graphql";
@@ -43,7 +43,7 @@ class Chat extends Component {
 
 	onChatSelect = (name, id) => {
 		this.setState({currentConversation: name})
-		setTimeout(() => {this.markNotificationsAsSeen(id)}, 200)
+		setTimeout(() => {this.markMessagesAsSeen(id)}, 200)
 	}
 
 	componentWillReceiveProps({conversations}) {
@@ -64,9 +64,10 @@ class Chat extends Component {
 		})
 	}
 
-	markNotificationsAsSeen = (convId) => {
+	markMessagesAsSeen = (convId) => {
 		const {conversations} = this.state
 		const rightConv = conversations.find(x => x.id === convId)
+		if (typeof rightConv.messages.find(x => !x.seen) === 'undefined' ) { return }
 		const newMessages = rightConv.messages.map(x => ({...x, seen: true}))
 		const newConversations = conversations.map(x => x.id === convId ? {...x, messages: newMessages} : x)
 		this.setState({conversations: newConversations})

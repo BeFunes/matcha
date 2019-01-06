@@ -339,7 +339,7 @@ module.exports = {
 	},
 
 	markMessagesAsSeen: async function (_, x, {req}) {
-		console.log("MARK MESSAGES AS SEEN FOR USER ", req.userId)
+		console.log("MARK MESSAGES AS SEEN")
 		checkAuth(req)
 		query = `UPDATE messages SET seen = 1 WHERE receiver_id = ? AND seen = 0`
 		await db.query(query, [req.userId])
