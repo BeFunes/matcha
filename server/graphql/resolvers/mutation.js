@@ -310,7 +310,6 @@ module.exports = {
 		const interests = newInterests.map(x => [x])
 		if (interests.length > 0) {
 			const [resInterests] = await db.query(interestQuery, [interests])
-			console.log("resinter ", resInterests)
 		}
 		const interestsIdQuery = `SELECT id FROM interests WHERE title IN (${userInput.interests.map(() => "?").join()})`
 		const [ids] = await db.query(interestsIdQuery, userInput.interests)
@@ -322,11 +321,22 @@ module.exports = {
 	},
 
 	profileVisited: async function (_, {receiverId}, {req}) {
+		console.log("PROFILE VISITED")
 		checkAuth(req)
-		//Insert notification in db 
-
+		//Insert notification in db
+		const notificationQuery = 'INSERT INTO notifications (user_id, from_id, type) VALUES (?, ?, ?)'
+		await db.query(notificationQuery, [req.userId, receiverId, "visited"])
+		const [sender] = await db.query(`SELECT CONCAT(first_name, ' ', last_name) name FROM users WHERE id = ?`, [req.userId])
 		// pubsub.publish('profileVisited', { trackProfileVisited : { sender: req.userId, receiverId: receiverId, }} )
-		pubsub.publish('notification', {trackNotification: {type: "visited", receiver: receiverId, sender: req.userId}})
+		pubsub.publish('notification', {
+			trackNotification: {
+				type: "visited",
+				receiver: receiverId,
+				senderId: req.userId,
+				seen: false,
+				senderName: sender[0].name
+			}
+		})
 		return {content: "User visited"}
 	},
 
@@ -346,7 +356,7 @@ module.exports = {
 		return {content: "messages marked as seen"}
 	},
 
-	sendMessage: async function (_, { content, receiverId}, {req}) {
+	sendMessage: async function (_, {content, receiverId}, {req}) {
 		console.log("SEND MESSAGE")
 		checkAuth(req)
 		const convId = req.userId < receiverId ? `${req.userId}:${receiverId}` : `${receiverId}:${req.userId}`

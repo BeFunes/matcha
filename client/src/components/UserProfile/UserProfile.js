@@ -13,7 +13,7 @@ import ChatBubbleFull from '@material-ui/icons/ChatBubbleOutline'
 import Block from '@material-ui/icons/Block'
 import {getUserDataQuery, relationsDataQuery} from "../../graphql/queries";
 import {fetchGraphql} from "../../utils/graphql";
-import {toggleBlockMutation, toggleLikeMutation} from "../../graphql/mutations";
+import {markProfileVisitedMutation, toggleBlockMutation, toggleLikeMutation} from "../../graphql/mutations";
 import {EMPTYAVATAR, HOST} from "../../constants";
 import Button from '@material-ui/core/Button';
 
@@ -44,8 +44,11 @@ class UserProfile extends Component {
 		const id = this.props.location.state.id
 		const isMe = this.props.location.state.me
 		this.setState({token: token, isMe: isMe}, () => {
-			!isMe && this.getUserData(token, id)
-			!isMe && this.getRelationsData(token, id)
+			if (!isMe) {
+				this.getUserData(token, id)
+				this.getRelationsData(token, id)
+				this.markProfileVisited(id, token)
+			}
 		})
 
 	}
@@ -59,6 +62,18 @@ class UserProfile extends Component {
 				this.getUserData(this.state.token, id)
 				this.getRelationsData(this.state.token, id)
 		}
+	}
+
+	markProfileVisited(id, token) {
+		console.log("MARK PROFILE VISITED")
+		const query = markProfileVisitedMutation(id)
+		const cb = resData => {
+			if (resData.errors) {
+				throw new Error("Profile NOT marker as visited")
+			}
+		}
+		fetchGraphql(query, cb, token)
+
 	}
 
 	getUserData = (token, id) => {

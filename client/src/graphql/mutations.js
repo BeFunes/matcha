@@ -96,6 +96,15 @@ export const toggleBlockMutation = (id, bool) => ({
 			}`
 })
 
+export const markProfileVisitedMutation = (id) => ({
+	query: ` mutation {
+				profileVisited (receiverId: ${id}) {
+					content
+				}
+			}`
+})
+
+
 export const passwordResetEmailMutation = (email) => ({
 	query: `mutation {
                 passwordResetEmail(data: {email: ${email}, subject: "password"}) {

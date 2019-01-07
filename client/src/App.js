@@ -65,17 +65,17 @@ class App extends Component {
 	componentWillReceiveProps({data}) {
 		const {trackNotification, newMessage} = data
 		if (!!data && !!trackNotification) {
-			console.log("in here")
 			const {type, senderName} = trackNotification
 			const newNotifications = [trackNotification, ...this.state.notifications]
 			this.setState({newNotifications: this.state.newNotifications + 1, notifications: newNotifications})
 			const text = (name) => ({
 				"match": `You matched with ${name}`,
 				"like": `${name} liked you`,
-				"unmatch": `You unmatched with ${name}`
+				"unmatch": `You unmatched with ${name}`,
+				"visited": `${name} visited your profile`
 			})
 			toast.success(text(senderName)[type], {
-				autoClose: 1000
+				autoClose: 1300
 			})
 		}
 		else if (data && !!newMessage) {
@@ -450,15 +450,15 @@ export default compose(
 				},
 			})
 		}
-	// }),
-	// graphql(CHAT_SUBSCRIPTION, {
-	// 	options: () => {
-	// 		return ({
-	// 			variables: {
-	// 				userId: parseInt(localStorage.getItem('userId')) || 0
-	// 			},
-	// 		})
-	// 	}
+	}),
+	graphql(CHAT_SUBSCRIPTION, {
+		options: () => {
+			return ({
+				variables: {
+					userId: parseInt(localStorage.getItem('userId')) || 0
+				},
+			})
+		}
 	}))(App)
 
 
