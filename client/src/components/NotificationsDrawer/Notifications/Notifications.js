@@ -31,7 +31,8 @@ class Notifications extends Component {
 		const text = (name) => ({
 			"match" : <div>You matched with <h4>{name}</h4></div>,
 			"like" : <div><h4>{name}</h4> liked you</div>,
-			"unmatch" : <div>You unmatched with <h4>{name}</h4></div>
+			"unmatch" : <div>You unmatched with <h4>{name}</h4></div>,
+			"visited": <div><h4>{name}</h4> visited your profile</div>
 		})
 
 		return (
