@@ -26,7 +26,7 @@ import {ToastContainer} from 'react-toastify';
 import {graphql} from "react-apollo/index";
 import gql from "graphql-tag";
 import {toast} from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import './utils/ReactTostify.css'
 import NotificationsDrawer from "./components/NotificationsDrawer/NotificationsDrawer";
 import _ from 'lodash'
 import {compose} from "react-apollo";
@@ -74,8 +74,9 @@ class App extends Component {
 				"like": `${name} liked you`,
 				"unmatch": `You unmatched with ${name}`
 			})
-			console.log("TOAST")
-			toast(text(senderName)[type])
+			toast.success(text(senderName)[type], {
+				autoClose: 1000
+			})
 		}
 		else if (data && !!newMessage) {
 			const rightConv = this.state.conversations.find(x => x.id === newMessage.senderId)
@@ -449,15 +450,15 @@ export default compose(
 				},
 			})
 		}
-	}),
-	graphql(CHAT_SUBSCRIPTION, {
-		options: () => {
-			return ({
-				variables: {
-					userId: parseInt(localStorage.getItem('userId')) || 0
-				},
-			})
-		}
+	// }),
+	// graphql(CHAT_SUBSCRIPTION, {
+	// 	options: () => {
+	// 		return ({
+	// 			variables: {
+	// 				userId: parseInt(localStorage.getItem('userId')) || 0
+	// 			},
+	// 		})
+	// 	}
 	}))(App)
 
 
