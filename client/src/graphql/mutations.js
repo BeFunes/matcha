@@ -47,12 +47,12 @@ export const markNotificationsAsSeenMutation = {
 				} }	`
 }
 
-export const markMessagesAsSeenMutation = {
+export const markMessagesAsSeenMutation = (senderId) => ({
 	query: `mutation {
-				markMessagesAsSeen {
+				markMessagesAsSeen(senderId: ${senderId}) {
 				content
 				} }	`
-}
+})
 
 export const insertBioInfoMutation = (job, bio, interests) => ({
 	query: ` mutation {

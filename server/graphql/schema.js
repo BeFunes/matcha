@@ -195,7 +195,7 @@ const typeDefs = gql`
         profileVisited(receiverId: Int!): Message
         saveLocation(lat: Float!, long: Float!, address: String) : Message
         markNotificationsAsSeen : Message
-        markMessagesAsSeen : Message
+        markMessagesAsSeen(senderId: Int!) : Message
         sendMessage(content: String!, receiverId: Int!) : Message
     }
 

@@ -14,6 +14,7 @@ class Chat extends Component {
 	}
 
 	onChatSelect = (name, id) => {
+		console.log("on chat select")
 		this.setState({currentConversation: name})
 		setTimeout(() => {this.props.markMessagesAsSeen(id)}, 300)
 	}

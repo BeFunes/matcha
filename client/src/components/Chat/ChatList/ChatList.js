@@ -11,9 +11,13 @@ import ListItemAvatar from "@material-ui/core/es/ListItemAvatar/ListItemAvatar";
 class ChatList extends Component {
 
 	componentWillReceiveProps({conversations}) {
-		const res = (conversations && conversations.find(x => x.name === this.props.currentConversation && !!x.messages.find(x => !x.seen)))
-		if (!!res)
-			setTimeout(() => {this.props.markMessagesAsSeen(res.id)}, 1000)
+		const res = (conversations && conversations.find(x => x.name === this.props.currentConversation &&
+			!!x.messages.find(x => !x.seen && x.receiverId === this.props.userId)))
+		if (!!res) {
+			setTimeout(() => {
+				this.props.markMessagesAsSeen(res.id)
+			}, 1000)
+		}
 	}
 
 	render() {

@@ -63,7 +63,7 @@ class App extends Component {
 			this.logoutHandler()
 			return
 		}
-		const userId = localStorage.getItem('userId')
+		const userId = parseInt(localStorage.getItem('userId'))
 		const remainingTime = new Date(expiryDate).getTime() - new Date().getTime()
 		this.setState({isAuth: true, token: token, userId: userId})
 		this.setAutoLogout(remainingTime)
@@ -106,7 +106,7 @@ class App extends Component {
 			const newMessage = {
 				content: content.substring(1, content.length-1),
 				receiverId: receiverId,
-				senderId: parseInt(this.state.userId),
+				senderId: this.state.userId,
 				seen: true,
 				timeStamp: new Date(),
 				fromReply: true
@@ -149,7 +149,7 @@ class App extends Component {
 				id: x[0].otherId,
 				messages: [...x]
 			}))
-			this.setState({conversations: chats})
+			this.setState({conversations: chats, unreadMessages: !!chats.find(x => x.messages.find(x => !x.seen && x.receiverId === this.state.userId))})
 		}
 		fetchGraphql(query, cb, token)
 	}
@@ -345,8 +345,8 @@ class App extends Component {
 		if (typeof rightConv.messages.find(x => !x.seen) === 'undefined' ) { return }
 		const newMessages = rightConv.messages.map(x => ({...x, seen: true}))
 		const newConversations = conversations.map(x => x.id === convId ? {...x, messages: newMessages} : x)
-		this.setState({conversations: newConversations, unreadMessages: !newConversations.map(x => !x.messages.map(x => !x.seen))})
-		const query = markMessagesAsSeenMutation
+		this.setState({conversations: newConversations, unreadMessages: !!newConversations.find(x => x.messages.find(x => !x.seen && x.receiverId === this.state.userId))})
+		const query = markMessagesAsSeenMutation(convId)
 		const cb = resData => {
 			if (resData.errors) {
 				throw new Error(resData.errors[0].message)
@@ -357,6 +357,9 @@ class App extends Component {
 	}
 
 	render() {
+		if (this.state.conversations) {
+			console.log("***********", this.state.conversations)
+		}
 		const hasAccess = this.state.isAuth && this.state.isOnboarded
 		const {geolocationDialogOpen, suggestedLocation} = this.state
 		const routeZero = () => {

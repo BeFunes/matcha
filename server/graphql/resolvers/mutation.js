@@ -348,11 +348,11 @@ module.exports = {
 		return {content: "notifications marked as seen"}
 	},
 
-	markMessagesAsSeen: async function (_, x, {req}) {
+	markMessagesAsSeen: async function (_, {senderId}, {req}) {
 		console.log("MARK MESSAGES AS SEEN")
 		checkAuth(req)
-		query = `UPDATE messages SET seen = 1 WHERE receiver_id = ? AND seen = 0`
-		await db.query(query, [req.userId])
+		query = `UPDATE messages SET seen = 1 WHERE receiver_id = ? AND seen = 0 AND sender_id = ?`
+		await db.query(query, [req.userId, senderId])
 		return {content: "messages marked as seen"}
 	},
 
