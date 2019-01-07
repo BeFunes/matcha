@@ -22,7 +22,7 @@ class Toolbar extends Component {
 
 	componentWillReceiveProps({newNotifications}) {
 		if (newNotifications !== 0) {
-			this.setState({newNotifications: this.state.newNotifications + 1})
+			this.setState({newNotifications: newNotifications})
 		}
 	}
 

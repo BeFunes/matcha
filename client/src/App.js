@@ -65,6 +65,7 @@ class App extends Component {
 	componentWillReceiveProps({data}) {
 		const {trackNotification, newMessage} = data
 		if (!!data && !!trackNotification) {
+			console.log("in here")
 			const {type, senderName} = trackNotification
 			const newNotifications = [trackNotification, ...this.state.notifications]
 			this.setState({newNotifications: this.state.newNotifications + 1, notifications: newNotifications})
@@ -73,6 +74,7 @@ class App extends Component {
 				"like": `${name} liked you`,
 				"unmatch": `You unmatched with ${name}`
 			})
+			console.log("TOAST")
 			toast(text(senderName)[type])
 		}
 		else if (data && !!newMessage) {
@@ -455,6 +457,8 @@ export default compose(
 			})
 		}
 	}))(App)
+
+
 
 
 /// direct components that are accessed through routing have access to

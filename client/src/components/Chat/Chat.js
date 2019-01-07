@@ -2,11 +2,6 @@ import React, {Component} from 'react';
 import ChatList from "./ChatList/ChatList";
 import styles from './Chat.module.css'
 import ChatBody from "./ChatBody/ChatBody";
-import {
-	markMessagesAsSeenMutation,
-	sendMessageMutation
-} from "../../graphql/mutations";
-import {fetchGraphql} from "../../utils/graphql";
 
 class Chat extends Component {
 

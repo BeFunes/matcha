@@ -6,7 +6,6 @@ import styles from './ChatList.module.css'
 import ListItemSecondaryAction from "@material-ui/core/es/ListItemSecondaryAction/ListItemSecondaryAction";
 import filter from 'lodash/filter'
 import Avatar from "@material-ui/core/es/Avatar/Avatar";
-import UserIcon from "@material-ui/icons/AccountCircle"
 import ListItemAvatar from "@material-ui/core/es/ListItemAvatar/ListItemAvatar";
 
 class ChatList extends Component {
