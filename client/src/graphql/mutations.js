@@ -150,3 +150,11 @@ export const sendMessageMutation = (content, receiverId) => ({
 		}
 	}`
 })
+
+export const reportUser = (userId) => ({
+	query: `mutation {
+		reportUser(userId: ${userId}) {
+			content
+		}
+	}`
+})

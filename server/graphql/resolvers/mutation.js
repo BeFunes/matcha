@@ -375,5 +375,19 @@ module.exports = {
 		}
 		pubsub.publish('newMessage', {newMessage: message})
 		return {content: "message added successfully"}
-	}
+	},
+
+	reportUser: async function (_, {userId}, {req}) {
+		console.log("Report USer")
+		checkAuth(req)
+		const query = 'SELECT * FROM reports WHERE (sender_id = ?) AND (receiver_id = ?)'
+		const [reportExist] =  await db.query(query, [req.userId, userId])
+		if (reportExist.length > 0) {
+			return { content: "Already reported" }
+		}
+		reportQuery = "INSERT INTO reports (sender_id, receiver_id) VALUES (?,?)"
+
+		await db.query(reportQuery, [req.userId, userId])
+		return {content: "report succesful"}
+	},
 }

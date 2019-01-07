@@ -128,6 +128,11 @@ const createBlocksTable = `CREATE TABLE blocks (
 		receiver_id int(11) unsigned NOT NULL REFERENCES users(id)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`
 
+const createReportsTable = `CREATE TABLE reports (
+			sender_id int(11) unsigned NOT NULL REFERENCES users(id),
+			receiver_id int(11) unsigned NOT NULL REFERENCES users(id)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`
+
 const createChatsTable = `CREATE TABLE messages (
 		conversation_id varchar(10) NOT NULL,
 		sender_id int(11) unsigned NOT NULL REFERENCES users(id),
@@ -187,13 +192,19 @@ db.connect()
 		return db.query("DROP TABLE IF EXISTS messages")
 	})
 	.then(() => {
-		console.log("Table 'notifications' deleted")
+		console.log("Table 'messages' deleted")
 		return db.query("DROP TABLE IF EXISTS notifications")
 	})
 	.then(() => {
-		console.log("Table 'messages' deleted")
+		console.log("Table 'notifications' deleted")
+		return db.query("DROP TABLE IF EXISTS reports")
+	})
+	.then(() => {
+		console.log("Table 'reports' deleted")
 		return db.query(createUsersTable)
 	})
+	
+	
 	.then(async function () {
 		console.log("Table 'users' created");
 		for (let i = 0; i < 300; i++) {
@@ -227,6 +238,10 @@ db.connect()
 	.then(async function () {
 		console.log("Notification table created")
 		await db.query(createNotificationTable)
+	})
+	.then(async function () {
+		console.log("Report table created")
+		await db.query(createReportsTable)
 	})
 	.then(async function () {
 		console.log("Table 'likes' created")

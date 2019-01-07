@@ -197,6 +197,7 @@ const typeDefs = gql`
         markNotificationsAsSeen : Message
         markMessagesAsSeen(senderId: Int!) : Message
         sendMessage(content: String!, receiverId: Int!) : Message
+        reportUser(userId: Int!): Message
     }
 
     schema {
