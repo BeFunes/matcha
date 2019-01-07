@@ -13,31 +13,10 @@ class Chat extends Component {
 	state = {}
 
 	componentDidMount() {
-		if (this.props.conversations) {
+		if (this.props.conversations && this.props.converdsations.length > 0) {
 			this.setState({currentConversation: this.props.conversations[0].name, conversations: this.props.conversations})
 		}
 	}
-
-	// sendReply = (content, receiverId) => {
-	// 	const query = sendMessageMutation(content, receiverId)
-	// 	const cb = resData => {
-	// 		if (resData.errors) {
-	// 			throw new Error(resData.errors[0].message)
-	// 		}
-	// 		const newMessage = {
-	// 			content: content.substring(1, content.length-1),
-	// 			receiverId: receiverId,
-	// 			senderId: parseInt(localStorage.getItem('userId')),
-	// 			seen: true,
-	// 			timeStamp: new Date()
-	// 		}
-	// 		const rightConv = this.state.conversations.find(x => x.id === receiverId)
-	// 		const newConv = {...rightConv, messages: [...rightConv.messages, newMessage]}
-	// 		const newConversations = this.state.conversations.map(x => x.id === receiverId ? newConv : x)
-	// 		this.setState({conversations: newConversations})
-	// 	}
-	// 	fetchGraphql(query, cb, this.props.token)
-	// }
 
 	onChatSelect = (name, id) => {
 		this.setState({currentConversation: name})
@@ -49,7 +28,7 @@ class Chat extends Component {
 		// 	this.setState({currentConversation: conversations[0].name})
 		if (conversations && this.state.conversations !== conversations)
 			this.setState({conversations: conversations}, () => {
-				if (conversations && !this.state.currentConversation)
+				if (conversations && conversations.length > 0 && !this.state.currentConversation)
 					this.setState({currentConversation: conversations[0].name})
 			})
 	}
