@@ -17,11 +17,12 @@
 
 .item a {
     min-width: 100px;
+    max-width: 150px;
     text-align: center;
     color: white;
     text-decoration: none;
+    padding: 22px 10px;
     height: 100%;
-    padding: 25px 10px;
     border-bottom: 4px solid transparent;
     box-sizing: border-box;
     display: block;
@@ -33,4 +34,19 @@
     background-color: #be0d47;
     /*border-bottom: 4px solid black;*/
     /*color: white;*/
+}
+
+.mailIcon {
+    display: block;
+    /*position: absolute;*/
+    color: yellow;
+    margin-left: 10px;
+    font-size: 24px !important;
+    top: 20px;
+}
+
+.chatText {
+    display: flex;
+    align-items: center;
+    margin: 0 10px 0 18px;
 }

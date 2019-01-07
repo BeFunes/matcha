@@ -93,7 +93,7 @@ class App extends Component {
 			if (rightConv.messages.find(x => x.timestamp === newMessage.timestamp)) { return }
 			const newConv = {...rightConv, messages: [...rightConv.messages, newMessage]}
 			const newConversations = this.state.conversations.map(x => x.id === newMessage.senderId ? newConv : x)
-			this.setState({conversations: newConversations})
+			this.setState({conversations: newConversations, unreadMessages: true})
 		}
 	}
 
@@ -345,7 +345,7 @@ class App extends Component {
 		if (typeof rightConv.messages.find(x => !x.seen) === 'undefined' ) { return }
 		const newMessages = rightConv.messages.map(x => ({...x, seen: true}))
 		const newConversations = conversations.map(x => x.id === convId ? {...x, messages: newMessages} : x)
-		this.setState({conversations: newConversations})
+		this.setState({conversations: newConversations, unreadMessages: !newConversations.map(x => !x.messages.map(x => !x.seen))})
 		const query = markMessagesAsSeenMutation
 		const cb = resData => {
 			if (resData.errors) {
@@ -390,6 +390,7 @@ class App extends Component {
 							                            onNotificationClick={this.toggleNotificationDrawer}
 							                            newNotifications={this.state.newNotifications}
 							                            resetNotifications={this.resetNotifications}
+							                            unread={this.state.unreadMessages}
 
 							/>}/>
 						<Route render={(props) => <NotificationsDrawer

@@ -16,8 +16,8 @@ const badgeStyle = () => ({
 });
 
 class Toolbar extends Component {
-
-	state = {newNotifications: 0}
+////////todo change to 0
+	state = {newNotifications: 4}
 
 
 	componentWillReceiveProps({newNotifications}) {
@@ -37,6 +37,7 @@ class Toolbar extends Component {
 			user,
 			classes,
 			onLogout,
+			unread,
 			notificationsOpen,
 		} = this.props
 		const {newNotifications} = this.state
@@ -54,7 +55,7 @@ class Toolbar extends Component {
 				</div>}
 
 				<nav style={{flex: 1}}>
-					<Route render={(props) => <NavigationItems  {...props} onLogout={onLogout} user={user}/>}/>
+					<Route render={(props) => <NavigationItems  {...props} onLogout={onLogout} unread={unread} user={user}/>}/>
 				</nav>
 				<div className={styles.logoutIcon}>
 					<LogOutIcon style={{fontSize: 30}} onClick={onLogout}/>
