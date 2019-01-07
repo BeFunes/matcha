@@ -16,7 +16,10 @@ import {
 	usedInterestsQuery
 } from "./graphql/queries";
 import {fetchGraphql} from "./utils/graphql";
-import {markNotificationsAsSeenMutation, saveLocationMutation} from "./graphql/mutations";
+import {
+	markMessagesAsSeenMutation, markNotificationsAsSeenMutation, saveLocationMutation,
+	sendMessageMutation
+} from "./graphql/mutations";
 import GeolocationDialog from "./components/GeolocationDialog/GeolocationDialog";
 import geocoder from "geocoder";
 import {ToastContainer} from 'react-toastify';
@@ -26,6 +29,7 @@ import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import NotificationsDrawer from "./components/NotificationsDrawer/NotificationsDrawer";
 import _ from 'lodash'
+import {compose} from "react-apollo";
 
 class App extends Component {
 
@@ -59,17 +63,45 @@ class App extends Component {
 	}
 
 	componentWillReceiveProps({data}) {
-		if (!!data && !!data.trackNotification) {
-			const { type, senderName } = data.trackNotification
-			const newNotifications = [data.trackNotification, ...this.state.notifications]
+		const {trackNotification, newMessage} = data
+		if (!!data && !!trackNotification) {
+			const {type, senderName} = trackNotification
+			const newNotifications = [trackNotification, ...this.state.notifications]
 			this.setState({newNotifications: this.state.newNotifications + 1, notifications: newNotifications})
 			const text = (name) => ({
-				"match" : `You matched with ${name}`,
-				"like" : `${name} liked you`,
-				"unmatch" : `You unmatched with ${name}`
+				"match": `You matched with ${name}`,
+				"like": `${name} liked you`,
+				"unmatch": `You unmatched with ${name}`
 			})
 			toast(text(senderName)[type])
 		}
+		else if (data && !!newMessage) {
+			const rightConv = this.state.conversations.find(x => x.id === newMessage.senderId)
+			const newConv = {...rightConv, messages: [...rightConv.messages, newMessage]}
+			const newConversations = this.state.conversations.map(x => x.id === newMessage.senderId ? newConv : x)
+			this.setState({conversations: newConversations})
+		}
+	}
+
+	sendReply = (content, receiverId) => {
+		const query = sendMessageMutation(content, receiverId)
+		const cb = resData => {
+			if (resData.errors) {
+				throw new Error(resData.errors[0].message)
+			}
+			const newMessage = {
+				content: content.substring(1, content.length-1),
+				receiverId: receiverId,
+				senderId: parseInt(this.state.userId),
+				seen: true,
+				timeStamp: new Date()
+			}
+			const rightConv = this.state.conversations.find(x => x.id === receiverId)
+			const newConv = {...rightConv, messages: [...rightConv.messages, newMessage]}
+			const newConversations = this.state.conversations.map(x => x.id === receiverId ? newConv : x)
+			this.setState({conversations: newConversations})
+		}
+		fetchGraphql(query, cb, this.state.token)
 	}
 
 	getUserAgentData = (token) => {
@@ -95,9 +127,13 @@ class App extends Component {
 		const cb = resData => {
 			if (resData.errors) {
 				console.log(resData.errors[0].message)
-				throw new Error ("Can't fetch conversations")
+				throw new Error("Can't fetch conversations")
 			}
-			const chats = resData.data.conversations.map(x => ({ name: x[0].conversationName, id: x[0].otherId, messages: [...x]}))
+			const chats = resData.data.conversations.map(x => ({
+				name: x[0].conversationName,
+				id: x[0].otherId,
+				messages: [...x]
+			}))
 			this.setState({conversations: chats})
 		}
 		fetchGraphql(query, cb, token)
@@ -287,10 +323,25 @@ class App extends Component {
 		}
 	}
 
-	render() {
-		if (this.state.conversations) {
-			console.log("************", this.state.conversations)
+	markMessagesAsSeen = (convId) => {
+		const {conversations} = this.state
+		if (!conversations) {return }
+		const rightConv = conversations.find(x => x.id === convId)
+		if (typeof rightConv.messages.find(x => !x.seen) === 'undefined' ) { return }
+		const newMessages = rightConv.messages.map(x => ({...x, seen: true}))
+		const newConversations = conversations.map(x => x.id === convId ? {...x, messages: newMessages} : x)
+		this.setState({conversations: newConversations})
+		const query = markMessagesAsSeenMutation
+		const cb = resData => {
+			if (resData.errors) {
+				throw new Error(resData.errors[0].message)
+			}
+			console.log(resData.data.markMessagesAsSeen.content)
 		}
+		fetchGraphql(query, cb, this.state.token)
+	}
+
+	render() {
 		const hasAccess = this.state.isAuth && this.state.isOnboarded
 		const {geolocationDialogOpen, suggestedLocation} = this.state
 		const routeZero = () => {
@@ -312,39 +363,44 @@ class App extends Component {
 			<div className={styles.app}>
 				<ToastContainer/>
 				{/*<div >*/}
-					<main style={{marginLeft: this.state.notificationsOpen ? 301 : 0}} className={hasAccess ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
+				<main style={{marginLeft: this.state.notificationsOpen ? 301 : 0}}
+				      className={hasAccess ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
 
-						{hasAccess && <div className={styles.toolbarAndNotifications}>
+					{hasAccess && <div className={styles.toolbarAndNotifications}>
 
-							<Route
-								render={(props) => <Toolbar {...props} onLogout={this.logoutHandler} user={this.state.user}
-								                            onProfileClick={this.onProfileCLick}
-								                            notificationsOpen={this.state.notificationsOpen}
-								                            onNotificationClick={this.toggleNotificationDrawer}
-								                            newNotifications={this.state.newNotifications}
-								                            resetNotifications={this.resetNotifications}
+						<Route
+							render={(props) => <Toolbar {...props} onLogout={this.logoutHandler} user={this.state.user}
+							                            onProfileClick={this.onProfileCLick}
+							                            notificationsOpen={this.state.notificationsOpen}
+							                            onNotificationClick={this.toggleNotificationDrawer}
+							                            newNotifications={this.state.newNotifications}
+							                            resetNotifications={this.resetNotifications}
 
-								/>}/>
-							<Route render={(props) => <NotificationsDrawer
-								open={this.state.notificationsOpen}
-								close={this.toggleNotificationDrawer}
-								notifications={this.state.notifications}
-								markNotificationsAsSeen={this.markNotificationsAsSeen}
-								user={this.state.user}
-								{...props}
 							/>}/>
-						</div>}
+						<Route render={(props) => <NotificationsDrawer
+							open={this.state.notificationsOpen}
+							close={this.toggleNotificationDrawer}
+							notifications={this.state.notifications}
+							markNotificationsAsSeen={this.markNotificationsAsSeen}
+							user={this.state.user}
+							{...props}
+						/>}/>
+					</div>}
 
-						<Switch > {/* with switch, the route will consider only the first match rather than cascading down!*/}
-							{!this.state.isAuth && <Route path="/confirmation/:token" render={(props) => <Confirmation {...props}
-							                                                                                           markLoggedIn={this.loginHandler}/>}/>}
-							{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword}/>}
-							{hasAccess && <Route path="/user_profile" component={UserProfile}/>}
-							{hasAccess && this.checkUser()}
-							{hasAccess && <Route path="/chat" render={(props) => <Chat {...props} token={this.state.token} conversations={this.state.conversations}/>}/>}
-							{routeZero()}
-						</Switch>
-					</main>
+					<Switch> {/* with switch, the route will consider only the first match rather than cascading down!*/}
+						{!this.state.isAuth && <Route path="/confirmation/:token" render={(props) => <Confirmation {...props}
+						                                                                                           markLoggedIn={this.loginHandler}/>}/>}
+						{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword}/>}
+						{hasAccess && <Route path="/user_profile" component={UserProfile}/>}
+						{hasAccess && this.checkUser()}
+						{hasAccess && <Route path="/chat" render={(props) => <Chat {...props} token={this.state.token}
+						                                                           conversations={this.state.conversations}
+						                                                           markMessagesAsSeen={this.markMessagesAsSeen}
+						                                                           sendReply={this.sendReply}
+						/>}/>}
+						{routeZero()}
+					</Switch>
+				</main>
 				{hasAccess && this.state.suggestedLocation && <GeolocationDialog
 					open={geolocationDialogOpen}
 					onClose={this.closeGeolocationDialog}
@@ -368,15 +424,37 @@ const NOTIFICATION_SUBSCRIPTION = gql`
 	}
 `
 
-export default (graphql(NOTIFICATION_SUBSCRIPTION, {
-	options: () => {
-		return ({
-			variables: {
-				userId: parseInt(localStorage.getItem('userId')) || 0
-			},
-		})
-	}
-})(App))
+const CHAT_SUBSCRIPTION = gql `
+	subscription newMessage($userId: Int!) { 
+		newMessage(userId: $userId) {
+	    content
+	    receiverId
+	    senderId
+	    timestamp
+	    seen
+	    conversationName
+  }
+}
+`
+export default compose(
+	graphql(NOTIFICATION_SUBSCRIPTION, {
+		options: () => {
+			return ({
+				variables: {
+					userId: parseInt(localStorage.getItem('userId')) || 0
+				},
+			})
+		}
+	}),
+	graphql(CHAT_SUBSCRIPTION, {
+		options: () => {
+			return ({
+				variables: {
+					userId: parseInt(localStorage.getItem('userId')) || 0
+				},
+			})
+		}
+	}))(App)
 
 
 /// direct components that are accessed through routing have access to

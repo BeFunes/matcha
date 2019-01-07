@@ -352,6 +352,18 @@ module.exports = {
 		const convId = req.userId < receiverId ? `${req.userId}:${receiverId}` : `${receiverId}:${req.userId}`
 		query = `INSERT INTO messages (conversation_id, sender_id, receiver_id, content) VALUES (?, ?, ?, ?)`
 		await db.query(query, [convId, req.userId, receiverId, content])
+
+		const [sender] = await db.query(`SELECT CONCAT(first_name, ' ', last_name) name FROM users WHERE id = ?`, [req.userId])
+
+		const message = {
+			senderId: req.userId,
+			receiverId: receiverId,
+			content: content,
+			timestamp: new Date(),
+			seen: false,
+			conversationName: sender[0].name
+		}
+		pubsub.publish('newMessage', {newMessage: message})
 		return {content: "message added successfully"}
 	}
 }

@@ -18,32 +18,30 @@ class Chat extends Component {
 		}
 	}
 
-	sendReply = (content, receiverId) => {
-		const query = sendMessageMutation(content, receiverId)
-		console.log(query)
-		const cb = resData => {
-			if (resData.errors) {
-				throw new Error(resData.errors[0].message)
-			}
-			const newMessage = {
-				content: content.substring(1, content.length-1),
-				receiverId: receiverId,
-				senderId: parseInt(localStorage.getItem('userId')),
-				seen: true,
-				timeStamp: new Date()
-			}
-			console.log(this.state.conversations)
-			const rightConv = this.state.conversations.find(x => x.id === receiverId)
-			const newConv = {...rightConv, messages: [...rightConv.messages, newMessage]}
-			const newConversations = this.state.conversations.map(x => x.id === receiverId ? newConv : x)
-			this.setState({conversations: newConversations})
-		}
-		fetchGraphql(query, cb, this.props.token)
-	}
+	// sendReply = (content, receiverId) => {
+	// 	const query = sendMessageMutation(content, receiverId)
+	// 	const cb = resData => {
+	// 		if (resData.errors) {
+	// 			throw new Error(resData.errors[0].message)
+	// 		}
+	// 		const newMessage = {
+	// 			content: content.substring(1, content.length-1),
+	// 			receiverId: receiverId,
+	// 			senderId: parseInt(localStorage.getItem('userId')),
+	// 			seen: true,
+	// 			timeStamp: new Date()
+	// 		}
+	// 		const rightConv = this.state.conversations.find(x => x.id === receiverId)
+	// 		const newConv = {...rightConv, messages: [...rightConv.messages, newMessage]}
+	// 		const newConversations = this.state.conversations.map(x => x.id === receiverId ? newConv : x)
+	// 		this.setState({conversations: newConversations})
+	// 	}
+	// 	fetchGraphql(query, cb, this.props.token)
+	// }
 
 	onChatSelect = (name, id) => {
 		this.setState({currentConversation: name})
-		setTimeout(() => {this.markMessagesAsSeen(id)}, 200)
+		setTimeout(() => {this.props.markMessagesAsSeen(id)}, 300)
 	}
 
 	componentWillReceiveProps({conversations}) {
@@ -51,7 +49,7 @@ class Chat extends Component {
 		// 	this.setState({currentConversation: conversations[0].name})
 		if (conversations && this.state.conversations !== conversations)
 			this.setState({conversations: conversations}, () => {
-				if (conversations && this.state.currentConversation !== conversations[0].name)
+				if (conversations && !this.state.currentConversation)
 					this.setState({currentConversation: conversations[0].name})
 			})
 	}
@@ -64,22 +62,7 @@ class Chat extends Component {
 		})
 	}
 
-	markMessagesAsSeen = (convId) => {
-		const {conversations} = this.state
-		const rightConv = conversations.find(x => x.id === convId)
-		if (typeof rightConv.messages.find(x => !x.seen) === 'undefined' ) { return }
-		const newMessages = rightConv.messages.map(x => ({...x, seen: true}))
-		const newConversations = conversations.map(x => x.id === convId ? {...x, messages: newMessages} : x)
-		this.setState({conversations: newConversations})
-		const query = markMessagesAsSeenMutation
-		const cb = resData => {
-			if (resData.errors) {
-				throw new Error(resData.errors[0].message)
-			}
-			console.log(resData.data.markMessagesAsSeen.content)
-		}
-		fetchGraphql(query, cb, this.props.token)
-	}
+
 
 	render() {
 		const {conversations} = this.state
@@ -92,10 +75,11 @@ class Chat extends Component {
 					onChatSelect={this.onChatSelect}
 					currentConversation={this.state.currentConversation}
 					redirectToProfile={this.redirectToProfile}
+					markMessagesAsSeen={this.props.markMessagesAsSeen}
 				/>
 				<ChatBody
 					userId={parseInt(localStorage.getItem('userId'))}
-					sendReply={this.sendReply}
+					sendReply={this.props.sendReply}
 					currentConversation={currentConversationWithContent}
 				/>
 			</div>

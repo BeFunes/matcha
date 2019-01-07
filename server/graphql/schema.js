@@ -129,7 +129,7 @@ const typeDefs = gql`
         receiverId: Int!
         content: String!
         timestamp: String!
-        seen: Boolean!
+        seen: Boolean
         conversationId: String
         conversationName: String
         otherId: Int
@@ -175,6 +175,7 @@ const typeDefs = gql`
         likeToggled (userId: Int!) : Like
         trackNotification (userId: Int!): Notification
         trackProfileVisited (userId: Int!) :  Visited
+        newMessage (userId: Int!) : UserMessage
     }
     
     type RootMutation {
