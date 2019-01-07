@@ -357,9 +357,6 @@ class App extends Component {
 	}
 
 	render() {
-		if (this.state.conversations) {
-			console.log("***********", this.state.conversations)
-		}
 		const hasAccess = this.state.isAuth && this.state.isOnboarded
 		const {geolocationDialogOpen, suggestedLocation} = this.state
 		const routeZero = () => {
@@ -380,7 +377,6 @@ class App extends Component {
 		return (
 			<div className={styles.app}>
 				<ToastContainer/>
-				{/*<div >*/}
 				<main style={{marginLeft: this.state.notificationsOpen ? 301 : 0}}
 				      className={hasAccess ? styles.contentWithToolbar : styles.contentWithoutToolbar}>
 
