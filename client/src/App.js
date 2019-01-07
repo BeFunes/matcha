@@ -1,35 +1,45 @@
 import React, {Component} from 'react';
 import {Route, Switch} from 'react-router-dom';
 
+import _ from 'lodash'
+import geocoder from "geocoder";
+import './utils/ReactTostify.css';
+import {toast} from 'react-toastify';
+import {compose} from "react-apollo";
 import styles from './App.module.css';
+import Chat from "./components/Chat/Chat";
+import {graphql} from "react-apollo/index";
+import {ToastContainer} from 'react-toastify';
 import Browse from "./components/Browse/Browse";
 import LoginPage from "./components/LoginPage/LoginPage";
 import Toolbar from "./components/Navigation/Toolbar/Toolbar";
 import UserProfile from "./components/UserProfile/UserProfile";
 import EditProfile from './components/EditProfile/EditProfile'
-import Chat from "./components/Chat/Chat";
 import Confirmation from "./components/Confirmation/Confirmation"
 import Onboarding from "./components/Onboarding/Onboarding";
 import ResetPassword from './components/ResetPassword/ResetPassword';
+import {fetchGraphql} from "./utils/graphql";
+import GeolocationDialog from "./components/GeolocationDialog/GeolocationDialog";
+import NotificationsDrawer from "./components/NotificationsDrawer/NotificationsDrawer";
+
 import {
-	getConversationsQuery, getUserAgentDataQuery, isOnboardedQuery, notificationsQuery,
+	getConversationsQuery,
+	getUserAgentDataQuery,
+	isOnboardedQuery,
+	notificationsQuery,
 	usedInterestsQuery
 } from "./graphql/queries";
-import {fetchGraphql} from "./utils/graphql";
 import {
-	markMessagesAsSeenMutation, markNotificationsAsSeenMutation, saveLocationMutation,
+	markMessagesAsSeenMutation,
+	markNotificationsAsSeenMutation,
+	saveLocationMutation,
 	sendMessageMutation
 } from "./graphql/mutations";
-import GeolocationDialog from "./components/GeolocationDialog/GeolocationDialog";
-import geocoder from "geocoder";
-import {ToastContainer} from 'react-toastify';
-import {graphql} from "react-apollo/index";
-import gql from "graphql-tag";
-import {toast} from 'react-toastify';
-import './utils/ReactTostify.css'
-import NotificationsDrawer from "./components/NotificationsDrawer/NotificationsDrawer";
-import _ from 'lodash'
-import {compose} from "react-apollo";
+import {
+	chatSubscription,
+	notificationSubscription
+} from "./graphql/subscriptions";
+
 
 class App extends Component {
 
@@ -418,31 +428,8 @@ class App extends Component {
 }
 
 
-const NOTIFICATION_SUBSCRIPTION = gql`
-	subscription trackNotification($userId: Int!) {
-		trackNotification(userId: $userId) {
-			senderId
-			senderName
-			type
-			seen
-		}	
-	}
-`
-
-const CHAT_SUBSCRIPTION = gql `
-	subscription newMessage($userId: Int!) { 
-		newMessage(userId: $userId) {
-	    content
-	    receiverId
-	    senderId
-	    timestamp
-	    seen
-	    conversationName
-  }
-}
-`
 export default compose(
-	graphql(NOTIFICATION_SUBSCRIPTION, {
+	graphql(notificationSubscription, {
 		options: () => {
 			return ({
 				variables: {
@@ -451,7 +438,7 @@ export default compose(
 			})
 		}
 	}),
-	graphql(CHAT_SUBSCRIPTION, {
+	graphql(chatSubscription, {
 		options: () => {
 			return ({
 				variables: {

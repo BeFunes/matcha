@@ -3,16 +3,9 @@ import styles from './Display.module.css'
 import ProfileCard from "./ProfileCard/ProfileCard";
 import Route from "react-router-dom/es/Route";
 import {graphql} from "react-apollo/index";
-import gql from 'graphql-tag';
+import {likeToggledSubscription} from "../../../graphql/subscriptions";
 
-const SUBSCRIPTION = gql`
-	subscription likeToggled($userId: Int!) {
-		likeToggled(userId: $userId) {
-			value
-			sender
-		}	
-	}
-`
+
 class Display extends Component {
 	state = {}
 
@@ -66,7 +59,7 @@ class Display extends Component {
 }
 
 
-export default (graphql(SUBSCRIPTION, {
+export default (graphql(likeToggledSubscription, {
 	options: () =>({
 		variables: {
 			userId: parseInt(localStorage.getItem('userId'))
