@@ -79,6 +79,7 @@ class App extends Component {
 		}
 		else if (data && !!newMessage) {
 			const rightConv = this.state.conversations.find(x => x.id === newMessage.senderId)
+			if (rightConv.messages.find(x => x.timestamp === newMessage.timestamp)) { return }
 			const newConv = {...rightConv, messages: [...rightConv.messages, newMessage]}
 			const newConversations = this.state.conversations.map(x => x.id === newMessage.senderId ? newConv : x)
 			this.setState({conversations: newConversations})
@@ -96,7 +97,8 @@ class App extends Component {
 				receiverId: receiverId,
 				senderId: parseInt(this.state.userId),
 				seen: true,
-				timeStamp: new Date()
+				timeStamp: new Date(),
+				fromReply: true
 			}
 			const rightConv = this.state.conversations.find(x => x.id === receiverId)
 			const newConv = {...rightConv, messages: [...rightConv.messages, newMessage]}
