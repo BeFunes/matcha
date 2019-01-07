@@ -8,7 +8,7 @@ class Chat extends Component {
 	state = {}
 
 	componentDidMount() {
-		if (this.props.conversations && this.props.converdsations.length > 0) {
+		if (this.props.conversations && this.props.conversations.length > 0) {
 			this.setState({currentConversation: this.props.conversations[0].name, conversations: this.props.conversations})
 		}
 	}
