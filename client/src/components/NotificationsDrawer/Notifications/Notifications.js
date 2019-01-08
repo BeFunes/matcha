@@ -66,7 +66,7 @@ class Notifications extends Component {
 							</ListItem>
 						))}
 					</List> :
-					<div className={styles.noNotifications}>You have no notifications yet</div>
+					<div className={styles.noNotifications}>You have  no notifications yet</div>
 				}
 			</div>
 		)

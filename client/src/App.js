@@ -90,7 +90,9 @@ class App extends Component {
 		}
 		else if (data && !!newMessage) {
 			const rightConv = this.state.conversations.find(x => x.id === newMessage.senderId)
-			if (rightConv.messages.find(x => x.timestamp === newMessage.timestamp)) { return }
+			if (rightConv.messages.find(x => x.timestamp === newMessage.timestamp)) {
+				return
+			}
 			const newConv = {...rightConv, messages: [...rightConv.messages, newMessage]}
 			const newConversations = this.state.conversations.map(x => x.id === newMessage.senderId ? newConv : x)
 			this.setState({conversations: newConversations, unreadMessages: true})
@@ -104,7 +106,7 @@ class App extends Component {
 				throw new Error(resData.errors[0].message)
 			}
 			const newMessage = {
-				content: content.substring(1, content.length-1),
+				content: content.substring(1, content.length - 1),
 				receiverId: receiverId,
 				senderId: this.state.userId,
 				seen: true,
@@ -149,7 +151,10 @@ class App extends Component {
 				id: x[0].otherId,
 				messages: [...x]
 			}))
-			this.setState({conversations: chats, unreadMessages: !!chats.find(x => x.messages.find(x => !x.seen && x.receiverId === this.state.userId))})
+			this.setState({
+				conversations: chats,
+				unreadMessages: !!chats.find(x => x.messages.find(x => !x.seen && x.receiverId === this.state.userId))
+			})
 		}
 		fetchGraphql(query, cb, token)
 	}
@@ -216,8 +221,7 @@ class App extends Component {
 				this.openGeolocationDialog({latitude: lat, longitude: long, address: address})
 			}
 		}
-		if (!("geolocation" in navigator)) {
-			console.log("geolocation not available")
+		const getLocationFromIp = () => {
 			fetch('http://www.geoplugin.net/json.gp')
 				.then((res) => res.json())
 				.then((data) => {
@@ -226,17 +230,15 @@ class App extends Component {
 				)
 				.catch((err) => console.log(err))
 		}
+		if (!("geolocation" in navigator)) {
+			console.log("geolocation not available")
+			getLocationFromIp()
+		}
 		navigator.geolocation.getCurrentPosition((position) => {
 			const {latitude, longitude} = position.coords
 			geocoder.reverseGeocode(latitude, longitude, (err, data) => {
 				if (err) {
-					fetch('http://www.geoplugin.net/json.gp')
-						.then((res) => res.json())
-						.then((data) => {
-								openDialog(data.geoplugin_latitude, data.geoplugin_longitude, data.geoplugin_city + ", " + data.geoplugin_countryName)
-							}
-						)
-						.catch((err) => console.log(err))
+					getLocationFromIp()
 				}
 				else {
 					let address = data.results[0].formatted_address.split(",")
@@ -246,6 +248,9 @@ class App extends Component {
 					openDialog(latitude, longitude, address.join())
 				}
 			}, {key: 'AIzaSyDhO5lFvlxnnGx_eBwAmDsagl0tE-vxE2U'})
+		}, (err) => {
+			console.log(err.message, ". Getting location from IP")
+			getLocationFromIp()
 		})
 	}
 
@@ -340,12 +345,19 @@ class App extends Component {
 
 	markMessagesAsSeen = (convId) => {
 		const {conversations} = this.state
-		if (!conversations) {return }
+		if (!conversations) {
+			return
+		}
 		const rightConv = conversations.find(x => x.id === convId)
-		if (typeof rightConv.messages.find(x => !x.seen) === 'undefined' ) { return }
+		if (typeof rightConv.messages.find(x => !x.seen) === 'undefined') {
+			return
+		}
 		const newMessages = rightConv.messages.map(x => ({...x, seen: true}))
 		const newConversations = conversations.map(x => x.id === convId ? {...x, messages: newMessages} : x)
-		this.setState({conversations: newConversations, unreadMessages: !!newConversations.find(x => x.messages.find(x => !x.seen && x.receiverId === this.state.userId))})
+		this.setState({
+			conversations: newConversations,
+			unreadMessages: !!newConversations.find(x => x.messages.find(x => !x.seen && x.receiverId === this.state.userId))
+		})
 		const query = markMessagesAsSeenMutation(convId)
 		const cb = resData => {
 			if (resData.errors) {
@@ -447,8 +459,6 @@ export default compose(
 			})
 		}
 	}))(App)
-
-
 
 
 /// direct components that are accessed through routing have access to
