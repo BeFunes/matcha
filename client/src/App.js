@@ -388,7 +388,7 @@ class App extends Component {
 				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler}/>}/>
 			else
 				return (
-					<Route path="/" exact render={(props) => <Browse token={this.state.token} user={this.state.user}
+					<Route path="/"render={(props) => <Browse token={this.state.token} user={this.state.user}
 					                                                 interests={this.state.interests}
 					                                                 geolocation={this.state.geolocation}{...props} />}/>
 					// 	<Route path="profile" component={UserProfile}/>

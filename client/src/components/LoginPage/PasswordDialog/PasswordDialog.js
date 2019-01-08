@@ -26,6 +26,7 @@ class PasswordDialog extends React.Component {
 			},
 		},
 		buttonDisabled: false,
+		message: ""
 	};
 
 	inputChangeHandler = (type, {target}) => {
@@ -47,12 +48,14 @@ class PasswordDialog extends React.Component {
 		const query = passwordResetEmailMutation(email)
 		const cb = resData => {
 			if (resData.errors) {
+				this.setState({message: "Email Unknown"})
 				throw new Error(
 					"Validation failed."
 				)
 			}
 			if (resData.errors) {
-				throw new Error("Email Unknown")
+				this.setState({message: "Email Unknown"})
+				// throw new Error("Email Unknown")
 			}
 			console.log(resData)
 			toast.success("Check your emails! We have sent you a link to reset your password", {
@@ -63,13 +66,18 @@ class PasswordDialog extends React.Component {
 		}
 		fetchGraphql(query, cb)
 	}
+	onClose = () => {
+		this.setState({message: "", inputFields : {
+			...this.state.inputFields,
+			email : {...this.state.inputFields.email, value: "", valid: true }} }, this.props.onClose())
+	}
 
 	render() {
 		const {open, onClose} = this.props;
 		const element = this.state.inputFields['email']
 		const allValid = (element.valid && element.value !== '')
 		return (
-			<Dialog open={open} onClose={onClose}>
+			<Dialog open={open} onClose={this.onClose}>
 				<div key={element.id}>
 					<TextInput
 						label={element.label}
@@ -95,6 +103,9 @@ class PasswordDialog extends React.Component {
 						Reset Password
 					</Button>
 				</div>
+				{this.state.message.length > 0 ? <div style={{textAlign: "center", color: "#DD0E52", marginBottom: 10, marginTop: 5}}>
+							{this.state.message}
+						</div> : null}
 			</Dialog>
 		);
 	}

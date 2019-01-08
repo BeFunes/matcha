@@ -5,6 +5,7 @@ import TextInput from "../UI/TextInput/TextInput";
 import {passwordCriteria, validator} from "../../utils/string";
 import {fetchGraphql} from "../../utils/graphql";
 import {resetPasswordMutation} from "../../graphql/mutations";
+import { toast } from "react-toastify"
 
 
 class ResetPassword extends Component {
@@ -75,6 +76,7 @@ class ResetPassword extends Component {
 				)
 			}
 			this.setState({reset: true})
+			toast.success("Password succesfully changed !")
 			setTimeout(() => {this.props.history.push('/')}, 2000)
 		}
 		fetchGraphql(query, cb)
