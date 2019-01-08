@@ -90,7 +90,6 @@ class App extends Component {
 					autoClose: 1300
 				})
 			}
-
 		}
 		else if (data && !!newMessage) {
 			const rightConv = this.state.conversations.find(x => x.id === newMessage.senderId)
@@ -448,7 +447,6 @@ class App extends Component {
 		);
 	}
 }
-
 
 export default compose(
 	graphql(notificationSubscription, {

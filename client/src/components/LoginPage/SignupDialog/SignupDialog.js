@@ -7,6 +7,7 @@ import Button from "@material-ui/core/es/Button/Button";
 import TextInput from "../../UI/TextInput/TextInput";
 import {createUserMutation} from "../../../graphql/mutations";
 import {fetchGraphql} from "../../../utils/graphql";
+import {toast} from 'react-toastify';
 
 
 class SignupDialog extends React.Component {
@@ -61,6 +62,9 @@ class SignupDialog extends React.Component {
 				throw new Error('User creation failed!');
 			}
 			console.log(resData)
+			toast.success("Check your emails! We have sent you a link to confirm the creation of your account", {
+				autoClose: 3000
+			})
 			this.props.onClose()
 		}
 		fetchGraphql(query, cb)
