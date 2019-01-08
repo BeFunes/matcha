@@ -325,7 +325,7 @@ module.exports = {
 		checkAuth(req)
 		//Insert notification in db
 		const notificationQuery = 'INSERT INTO notifications (user_id, from_id, type) VALUES (?, ?, ?)'
-		await db.query(notificationQuery, [req.userId, receiverId, "visited"])
+		await db.query(notificationQuery, [receiverId, req.userId, "visited"])
 		const [sender] = await db.query(`SELECT CONCAT(first_name, ' ', last_name) name FROM users WHERE id = ?`, [req.userId])
 		// pubsub.publish('profileVisited', { trackProfileVisited : { sender: req.userId, receiverId: receiverId, }} )
 		pubsub.publish('notification', {
@@ -334,7 +334,8 @@ module.exports = {
 				receiver: receiverId,
 				senderId: req.userId,
 				seen: false,
-				senderName: sender[0].name
+				senderName: sender[0].name,
+				createdAt: new Date()
 			}
 		})
 		return {content: "User visited"}

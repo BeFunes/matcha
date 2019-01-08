@@ -7,6 +7,7 @@ export const notificationSubscription = gql`
 			senderName
 			type
 			seen
+			createdAt
 		}	
 	}`
 

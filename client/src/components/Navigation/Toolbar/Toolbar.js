@@ -16,8 +16,7 @@ const badgeStyle = () => ({
 });
 
 class Toolbar extends Component {
-////////todo change to 0
-	state = {newNotifications: 4}
+	state = {newNotifications: 0}
 
 
 	componentWillReceiveProps({newNotifications}) {

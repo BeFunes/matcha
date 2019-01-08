@@ -73,20 +73,24 @@ class App extends Component {
 	}
 
 	componentWillReceiveProps({data}) {
+		console.log(data)
 		const {trackNotification, newMessage} = data
 		if (!!data && !!trackNotification) {
 			const {type, senderName} = trackNotification
 			const newNotifications = [trackNotification, ...this.state.notifications]
-			this.setState({newNotifications: this.state.newNotifications + 1, notifications: newNotifications})
 			const text = (name) => ({
 				"match": `You matched with ${name}`,
 				"like": `${name} liked you`,
 				"unmatch": `You unmatched with ${name}`,
 				"visited": `${name} visited your profile`
 			})
-			toast.success(text(senderName)[type], {
-				autoClose: 1300
-			})
+			if (!this.state.notifications.length || !_.isEqual(this.state.notifications[0], trackNotification)) {
+				this.setState({newNotifications: this.state.newNotifications + 1, notifications: newNotifications})
+				toast.success(text(senderName)[type], {
+					autoClose: 1300
+				})
+			}
+
 		}
 		else if (data && !!newMessage) {
 			const rightConv = this.state.conversations.find(x => x.id === newMessage.senderId)
@@ -449,15 +453,15 @@ export default compose(
 				},
 			})
 		}
-	}),
-	graphql(chatSubscription, {
-		options: () => {
-			return ({
-				variables: {
-					userId: parseInt(localStorage.getItem('userId')) || 0
-				},
-			})
-		}
+	// }),
+	// graphql(chatSubscription, {
+	// 	options: () => {
+	// 		return ({
+	// 			variables: {
+	// 				userId: parseInt(localStorage.getItem('userId')) || 0
+	// 			},
+	// 		})
+	// 	}
 	}))(App)
 
 
