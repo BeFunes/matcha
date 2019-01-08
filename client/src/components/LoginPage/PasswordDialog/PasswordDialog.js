@@ -7,6 +7,7 @@ import Button from "@material-ui/core/es/Button/Button";
 import TextInput from "../../UI/TextInput/TextInput";
 import {passwordResetEmailMutation} from "../../../graphql/mutations";
 import {fetchGraphql} from "../../../utils/graphql";
+import {toast} from "react-toastify";
 
 class PasswordDialog extends React.Component {
 	state = {
@@ -54,6 +55,9 @@ class PasswordDialog extends React.Component {
 				throw new Error("Email Unknown")
 			}
 			console.log(resData)
+			toast.success("Check your emails! We have sent you a link to reset your password", {
+				autoClose: 3000
+			})
 			this.setState({buttonDisabled: true})
 			setTimeout(this.props.onClose, 1000)
 		}

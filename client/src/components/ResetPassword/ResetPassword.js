@@ -89,7 +89,6 @@ class ResetPassword extends Component {
 			});
 		}
 		const allValid = elementsArray.every((x) => x.valid && x.value !== '')
-		console.log("hey")
 		return (
 			<div className={styles.element}>
 				{elementsArray.map(element =>
@@ -114,6 +113,7 @@ class ResetPassword extends Component {
 						</div>))}
 				<div>
 					<Button
+						className={styles.button}
 						variant={allValid ? "contained" : "outlined"}
 						color="secondary"
 						onClick={allValid ? () => this.resetPassword() : null}>
