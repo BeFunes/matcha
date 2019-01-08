@@ -224,6 +224,10 @@ class App extends Component {
 			if (address !== existingAddress) {
 				this.openGeolocationDialog({latitude: lat, longitude: long, address: address})
 			}
+			else {
+				const { latitude, longitude } = this.state.user
+				this.setState({geolocation: {latitude: latitude, longitude: longitude}})
+			}
 		}
 		const getLocationFromIp = () => {
 			fetch('http://www.geoplugin.net/json.gp')
