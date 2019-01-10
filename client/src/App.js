@@ -5,7 +5,6 @@ import _ from 'lodash'
 import geocoder from "geocoder";
 import './utils/ReactTostify.css';
 import {toast} from 'react-toastify';
-import {compose} from "react-apollo";
 import styles from './App.module.css';
 import Chat from "./components/Chat/Chat";
 import {graphql} from "react-apollo/index";
@@ -36,7 +35,6 @@ import {
 	sendMessageMutation
 } from "./graphql/mutations";
 import {
-	chatSubscription,
 	notificationSubscription
 } from "./graphql/subscriptions";
 
@@ -72,9 +70,18 @@ class App extends Component {
 		}
 	}
 
+		onNewMessageReceived = (newMessage) => {
+		const rightConv = this.state.conversations.find(x => x.id === newMessage.senderId)
+		if (rightConv.messages.find(x => x.timestamp === newMessage.timestamp)) {
+			return
+		}
+		const newConv = {...rightConv, messages: [...rightConv.messages, newMessage]}
+		const newConversations = this.state.conversations.map(x => x.id === newMessage.senderId ? newConv : x)
+		this.setState({conversations: newConversations, unreadMessages: true})
+	}
+
 	componentWillReceiveProps({data}) {
-		console.log(data)
-		const {trackNotification, newMessage} = data
+		const {trackNotification} = data
 		if (!!data && !!trackNotification) {
 			const {type, senderName} = trackNotification
 			const newNotifications = [trackNotification, ...this.state.notifications]
@@ -91,15 +98,15 @@ class App extends Component {
 				})
 			}
 		}
-		else if (data && !!newMessage) {
-			const rightConv = this.state.conversations.find(x => x.id === newMessage.senderId)
-			if (rightConv.messages.find(x => x.timestamp === newMessage.timestamp)) {
-				return
-			}
-			const newConv = {...rightConv, messages: [...rightConv.messages, newMessage]}
-			const newConversations = this.state.conversations.map(x => x.id === newMessage.senderId ? newConv : x)
-			this.setState({conversations: newConversations, unreadMessages: true})
-		}
+		// else if (data && !!newMessage) {
+		// 	const rightConv = this.state.conversations.find(x => x.id === newMessage.senderId)
+		// 	if (rightConv.messages.find(x => x.timestamp === newMessage.timestamp)) {
+		// 		return
+		// 	}
+		// 	const newConv = {...rightConv, messages: [...rightConv.messages, newMessage]}
+		// 	const newConversations = this.state.conversations.map(x => x.id === newMessage.senderId ? newConv : x)
+		// 	this.setState({conversations: newConversations, unreadMessages: true})
+		// }
 	}
 
 	sendReply = (content, receiverId) => {
@@ -388,7 +395,7 @@ class App extends Component {
 				return <Route path="/" render={() => <LoginPage onLogin={this.loginHandler}/>}/>
 			else
 				return (
-					<Route path="/"render={(props) => <Browse token={this.state.token} user={this.state.user}
+					<Route path="/" render={(props) => <Browse token={this.state.token} user={this.state.user}
 					                                                 interests={this.state.interests}
 					                                                 geolocation={this.state.geolocation}{...props} />}/>
 					// 	<Route path="profile" component={UserProfile}/>
@@ -411,6 +418,7 @@ class App extends Component {
 							                            newNotifications={this.state.newNotifications}
 							                            resetNotifications={this.resetNotifications}
 							                            unread={this.state.unreadMessages}
+							                            onNewMessageReceived={this.onNewMessageReceived}
 
 							/>}/>
 						<Route render={(props) => <NotificationsDrawer
@@ -448,7 +456,9 @@ class App extends Component {
 	}
 }
 
-export default compose(
+
+
+export default
 	graphql(notificationSubscription, {
 		options: () => {
 			return ({
@@ -457,16 +467,7 @@ export default compose(
 				},
 			})
 		}
-	}),
-	graphql(chatSubscription, {
-		options: () => {
-			return ({
-				variables: {
-					userId: parseInt(localStorage.getItem('userId')) || 0
-				},
-			})
-		}
-	}))(App)
+	})(App)
 
 
 /// direct components that are accessed through routing have access to

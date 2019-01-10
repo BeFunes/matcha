@@ -7,6 +7,8 @@ import LogOutIcon from '@material-ui/icons/PowerSettingsNew';
 import Badge from "@material-ui/core/es/Badge/Badge";
 
 import {withStyles} from '@material-ui/core/styles';
+import {graphql} from "react-apollo/index";
+import {chatSubscription} from "../../../graphql/subscriptions";
 
 const badgeStyle = () => ({
 	badge: {
@@ -19,9 +21,12 @@ class Toolbar extends Component {
 	state = {newNotifications: 0}
 
 
-	componentWillReceiveProps({newNotifications}) {
+	componentWillReceiveProps({newNotifications, data}) {
 		if (newNotifications !== 0) {
 			this.setState({newNotifications: newNotifications})
+		}
+		if (!!data && !!data.newMessage) {
+			this.props.onNewMessageReceived(data.newMessage)
 		}
 	}
 
@@ -65,4 +70,12 @@ class Toolbar extends Component {
 }
 
 
-export default withStyles(badgeStyle)(Toolbar)
+export default 	graphql(chatSubscription, {
+	options: () => {
+		return ({
+			variables: {
+				userId: parseInt(localStorage.getItem('userId')) || 0
+			},
+		})
+	}
+})(withStyles(badgeStyle)(Toolbar))
