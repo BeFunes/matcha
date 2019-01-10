@@ -177,7 +177,7 @@ class EditProfile extends Component {
 
 
 	onSaveClick = () => {
-
+		this.uploadPic()
 		console.log("EDIT user handler")
 		const data = {}
 		data.requestEmail = this.props.user.email
@@ -216,7 +216,6 @@ class EditProfile extends Component {
 				})
 			}, 2700)
 		}
-		console.log(this.props.token)
 		fetchGraphql(query, cb, this.props.token)
 	}
 
@@ -237,34 +236,55 @@ class EditProfile extends Component {
 		return dropZones
 	}
 
-	test = (info) => {
+	savePictureInState = (info) => {
 		console.log("test value ---> ", info)
-		this.uploadPic(info)
-		this.setState({files: info})
+		this.setState({files: this.state.files.concat(info)},
+		() => {
+			let unique = [...new Set(this.state.files)]
+			this.setState({files: unique})
+		}
+		)
+	}
+
+	deletePictureFromState = (info) => {
+		const indexPic = this.state.files.findIndex(item =>  info.preview === item.preview)
+		this.setState({
+			...this.state,
+			files: this.state.files.filter( (item, index) => index !== indexPic ) 
+		})
+	}
+
+	checkIfPictureAlreadyDropped = (info) => {
+		const indexPic = this.state.files.findIndex(item =>  info.name === item.name)
+		if (indexPic !== -1) {
+			return false
+		}
+		return true
 	}
 
 	uploadPic = (data, picType) => {
 		const formData = new FormData()
-		console.log("upload ---->", this.props.token,data[0])
-		formData.append('image', data[0])
-		console.log(formData)
-		for (var pair of formData.entries()) {
-			console.log(pair[0]+ ', ' + pair[1]); 
-		}
-		// fetch('http://localhost:3001/post-image', {
-		// 	method: 'PUT',
-		// 	headers: {
-		// 		Authorization: 'Bearer ' + this.props.token,
-		// 	},
-		// 	body: formData
+		// this.state.files.forEach((item, i)=> {
+		// 	console.log(item)
+		// 	formData.append('images', item)
 		// })
-		// 	.then(res => res.json())
-		// 	.then(fileResData => {
-		// 		console.log(fileResData)
-		// 	})
-		// 	.catch(err => {
-		// 		console.log(err)
-		// 	})
+		formData.append('image', this.state.files[0])
+		formData.append('image', this.state.files[1])
+		console.log("files sent ----->", this.state.files[0])
+		fetch('http://localhost:3001/post-image', {
+			method: 'PUT',
+			headers: {
+				Authorization: 'Bearer ' + this.props.token,
+			},
+			body: formData
+		})
+			.then(res => res.json())
+			.then(fileResData => {
+				console.log(fileResData)
+			})
+			.catch(err => {
+				console.log(err)
+			})
 	}
 
 	// submitPicInfo = (data) => {
@@ -371,11 +391,11 @@ class EditProfile extends Component {
 
 				<div className={styles.pictureContainer}>
 				{/* {this.pictureDisplay()} */}
-				<Dropzone {...this.props} profilePic={this.props.user.profilePic} save={this.test} ></Dropzone>
-				<Dropzone {...this.props} profilePic={this.props.user.picture2} save={this.test}></Dropzone>
-				<Dropzone {...this.props} profilePic={this.props.user.picture3} save={this.test}></Dropzone>
-				<Dropzone {...this.props} profilePic={this.props.user.picture4} save={this.test}></Dropzone>
-				<Dropzone {...this.props} profilePic={this.props.user.picutre4} save={this.test}></Dropzone>
+				<Dropzone {...this.props} profilePic={this.props.user.profilePic} save={this.savePictureInState} delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped}  ></Dropzone>
+				<Dropzone {...this.props} profilePic={this.props.user.picture2} save={this.savePictureInState} delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped}></Dropzone>
+				<Dropzone {...this.props} profilePic={this.props.user.picture3} save={this.savePictureInState} delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped}></Dropzone>
+				<Dropzone {...this.props} profilePic={this.props.user.picture4} save={this.savePictureInState} delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped}></Dropzone>
+				<Dropzone {...this.props} profilePic={this.props.user.picutre4} save={this.savePictureInState} delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped}></Dropzone>
 					{/* <Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone> */}
 				</div>
 				<Button color="primary" variant={allValid ? "contained" : "outlined"} onClick={this.onSaveClick} 

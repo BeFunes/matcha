@@ -65,23 +65,31 @@ class DropzoneWithPreview extends React.Component {
     }
 
     onDrop(files) {
-        this.setState({
-            files: files.map(file => Object.assign(file, {
-                preview: URL.createObjectURL(file)
-            })),
-            upload: this.state.upload.concat(files[0])
-        }, () => {this.props.save(this.state.upload)});
+        if (this.props.exist(files[0])) {
+            this.setState({
+                files: files.map(file => Object.assign(file, {
+                    preview: URL.createObjectURL(file)
+                })),
+                upload: this.state.upload.concat(files[0])
+            }, () => { this.props.save(this.state.upload) });
+        }
+    }
 
+    onDelete = () => {
+        this.props.delete(this.state.upload[0])
+        this.setState({ files: [], upload: [] })
     }
 
     componentWillMount() {
-        if (this.props.profilePic) {
+
+        if (this.props.profilePic && typeof this.props.profilePic !== 'undefined') {
             this.setState({
                 files: this.state.files.concat({ preview: this.props.profilePic, name: this.props.profilePic })
             });
         }
 
     }
+
 
     componentWillUnmount() {
         // Make sure to revoke the data uris to avoid memory leaks
@@ -90,8 +98,6 @@ class DropzoneWithPreview extends React.Component {
 
     render() {
         const { files } = this.state;
-        console.log("State inside dropzone ", this.state)
-
         const thumbs = files.map(file => (
             <div key={file.name} style={{ margin: 'auto', maxWidth: '150px', maxHeight: '150px' }}>
                 <img
@@ -107,10 +113,11 @@ class DropzoneWithPreview extends React.Component {
 
         return (
             <div className={styles.component}>
-                {this.state.files.length > 0 ? <IconButton aria-label="Delete" style={button} onClick={() => { this.setState({files: [], upload: []})}}>
+                {this.state.files.length > 0 ? <IconButton aria-label="Delete" style={button} onClick={this.onDelete}>
                     <DeleteIcon className={styles.toto} />
                 </IconButton> : null}
                 <Dropzone
+                    multiple={false}
                     accept="image/*"
                     onDrop={this.onDrop.bind(this)}
                 >
