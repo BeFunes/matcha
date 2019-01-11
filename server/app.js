@@ -22,10 +22,11 @@ const { SubscriptionServer } = require('subscriptions-transport-ws')
 
 const app = express()
 
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json())// application/json
 app.use(
-	multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
+	multer({ storage: fileStorage, fileFilter: fileFilter }).array('image', 5)
 )
 app.use('/images', express.static(path.join(__dirname, 'images')))
 
@@ -48,7 +49,7 @@ app.put('/post-image', (req, res, next) => {
 	if (!req.isAuth) {
 		throw new Error('Not authenticated!');
 	}
-	if (!req.file) {
+	if (!req.files) {
 		return res.status(200).json({ message: 'No file provided!' });
 	}
 	if (req.body.oldPath) {
@@ -56,7 +57,7 @@ app.put('/post-image', (req, res, next) => {
 	}
 	return res
 		.status(201)
-		.json({ message: 'File stored.', filePath: req.file.path });
+		.json({ message: 'File stored.', filePath: req.files });
 });
 
 const apolloServer = new ApolloServer({ 

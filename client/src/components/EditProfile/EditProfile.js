@@ -1,19 +1,21 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import styles from './EditProfile.module.css'
 import TextInput from "../UI/TextInput/TextInput";
-import {sanitise, validator} from "../../utils/string";
+import { sanitise, validator } from "../../utils/string";
 import FormSelector from "../UI/FormSelector";
+
 import Chip from "@material-ui/core/es/Chip/Chip";
 import TextField from "@material-ui/core/es/TextField/TextField";
 import Button from '@material-ui/core/Button';
-import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles'
-import {blue} from '@material-ui/core/colors'
-import {editUserMutation} from "../../graphql/mutations";
-import {fetchGraphql} from "../../utils/graphql";
-import {toast} from 'react-toastify';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import { blue } from '@material-ui/core/colors'
+import { editUserMutation } from "../../graphql/mutations";
+import { fetchGraphql } from "../../utils/graphql";
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Divider from '@material-ui/core/Divider';
-
+import Dropzone from '../DropZone/DropZoneWithPreview'
+import classNames from 'classnames'
 const blueTheme = createMuiTheme({
 	palette: {
 		primary: blue
@@ -29,13 +31,11 @@ class EditProfile extends Component {
 
 		this.setState({
 			textFields: {
-				firstName: {...this.state.textFields.firstName, value: this.props.user.firstName},
-				lastName: {...this.state.textFields.lastName, value: this.props.user.lastName},
-				email: {...this.state.textFields.email, value: this.props.user.email}
+				firstName: { ...this.state.textFields.firstName, value: this.props.user.firstName },
+				lastName: { ...this.state.textFields.lastName, value: this.props.user.lastName },
+				email: { ...this.state.textFields.email, value: this.props.user.email }
 			},
-			// orientation: {
-			//     value: { ...this.state.orientation, value: this.props.user.orientation }
-			// },
+
 			bio: {
 				...this.state.bio, value: this.props.user.bio
 			},
@@ -67,7 +67,7 @@ class EditProfile extends Component {
 				label: "First name",
 				value: "",
 				valid: true,
-				style: {margin: '10px'},
+				style: { margin: '10px' },
 				rules: {
 					minLength: 2,
 					maxLength: 30,
@@ -78,7 +78,7 @@ class EditProfile extends Component {
 				label: "Last name",
 				value: "",
 				valid: true,
-				style: {margin: '10px'},
+				style: { margin: '10px' },
 				rules: {
 					minLength: 2,
 					maxLength: 30,
@@ -91,7 +91,7 @@ class EditProfile extends Component {
 				value: '',
 				valid: true,
 				placeholder: 'example@matcha.com',
-				style: {margin: '10px'},
+				style: { margin: '10px' },
 				autoComplete: 'email',
 				rules: {
 					minLength: 8,
@@ -124,43 +124,44 @@ class EditProfile extends Component {
 		gender: {
 			value: ""
 		},
+		files: [],
 	}
 
-	inputChangeHandler = (type, {target}) => {
+	inputChangeHandler = (type, { target }) => {
 		const valid = validator(target.value, this.state.textFields[type].rules, target.type)
 		if (this.state.textFields[type] !== target.value) {
 			this.setState({
 				textFields: {
 					...this.state.textFields,
-					[type]: {...this.state.textFields[type], value: target.value, valid: valid}
+					[type]: { ...this.state.textFields[type], value: target.value, valid: valid }
 				}
 			});
 		}
 	}
 
-	bioChangeHandler = (type, {target}) => {
+	bioChangeHandler = (type, { target }) => {
 		let valid = validator(target.value, this.state[type].rules, target.type)
 		if (type === 'currentTag' && this.state.tags.includes(sanitise(target.value).toLowerCase()))
 			valid = false
-		this.setState({[type]: {...this.state[type], value: target.value, valid: valid}});
+		this.setState({ [type]: { ...this.state[type], value: target.value, valid: valid } });
 	}
 
 	interestsFocusHandler = () => {
-		this.setState({interestsSelected: true})
+		this.setState({ interestsSelected: true })
 	}
 
 	interestsBlurHandler = () => {
-		this.setState({interestsSelected: false})
+		this.setState({ interestsSelected: false })
 	}
 
 	updateOrientation = (data) =>
-		this.setState({orientation: {value: data}})
+		this.setState({ orientation: { value: data } })
 
 	addTag = () => {
 		if (this.state.currentTag.valid && this.state.currentTag.value !== '') {
 			this.setState({
 				tags: [...this.state.tags, sanitise(this.state.currentTag.value).toLowerCase()],
-				currentTag: {...this.state.currentTag, value: ''}
+				currentTag: { ...this.state.currentTag, value: '' }
 			})
 			if (this.state.tags.length === 4)
 				this.interestsBlurHandler()
@@ -168,14 +169,15 @@ class EditProfile extends Component {
 	}
 
 	deleteTag = tag => {
-		this.setState({tags: this.state.tags.filter((x) => x !== tag)})
+		this.setState({ tags: this.state.tags.filter((x) => x !== tag) })
 	}
 
 	updateGender = (data) =>
-		this.setState({gender: {value: data}})
+		this.setState({ gender: { value: data } })
 
 
 	onSaveClick = () => {
+		this.uploadPic()
 		console.log("EDIT user handler")
 		const data = {}
 		data.requestEmail = this.props.user.email
@@ -210,11 +212,10 @@ class EditProfile extends Component {
 				this.props.history.push({
 					pathname: `/user_profile`,
 					search: '',
-					state: {user: this.props.user, me: true}
+					state: { user: this.props.user, me: true }
 				})
 			}, 2700)
 		}
-		console.log(this.props.token)
 		fetchGraphql(query, cb, this.props.token)
 	}
 
@@ -222,6 +223,88 @@ class EditProfile extends Component {
 		position: toast.POSITION.BOTTOM_RIGHT,
 		autoClose: 2000
 	});
+
+	pictureDisplay = () => {
+		const dropZones = []
+		const picArray = [this.props.user.profilePic, this.props.user.picture2, this.props.user.picture3, this.props.user.picture4, this.props.user.picture5]
+		const key = ['profilePic', 'picture2', 'picture3', 'picture4', 'picture5']
+		dropZones.push((<Dropzone {...this.props} key={key[0]} profilePic={picArray[0]} save={this.savePictureInState} delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped} picType={key[0]} ></Dropzone>))
+		let i;
+		for (i = 1; i < 5; i++) {
+			dropZones.push((<Dropzone {...this.props} key={key[i]} profilePic={picArray[i]} save={this.savePictureInState} delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped} picType={key[i]}></Dropzone>))
+		}
+		console.log("------", dropZones)
+		return dropZones
+	}
+
+	savePictureInState = (info) => {
+		console.log("test value ---> ", info)
+		this.setState({ files: this.state.files.concat(info) },
+			() => {
+				let unique = [...new Set(this.state.files)]
+				this.setState({ files: unique })
+			}
+		)
+	}
+
+	deletePictureFromState = (info) => {
+		const indexPic = this.state.files.findIndex(item => info.preview === item.preview)
+		this.setState({
+			...this.state,
+			files: this.state.files.filter((item, index) => index !== indexPic)
+		})
+	}
+
+	checkIfPictureAlreadyDropped = (info) => {
+		const indexPic = this.state.files.findIndex(item => info.name === item.name)
+		if (indexPic !== -1) {
+			return false
+		}
+		return true
+	}
+
+	uploadPic = (data, picType) => {
+		const formData = new FormData()
+		this.state.files.forEach((item, i)=> {
+			console.log("what is it ", item)
+			formData.append('image', item)
+		})
+		// formData.append('image', this.state.files[0])
+		// formData.append('image', this.state.files[1])
+
+		fetch('http://localhost:3001/post-image', {
+			method: 'PUT',
+			headers: {
+				Authorization: 'Bearer ' + this.props.token,
+			},
+			body: formData
+		})
+			.then(res => res.json())
+			.then(fileResData => {
+				console.log(fileResData)
+			})
+			.catch(err => {
+				console.log(err)
+			})
+	}
+
+	// submitPicInfo = (data) => {
+	// 	let query = insertPictureInfoMutation(data)
+	// 	const cb = resData => {
+	// 		if (resData.errors && resData.errors[0].status === 422) {
+	// 			throw new Error(
+	// 				"Validation failed"
+	// 			)
+	// 		}
+	// 		if (resData.errors) {
+	// 			throw new Error('Image upload failed')
+	// 		}
+	// 		console.log(resData.data.insertPictureInfo.content)
+	// 		this.setState({...data})
+	// 		this.nextPage()
+	// 	}
+	// 	fetchGraphql(query, cb, this.props.token)
+	// }
 
 
 	render() {
@@ -235,79 +318,94 @@ class EditProfile extends Component {
 		const allValid = elementsArray.every((x) => x.valid && x.value !== '') && this.state.bio.valid && this.state.tags.length
 		console.log("State ", this.state)
 		console.log("Props user", this.props.user)
-		const interestBorderStyle = this.state.interestsSelected ? {border: "2px solid #3f51b5"} : {border: "1px solid #b7b7b7"}
+		const interestBorderStyle = this.state.interestsSelected ? { border: "2px solid #3f51b5" } : { border: "1px solid #b7b7b7" }
 
 		return (
 			<div className={styles.component}>
 
-				<div className={styles.headerName}>
-					<div className={styles.name}>
-						{elementsArray.map(element => (
-							<div key={element.id}>
-								<TextInput
-									label={element.label}
-									value={element.value}
-									// defaultValue={element.value}
-									style={element.style}
-									type={element.type}
-									onChange={this.inputChangeHandler.bind(this, element.id)}
-									error={!element.valid}
-								/></div>))}
+				<div className={styles.page}>
+
+					<div className={styles.headerName}>
+						<div className={styles.name}>
+							{elementsArray.map(element => (
+								<div key={element.id}>
+									<TextInput
+										label={element.label}
+										value={element.value}
+										// defaultValue={element.value}
+										style={element.style}
+										type={element.type}
+										onChange={this.inputChangeHandler.bind(this, element.id)}
+										error={!element.valid}
+									/></div>))}
+						</div>
+						<div>
+							<FormSelector options={['Woman', 'Man']} formName={"Gender"} onChange={this.updateGender}
+								value={this.state.gender.value} /></div>
+						<div>
+							<FormSelector options={['Any', 'Woman', 'Man']} formName={"Looking for"} onChange={this.updateOrientation}
+								value={this.state.orientation.value} />
+						</div>
 					</div>
-					<div>
-						<FormSelector options={['Woman', 'Man']} formName={"Gender"} onChange={this.updateGender}
-						              value={this.state.gender.value}/></div>
-					<div>
-						<FormSelector options={['Any', 'Woman', 'Man']} formName={"Looking for"} onChange={this.updateOrientation}
-						              value={this.state.orientation.value}/>
-					</div>
-				</div>
-				<TextInput
-					ref={(input) => {
-						this.bioInpyt = input;
-					}}
-					label={this.state.bio.label}
-					value={this.state.bio.value}
-					error={!this.state.bio.valid}
-					multiline={true}
-					rows={12}
-					onChange={this.bioChangeHandler.bind(this, "bio")}
-				/>
-				<div className={styles.interests} style={interestBorderStyle}>
-					<div className={styles.interestsLabel}>Interests</div>
-					<div className={styles.chips}>
-						{this.state.tags.map((tag) =>
-							<Chip className={styles.chip} key={tag} label={tag} color="primary"
-							      onDelete={this.deleteTag.bind(this, tag)}/>
-						)}
-						{this.state.tags.length < 5 && <TextField
-							onChange={this.bioChangeHandler.bind(this, "currentTag")}
-							margin="normal"
-							style={{height: '18px', width: "120px"}}
-							error={!this.state.currentTag.valid}
-							value={this.state.currentTag.value}
-							onFocus={this.interestsFocusHandler}
-							onBlur={this.interestsBlurHandler}
-							onKeyDown={e => {
-								if (e.key === 'Enter' || e.key === 'Tab') {
-									if (this.state.currentTag.value) {
-										e.preventDefault()
+
+					{/* <div 				className={styles.bio}> */}
+					<TextInput
+						// className={styles.bio}
+						ref={(input) => {
+							this.bioInpyt = input;
+						}}
+						// style={{minHeight: 200}}
+						label={this.state.bio.label}
+						value={this.state.bio.value}
+						error={!this.state.bio.valid}
+						multiline={true}
+						rows={12}
+						onChange={this.bioChangeHandler.bind(this, "bio")}
+					/>
+
+					<div className={styles.interests} style={interestBorderStyle}>
+						<div className={styles.interestsLabel}>Interests</div>
+						<div className={styles.chips}>
+							{this.state.tags.map((tag) =>
+								<Chip className={styles.chip} key={tag} label={tag} color="primary"
+									onDelete={this.deleteTag.bind(this, tag)} />
+							)}
+							{this.state.tags.length < 5 && <TextField
+								onChange={this.bioChangeHandler.bind(this, "currentTag")}
+								margin="normal"
+								style={{ height: '18px', width: "120px" }}
+								error={!this.state.currentTag.valid}
+								value={this.state.currentTag.value}
+								onFocus={this.interestsFocusHandler}
+								onBlur={this.interestsBlurHandler}
+								onKeyDown={e => {
+									if (e.key === 'Enter' || e.key === 'Tab') {
+										if (this.state.currentTag.value) {
+											e.preventDefault()
+										}
+										this.addTag()
 									}
-									this.addTag()
-								}
-							}}
-						/>}
+								}}
+							/>}
+						</div>
 					</div>
+
+					<div className={styles.pictureContainer}>
+						{this.pictureDisplay()}
+					</div>
+					<Button color="primary" variant={allValid ? "contained" : "outlined"} onClick={this.onSaveClick}
+						style={{ marginTop: "10px" }}>
+						Save
+					</Button>
 				</div>
-				<MuiThemeProvider theme={blueTheme}>
-					<Button color="primary" variant={allValid ? "contained" : "outlined"} onClick={this.onSaveClick} size="small"
-					        style={{marginTop: "10px"}}>
-						Save </Button></MuiThemeProvider>
-				<Divider variant="middle" style={{marginTop: 20}}/>
 			</div>
 
 		)
 	}
 }
+
+
+
+
 
 export default EditProfile
