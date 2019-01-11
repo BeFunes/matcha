@@ -58,6 +58,7 @@ const query = {
 			(SELECT U.id, COUNT(U.id) chats
 			FROM users U
 			JOIN messages M ON (M.sender_id = U.id AND M.receiver_id = ?) OR (M.sender_id = ? AND M.receiver_id = U.id)
+			WHERE M.meta = 0
 			GROUP BY U.id) = B
 		ON A.id = B.id`
 		const [user] = await db.query(query, [id, req.userId, req.userId])
@@ -180,6 +181,7 @@ const query = {
 			LEFT JOIN  (SELECT U.id, COUNT(U.id) chats
 					FROM users U
 					JOIN messages M ON (M.sender_id = U.id AND M.receiver_id = ?) OR (M.sender_id = ? AND M.receiver_id = U.id)
+					WHERE M.meta = 0
 					GROUP BY U.id) = B
 			ON A.id = B.id
 			`
