@@ -19,6 +19,7 @@ export const chatSubscription = gql `
 	    senderId
 	    timestamp
 	    seen
+	    meta
 	    conversationName
   }
 }`
@@ -29,5 +30,19 @@ export const userInfoChangeSubscription = gql`
 			likeInfo
 			sender
 			onlineInfo
+		}	
+	}`
+
+
+export const newConversationSubscription = gql`
+	subscription newConversation($userId: Int!) {
+		newConversation(userId: $userId) {
+			content
+			receiverId
+			senderId
+			timestamp
+			meta
+			conversationName
+			picture
 		}	
 	}`

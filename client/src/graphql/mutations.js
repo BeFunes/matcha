@@ -166,3 +166,20 @@ export const markOfflineMutation = {
 		}
 	}`
 }
+
+
+export const startChatMutation = (id) => ({
+	query: `mutation {
+		startChat (receiverId: ${id}) {
+			senderId
+			receiverId
+			content
+			timestamp
+			conversationName
+			picture
+			conversationId
+			otherId
+			meta
+		}
+	}`
+})

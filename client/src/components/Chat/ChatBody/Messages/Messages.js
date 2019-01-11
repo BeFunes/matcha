@@ -21,13 +21,13 @@ class Messages extends Component {
 		return (
 			<div className={styles.component}>
 				{messages && messages.length &&
-				messages.map((x, i) => (
-					<Bubble
+				messages.map((x, i) =>
+					!x.meta && <Bubble
 						key={i}
 						content={x.content}
 						fromYou={x.senderId === this.props.userId}
 					/>
-				))}
+				)}
 				<div style={{ float:"left", clear: "both" }}
 				     ref={(el) => { this.messagesEnd = el; }}>
 				</div>

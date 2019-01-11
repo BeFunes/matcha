@@ -91,6 +91,7 @@ const typeDefs = gql`
         address: String
         online: Boolean
         lastOnline: String
+        chats: Int
     }
     
     input MatchFilter {
@@ -136,6 +137,7 @@ const typeDefs = gql`
         conversationName: String
         otherId: Int
         picture: String
+        meta: Boolean
     }
     
     type Conversation {
@@ -179,6 +181,7 @@ const typeDefs = gql`
         trackNotification (userId: Int!): Notification
         trackProfileVisited (userId: Int!) :  Visited
         newMessage (userId: Int!) : UserMessage
+        newConversation(userId: Int!): UserMessage
     }
     
     type RootMutation {
@@ -202,6 +205,7 @@ const typeDefs = gql`
         sendMessage(content: String!, receiverId: Int!) : Message
         reportUser(userId: Int!): Message
         markOffline: Message
+        startChat(receiverId: Int!): UserMessage
     }
 
     schema {

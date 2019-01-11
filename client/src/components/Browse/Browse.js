@@ -104,6 +104,7 @@ class Browse extends Component {
 					onBlockedFilterChange={this.toggleAllowBlocked}
 				/>}
 				<Route render={(props) => <Display
+					addNewConversation={this.props.addNewConversation}
 					profiles={matches}
 					user={this.props.user}
 					token={this.props.token}

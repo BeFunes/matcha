@@ -18,6 +18,12 @@ const subscription = {
 			return newMessage.receiverId === userId
 			})
 	},
+	newConversation: {
+		subscribe: withFilter(() => pubsub.asyncIterator('newConversation'), ({newConversation}, {userId}) => {
+			console.log(newConversation)
+			return newConversation.senderId === userId
+		})
+	}
 }
 
 module.exports = subscription

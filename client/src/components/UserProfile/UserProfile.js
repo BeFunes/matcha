@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import styles from './UserProfile.module.css'
 import Lightbox from 'react-images';
-import {currentDate, formatLastOnline, getAge, lessThanFiveMinutes, stillOnline} from "../../utils/date";
+import {currentDate, formatLastOnline, getAge, stillOnline} from "../../utils/date";
 import LocationIcon from "@material-ui/icons/LocationOn"
 import Dialog from "@material-ui/core/es/Dialog/Dialog";
 import JobIcon from "@material-ui/icons/Work"
@@ -12,11 +12,14 @@ import FullHeart from '@material-ui/icons/Favorite'
 import EmptyHeart from '@material-ui/icons/FavoriteBorder'
 import ChatBubbleEmpty from '@material-ui/icons/ChatBubbleOutline'
 import EditIcon from '@material-ui/icons/Edit'
-import ChatBubbleFull from '@material-ui/icons/ChatBubbleOutline'
+import ChatBubbleFull from '@material-ui/icons/ChatBubble'
 import Block from '@material-ui/icons/Block'
 import {getUserDataQuery, relationsDataQuery} from "../../graphql/queries";
 import {fetchGraphql} from "../../utils/graphql";
-import {markProfileVisitedMutation, toggleBlockMutation, toggleLikeMutation, reportUser} from "../../graphql/mutations";
+import {
+	markProfileVisitedMutation, toggleBlockMutation, toggleLikeMutation, reportUser,
+	startChatMutation
+} from "../../graphql/mutations";
 import {EMPTYAVATAR, HOST} from "../../constants";
 import Button from '@material-ui/core/Button';
 import {toast} from 'react-toastify';
@@ -69,6 +72,28 @@ class UserProfile extends Component {
 				this.getUserData(this.state.token, id)
 			})
 		}
+	}
+
+	startChat = () => {
+		const query = startChatMutation(this.props.profile.id)
+		const cb = resData => {
+			if (resData.errors) {
+				throw new Error(resData.errors[0].message)
+			}
+			this.props.addNewConversation(resData.data.startChat)
+			this.props.history.push({
+				pathname: `/chat`,
+				state: { openChat: resData.data.startChat.conversationName }
+			})
+		}
+		fetchGraphql(query, cb, this.props.token)
+	}
+
+	goToChat = () => {
+		this.props.history.push({
+			pathname: `/chat`,
+			state: { openChat: `${this.state.user.firstName} ${this.state.user.lastName}`}
+		})
 	}
 
 	componentWillReceiveProps({data}) {
@@ -230,7 +255,6 @@ class UserProfile extends Component {
 		const {firstName, lastName, dob, gender, lastOnline, orientation, online, address, interests, job, bio, profilePic, picture2, picture3, picture4, picture5} = this.state.user
 		const images = [picture2, picture3, picture4, picture5].filter(x => !!x && x !== 'undefined')
 		const imagesArray = [profilePic, ...images].map(x => ({src: x}))
-		// const printableAddress = address && address.replace(/[0-9]/g, '')
 
 		const isOnline = online && stillOnline(lastOnline)
 		const getProfilePic = () => {
@@ -247,9 +271,9 @@ class UserProfile extends Component {
 		const renderBlockIcon = () =>
 			<Block onClick={this.toggleBlock} color={this.state.blockTo ? "primary" : "inherit"}/>
 		const renderChatIcon = () =>
-			this.state.chatStarted
-				? <ChatBubbleFull className={styles.chat}/>
-				: <ChatBubbleEmpty className={styles.chat}/>
+			this.state.user.chats
+				? <ChatBubbleFull className={styles.chat} onClick={this.goToChat}/>
+				: <ChatBubbleEmpty className={styles.chat} onClick={this.startChat}/>
 		const iconStyle = {fontSize: 14, marginBottom: -2}
 		const onlineIcon = isOnline ? <Online style={{...iconStyle, color: '#22a822'}}/> :
 			<OfflineIcon style={{...iconStyle, color: 'black'}}/>

@@ -141,7 +141,8 @@ const createChatsTable = `CREATE TABLE messages (
 		receiver_id int(11) unsigned NOT NULL REFERENCES USERS(id),
 		content varchar(2000) NOT NULL,
 		time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-		seen tinyint(1) NOT NULL DEFAULT 0
+		seen tinyint(1) NOT NULL DEFAULT 0,
+		meta tinyint(1) NOT NULL DEFAULT 0
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 `
 
 

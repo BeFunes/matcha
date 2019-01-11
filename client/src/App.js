@@ -132,6 +132,12 @@ class App extends Component {
 		fetchGraphql(query, cb, this.state.token)
 	}
 
+	addNewConversation = (message) => {
+		console.log("here")
+		const newConv = {name: message.conversationName, id: message.otherId, messages: [message]}
+		this.setState({conversations: [...this.state.conversations, newConv ], currentConversation: message.conversationName})
+	}
+
 	getUserAgentData = (token) => {
 		console.log("GET USER DATA")
 		const query = getUserAgentDataQuery
@@ -377,8 +383,6 @@ class App extends Component {
 		}
 		const newMessages = rightConv.messages.map(x => ({...x, seen: true}))
 		const newConversations = conversations.map(x => x.id === convId ? {...x, messages: newMessages} : x)
-		console.log("markMess", !!newConversations.find(x => x.messages.find(x => !x.seen && x.receiverId === parseInt(this.state.userId))))
-
 		this.setState({
 			conversations: newConversations,
 			unreadMessages: !!newConversations.find(x => x.messages.find(x => !x.seen && x.receiverId === this.state.userId))
@@ -406,6 +410,7 @@ class App extends Component {
 				return (
 					<Route path="/" render={(props) => <Browse token={this.state.token} user={this.state.user}
 					                                                 interests={this.state.interests}
+					                                                  addNewConversation={this.addNewConversation}
 					                                                 geolocation={this.state.geolocation}{...props} />}/>
 					// 	<Route path="profile" component={UserProfile}/>
 					// 	<Route path="chat" component={Chat}/>
@@ -444,7 +449,8 @@ class App extends Component {
 						{!this.state.isAuth && <Route path="/confirmation/:token" render={(props) => <Confirmation {...props}
 						                                                                                           markLoggedIn={this.loginHandler}/>}/>}
 						{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword}/>}
-						{hasAccess && <Route path="/user_profile" component={UserProfile}/>}
+						{hasAccess && <Route path="/user_profile" render={(props) => <UserProfile {...props}
+						                                                                          addNewConversation={this.addNewConversation}/>}/>}
 						{hasAccess && this.checkUser()}
 						{hasAccess && <Route path="/chat" render={(props) => <Chat {...props} token={this.state.token}
 						                                                           conversations={this.state.conversations}

@@ -56,6 +56,7 @@ class Display extends Component {
 						<Route
 							key={`${item.firstName}+${item.lastName}+${index}`}
 							render={(props) => <ProfileCard
+								addNewConversation={this.props.addNewConversation}
 								profile={item}
 								user={this.props.user}
 								token={token}

@@ -9,7 +9,11 @@ class Chat extends Component {
 
 	componentDidMount() {
 		if (this.props.conversations && this.props.conversations.length > 0) {
-			this.setState({currentConversation: this.props.conversations[0].name, conversations: this.props.conversations})
+			this.setState({currentConversation: this.props.conversations[0].name, conversations: this.props.conversations}, () => {
+				if (!!this.props.location.state && !!this.props.location.state.openChat) {
+					this.setState({currentConversation: this.props.location.state.openChat})
+				}
+			})
 		}
 	}
 
@@ -20,14 +24,12 @@ class Chat extends Component {
 	}
 
 	componentWillReceiveProps({conversations}) {
-		// if (conversations && this.state.currentConversation !== conversations[0].name)
-		// 	this.setState({currentConversation: conversations[0].name})
 		if (conversations && this.state.conversations !== conversations)
 			this.setState({conversations: conversations}, () => {
 				if (conversations && conversations.length > 0 && !this.state.currentConversation)
 					this.setState({currentConversation: conversations[0].name})
 			})
-	}
+		}
 
 	redirectToProfile = (id) => {
 		this.props.history.push({

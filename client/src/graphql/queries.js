@@ -25,6 +25,7 @@ export const matchesQuery = (gender, orientation, ageMin, ageMax, interests) => 
 				    longitude
 				    online
 				    lastOnline
+				    chats
 				  }  }     `
 })
 
@@ -60,6 +61,7 @@ export const getUserDataQuery = (userId) => ({
 										address
 										online
 										lastOnline
+										chats
                 }
             } `
 })

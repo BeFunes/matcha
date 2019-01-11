@@ -4,12 +4,12 @@ import classnames from 'classnames';
 import FullHeart from '@material-ui/icons/Favorite'
 import EmptyHeart from '@material-ui/icons/FavoriteBorder'
 import ChatBubbleEmpty from '@material-ui/icons/ChatBubbleOutline'
-import ChatBubbleFull from '@material-ui/icons/ChatBubbleOutline'
+import ChatBubbleFull from '@material-ui/icons/ChatBubble'
 import FameStar from '@material-ui/icons/Star'
 import Block from '@material-ui/icons/Block'
 import {likeInfoQuery} from "../../../../graphql/queries";
 import {fetchGraphql} from "../../../../utils/graphql";
-import {toggleBlockMutation, toggleLikeMutation} from "../../../../graphql/mutations";
+import {startChatMutation, toggleBlockMutation, toggleLikeMutation} from "../../../../graphql/mutations";
 import 'react-toastify/dist/ReactToastify.css';
 import {stillOnline} from "../../../../utils/date";
 
@@ -64,6 +64,28 @@ class ProfileCard extends Component {
 		fetchGraphql(query, cb, this.props.token)
 	}
 
+	startChat = () => {
+		const query = startChatMutation(this.props.profile.id)
+		const cb = resData => {
+			if (resData.errors) {
+				throw new Error(resData.errors[0].message)
+			}
+			this.props.addNewConversation(resData.data.startChat)
+			this.props.history.push({
+				pathname: `/chat`,
+				state: { openChat: resData.data.startChat.conversationName }
+			})
+		}
+		fetchGraphql(query, cb, this.props.token)
+	}
+
+	goToChat = () => {
+		this.props.history.push({
+			pathname: `/chat`,
+			state: { openChat: `${this.props.profile.firstName} ${this.props.profile.lastName}`}
+		})
+	}
+
 	blockUser = () => {
 		const query = toggleBlockMutation(this.props.profile.id, !this.state.blocked)
 		const cb = resData => {
@@ -89,8 +111,8 @@ class ProfileCard extends Component {
 		}
 
 		const renderChat = () => {
-			return (this.state.hasChatted)
-				? <ChatBubbleFull/> : <ChatBubbleEmpty/>
+			return (this.props.profile.chats > 0)
+				? <ChatBubbleFull onClick={this.goToChat}/> : <ChatBubbleEmpty onClick={this.startChat}/>
 		}
 
 		const renderBlock = () =>

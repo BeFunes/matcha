@@ -1,4 +1,4 @@
-const { checkAuth, markUserOnline} = require("../../util/graphql")
+const {checkAuth, markUserOnline} = require("../../util/graphql")
 
 const jwt = require('jsonwebtoken')
 const db = require('../../util/db')
@@ -247,7 +247,14 @@ module.exports = {
 			await db.query(notificationQuery, [info.receiverId, req.userId, likeResult, 0, 'current_timestamp()'])
 			const [r] = await db.query('SELECT first_name, last_name FROM users WHERE id = ?', [req.userId])
 			const name = r[0].first_name + " " + r[0].last_name
-			pubsub.publish('userInfoChange', {userInfoChange: {likeInfo: info.liked, receiver: info.receiverId, sender: req.userId, onlineInfo: null}})
+			pubsub.publish('userInfoChange', {
+				userInfoChange: {
+					likeInfo: info.liked,
+					receiver: info.receiverId,
+					sender: req.userId,
+					onlineInfo: null
+				}
+			})
 			pubsub.publish('notification', {
 				trackNotification: {
 					type: likeResult,
@@ -377,7 +384,8 @@ module.exports = {
 			content: content,
 			timestamp: new Date(),
 			seen: false,
-			conversationName: sender[0].name
+			conversationName: sender[0].name,
+			meta: false
 		}
 		await markUserOnline(req.userId)
 		pubsub.publish('newMessage', {newMessage: message})
@@ -388,9 +396,9 @@ module.exports = {
 		console.log("Report USer")
 		checkAuth(req)
 		const query = 'SELECT * FROM reports WHERE (sender_id = ?) AND (receiver_id = ?)'
-		const [reportExist] =  await db.query(query, [req.userId, userId])
+		const [reportExist] = await db.query(query, [req.userId, userId])
 		if (reportExist.length > 0) {
-			return { content: "Already reported" }
+			return {content: "Already reported"}
 		}
 		reportQuery = "INSERT INTO reports (sender_id, receiver_id) VALUES (?,?)"
 
@@ -405,5 +413,28 @@ module.exports = {
 		await db.query(`UPDATE users SET online = 0, lastOnline = now() WHERE id = ?`, [req.userId])
 		pubsub.publish('userInfoChange', {userInfoChange: {onlineInfo: false, sender: req.userId, likeInfo: null}})
 		return {content: "user marked offline"}
+	},
+
+	startChat: async function (_, {receiverId}, {req}) {
+		console.log("START CHAT")
+		checkAuth(req)
+		const convId = req.userId < receiverId ? `${req.userId}:${receiverId}` : `${receiverId}:${req.userId}`
+		const query = `INSERT INTO messages (conversation_id, sender_id, receiver_id, content, meta) VALUES (?, ?, ?, "chat started", 1)`
+		await db.query(query, [convId, req.userId, receiverId])
+		const [receiver] = await db.query(`SELECT CONCAT(first_name, ' ', last_name) name, profilePic FROM users WHERE id = ?`, [receiverId])
+		const message = {
+			senderId: req.userId,
+			receiverId: receiverId,
+			content: "chat started",
+			timestamp: new Date(),
+			conversationName: receiver[0].name,
+			picture: receiver[0].profilePic,
+			conversationId: convId,
+			otherId: receiverId,
+			meta: true
+		}
+		await markUserOnline(req.userId)
+		// pubsub.publish('newConversation', {newConversation: message})
+		return {...message}
 	}
 }
