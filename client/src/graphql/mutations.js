@@ -158,3 +158,11 @@ export const reportUser = (userId) => ({
 		}
 	}`
 })
+
+export const markOfflineMutation = {
+	query: `mutation {
+		markOffline {
+			content
+		}
+	}`
+}

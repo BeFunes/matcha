@@ -89,6 +89,8 @@ const typeDefs = gql`
         interests: [String]
         blocked: Boolean
         address: String
+        online: Boolean
+        lastOnline: String
     }
     
     input MatchFilter {
@@ -139,12 +141,7 @@ const typeDefs = gql`
     type Conversation {
         messages: [UserMessage]
     }
-    
-    
-    type Like {
-      value: Boolean
-      sender: Int
-    }
+ 
 
     type Notification {
         senderId: Int!
@@ -171,8 +168,14 @@ const typeDefs = gql`
         notifications: [Notification]!
     }
 
+		type UserInfo {
+				likeInfo: Boolean
+				onlineInfo: Boolean
+				sender: Int!
+		}
+    
     type RootSubscription {
-        likeToggled (userId: Int!) : Like
+        userInfoChange (userId: Int!) : UserInfo
         trackNotification (userId: Int!): Notification
         trackProfileVisited (userId: Int!) :  Visited
         newMessage (userId: Int!) : UserMessage
@@ -198,6 +201,7 @@ const typeDefs = gql`
         markMessagesAsSeen(senderId: Int!) : Message
         sendMessage(content: String!, receiverId: Int!) : Message
         reportUser(userId: Int!): Message
+        markOffline: Message
     }
 
     schema {

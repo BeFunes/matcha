@@ -1,3 +1,5 @@
+const { checkAuth, markUserOnline} = require("../../util/graphql")
+
 const jwt = require('jsonwebtoken')
 const db = require('../../util/db')
 const bcrypt = require('bcryptjs')
@@ -5,14 +7,6 @@ const {validate} = require('./../../util/validator')
 const emailUtil = require('../../util/email')
 const CONST = require('../../../constants')
 const pubsub = require('./pubsub')
-
-const checkAuth = (req) => {
-	if (!req.isAuth) {
-		const error = new Error('Not authenticated!')
-		error.code = 401
-		throw error
-	}
-}
 
 const typeOflike = (sender, receiver, like) => {
 	switch (true) {
@@ -149,6 +143,7 @@ module.exports = {
 		const query = `UPDATE users SET first_name = ?, last_name = ?, dob = ?, gender = ?, orientation = ? WHERE email = ?`
 		const [row] = await db.query(query, [info.firstName, info.lastName, info.dob, info.gender, info.orientation, req.email])
 		console.log(row)
+		await markUserOnline(req.userId)
 		return {content: "UserProfile data updated successfully"}
 	},
 
@@ -174,6 +169,7 @@ module.exports = {
 		const usersInterestsQuery = 'INSERT INTO users_interests (interest_id, user_id) values ?'
 		const [resUserInterests] = await db.query(usersInterestsQuery, [ids.map((x) => [x.id, req.userId])])
 		console.log(resUserInterests)
+		await markUserOnline(req.userId)
 		return {content: "Bio data updated successfully"}
 	},
 	markOnboarded: async function (_, x, {req}) {
@@ -182,6 +178,7 @@ module.exports = {
 		const query = `UPDATE users SET isOnboarded = ? WHERE email = ?`
 		const [row] = await db.query(query, [1, req.email])
 		console.log(`User ${req.email} marked onboarded\n`, row)
+		await markUserOnline(req.userId)
 		return {content: "User successfully marked onboarded!"}
 	},
 	changePassword: async function (_, {info}, {req}) {
@@ -218,6 +215,7 @@ module.exports = {
 		}
 		const query = `UPDATE users SET profilePic = ?, picture2 = ?, picture3 = ?, picture4 = ?, picture5 = ? WHERE email = ?`
 		const [row] = await db.query(query, [info.profilePic, info.picture2, info.picture3, info.picture4, info.picture5, req.email])
+		await markUserOnline(req.userId)
 		return {content: "Pic data updated successfully"}
 	},
 	resendConfirmationEmail: async function (_, {email}) {
@@ -249,7 +247,7 @@ module.exports = {
 			await db.query(notificationQuery, [info.receiverId, req.userId, likeResult, 0, 'current_timestamp()'])
 			const [r] = await db.query('SELECT first_name, last_name FROM users WHERE id = ?', [req.userId])
 			const name = r[0].first_name + " " + r[0].last_name
-			pubsub.publish('likeToggled', {likeToggled: {value: info.liked, receiver: info.receiverId, sender: req.userId}})
+			pubsub.publish('userInfoChange', {userInfoChange: {likeInfo: info.liked, receiver: info.receiverId, sender: req.userId, onlineInfo: null}})
 			pubsub.publish('notification', {
 				trackNotification: {
 					type: likeResult,
@@ -276,6 +274,7 @@ module.exports = {
 
 		}
 		await db.query(query, [req.userId, info.receiverId])
+		await markUserOnline(req.userId)
 		return {content: "Liked updated successfully"}
 	},
 	toggleBlock: async function (_, {info}, {req}) {
@@ -287,6 +286,7 @@ module.exports = {
 			: 'DELETE FROM blocks WHERE sender_id = ? AND receiver_id = ?'
 
 		await db.query(query, [req.userId, info.receiverId])
+		await markUserOnline(req.userId)
 		return {content: "User blocked successfully"}
 	},
 	saveLocation: async function (_, {lat, long, address}, {req}) {
@@ -294,6 +294,7 @@ module.exports = {
 		checkAuth(req)
 		const query = 'UPDATE users SET latitude = ?, longitude = ?, address = ? WHERE id = ?'
 		await db.query(query, [lat, long, address, req.userId])
+		await markUserOnline(req.userId)
 		return ({content: "location updated successfully"})
 	},
 
@@ -317,6 +318,7 @@ module.exports = {
 		await db.query(deleteInterest, req.userId)
 		const usersInterestsQuery = 'INSERT INTO users_interests (interest_id, user_id) values ?'
 		await db.query(usersInterestsQuery, [ids.map((x) => [x.id, req.userId])])
+		await markUserOnline(req.userId)
 		return {content: "User modified"}
 	},
 
@@ -338,6 +340,7 @@ module.exports = {
 				createdAt: new Date()
 			}
 		})
+		await markUserOnline(req.userId)
 		return {content: "User visited"}
 	},
 
@@ -346,6 +349,7 @@ module.exports = {
 		checkAuth(req)
 		query = `UPDATE notifications SET open = 1 WHERE user_id = ? AND open = 0`
 		await db.query(query, [req.userId])
+		await markUserOnline(req.userId)
 		return {content: "notifications marked as seen"}
 	},
 
@@ -354,6 +358,7 @@ module.exports = {
 		checkAuth(req)
 		query = `UPDATE messages SET seen = 1 WHERE receiver_id = ? AND seen = 0 AND sender_id = ?`
 		await db.query(query, [req.userId, senderId])
+		await markUserOnline(req.userId)
 		return {content: "messages marked as seen"}
 	},
 
@@ -374,6 +379,7 @@ module.exports = {
 			seen: false,
 			conversationName: sender[0].name
 		}
+		await markUserOnline(req.userId)
 		pubsub.publish('newMessage', {newMessage: message})
 		return {content: "message added successfully"}
 	},
@@ -389,6 +395,15 @@ module.exports = {
 		reportQuery = "INSERT INTO reports (sender_id, receiver_id) VALUES (?,?)"
 
 		await db.query(reportQuery, [req.userId, userId])
+		await markUserOnline(req.userId)
 		return {content: "report succesful"}
 	},
+
+	markOffline: async function (_, x, {req}) {
+		console.log("MARK OFFLINE")
+		checkAuth(req)
+		await db.query(`UPDATE users SET online = 0, lastOnline = now() WHERE id = ?`, [req.userId])
+		pubsub.publish('userInfoChange', {userInfoChange: {onlineInfo: false, sender: req.userId, likeInfo: null}})
+		return {content: "user marked offline"}
+	}
 }

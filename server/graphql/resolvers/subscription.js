@@ -3,9 +3,9 @@ const pubsub = require('./pubsub')
 
 
 const subscription = {
-	likeToggled: {
-		subscribe: withFilter(() => pubsub.asyncIterator('likeToggled'), ({likeToggled}, {userId}) => {
-			return likeToggled.receiver === userId
+	userInfoChange: {
+		subscribe: withFilter(() => pubsub.asyncIterator('userInfoChange'), ({userInfoChange}, {userId}) => {
+			return !userInfoChange.receiver || userInfoChange.receiver === userId
 		})
 	},
 	trackNotification: {

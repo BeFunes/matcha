@@ -1,3 +1,5 @@
+const { checkAuth, markUserOnline} = require("../../util/graphql")
+
 const db = require('../../util/db')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
@@ -38,16 +40,14 @@ const query = {
 			CONST.SECRET,
 			{expiresIn: '1h'}
 		)
+		await markUserOnline(user[0].id)
+		// pubsub.publish('userInfoChange', {userInfoChange: {onlineInfo: true, sender: req.userId, likeInfo: null}})
 		return {token: token, userId: user[0].id, isOnboarded: !!user[0].isOnboarded}
 	},
 
 	getUserData: async function (_, {id}, {req}) {
 		console.log("GET USER INFO")
-		if (!req.isAuth) {
-			const error = new Error('Not authenticated!')
-			error.code = 401
-			throw error
-		}
+		checkAuth(req)
 		const query = `SELECT U.*, GROUP_CONCAT(I.title) interests FROM (SELECT * from users WHERE id=?) U
 		JOIN users_interests UI on U.id = UI.user_id
 		JOIN interests I ON I.id = UI.interest_id
@@ -58,6 +58,7 @@ const query = {
 			error.code = 401
 			throw error
 		}
+		await markUserOnline(req.userId)
 		return {
 			id: user[0].id,
 			firstName: user[0].first_name,
@@ -76,16 +77,14 @@ const query = {
 			latitude: user[0].latitude,
 			longitude: user[0].longitude,
 			address: user[0].address,
+			online: user[0].online,
+			lastOnline: user[0].lastOnline.toLocaleString(),
 		}
 	},
 
 	getUserAgentData: async function (_, x, {req}) {
 		console.log("GET AGENT USER INFO")
-		if (!req.isAuth) {
-			const error = new Error('Not authenticated!')
-			error.code = 401
-			throw error
-		}
+		checkAuth(req)
 		const query = `SELECT U.*, GROUP_CONCAT(I.title) interests FROM (SELECT * from users WHERE id=?) U
 		JOIN users_interests UI on U.id = UI.user_id
 		JOIN interests I ON I.id = UI.interest_id
@@ -96,6 +95,7 @@ const query = {
 			error.code = 401
 			throw error
 		}
+		await markUserOnline(req.userId)
 		return {
 			id: user[0].id,
 			firstName: user[0].first_name,
@@ -122,11 +122,7 @@ const query = {
 
 	isOnboarded: async function (_, x, {req}) {
 		console.log("GET IS ONBOARDED")
-		if (!req.isAuth) {
-			const error = new Error('Not authenticated!')
-			error.code = 401
-			throw error
-		}
+		checkAuth(req)
 		// req.email = "david.baron@hotmail.com"
 		const [user] = await db.query('SELECT isOnboarded FROM users WHERE email= ? ', req.email)
 		if (user.length === 0) {
@@ -134,6 +130,7 @@ const query = {
 			error.code = 401
 			throw error
 		}
+		await markUserOnline(req.userId)
 		return user[0].isOnboarded
 	},
 
@@ -195,18 +192,17 @@ const query = {
 				latitude: x.latitude,
 				longitude: x.longitude,
 				address: x.address,
+				online: x.online,
+				lastOnline: x.lastOnline.toLocaleString()
 			})
 		)
+		await markUserOnline(req.userId)
 		return lodash.filter(result, (x) => lodash.difference(filters.interests, x.interests).length === 0)
 	},
 
 	usedInterests: async function (_, x, {req}) {
 		console.log("GET USED INTERESTS")
-		if (!req.isAuth) {
-			const error = new Error('Not authenticated!')
-			error.code = 401
-			throw error
-		}
+		checkAuth(req)
 		const query = `SELECT DISTINCT I.title FROM interests I
 									RIGHT JOIN users_interests UI ON UI.interest_id = I.id`
 		const [interests] = await db.query(query, req.email)
@@ -215,14 +211,11 @@ const query = {
 			error.code = 401
 			throw error
 		}
+		await markUserOnline(req.userId)
 		return interests.map(x => x.title)
 	},
 	likeInfo: async function (_, {info}, {req}) {
-		if (!req.isAuth) {
-			const error = new Error('Not authenticated!')
-			error.code = 401
-			throw error
-		}
+		checkAuth(req)
 		const userToMatchQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
 		const matchToUserQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
 		const [userToMatch] = await db.query(userToMatchQuery, [req.userId, info.receiverId])
@@ -232,11 +225,7 @@ const query = {
 
 	relationsData: async function (_, {id}, {req}) {
 		console.log("GET RELATIONS DATA")
-		if (!req.isAuth) {
-			const error = new Error('Not authenticated!')
-			error.code = 401
-			throw error
-		}
+		checkAuth(req)
 		const userLikesMatchQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
 		const matchLikesUserQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
 		const userBlocksMatchQuery = `SELECT EXISTS(SELECT * FROM blocks WHERE sender_id = ? AND receiver_id = ?) val`
@@ -246,6 +235,7 @@ const query = {
 		const [matchLikesUser] = await db.query(matchLikesUserQuery, [id, req.userId])
 		const [userBlocksMatch] = await db.query(userBlocksMatchQuery, [req.userId, id])
 		const [matchBlocksUser] = await db.query(matchBlocksUserQuery, [id, req.userId])
+		await markUserOnline(req.userId)
 		return {
 			likeTo: userLikesMatch[0].val,
 			likeFrom: matchLikesUser[0].val,
@@ -256,11 +246,7 @@ const query = {
 
 	conversations: async function (_, x, {req}) {
 		console.log('GET USER MESSAGES')
-		if (!req.isAuth) {
-			const error = new Error('Not authenticated!')
-			error.code = 401
-			throw error
-		}
+		checkAuth(req)
 
 		const query = `SELECT M.*, CONCAT(Sender.first_name, ' ', Sender.last_name) sender_name, 
 CONCAT(Receiver.first_name, ' ', Receiver.last_name) receiver_name, Sender.profilePic sender_pic, Receiver.profilePic receiver_pic
@@ -286,22 +272,20 @@ CONCAT(Receiver.first_name, ' ', Receiver.last_name) receiver_name, Sender.profi
 			otherId: req.userId === x.sender_id ? x.receiver_id : x.sender_id,
 		}))
 		///order by timestamp
+		await markUserOnline(req.userId)
 		const conversations = lodash.groupBy(conv, x => x.conversationId)
 		return Object.keys(conversations).map(x => conversations[x])
 	},
 
 	notifications: async function (_, x, {req}) {
 		console.log("GET NOTIFICATIONS FOR USER ", req.userId)
-		if (!req.isAuth) {
-			const error = new Error('Not authenticated!')
-			error.code = 401
-			throw error
-		}
+		checkAuth(req)
 		const query = `SELECT N.*, U.first_name, U.last_name 
 					FROM notifications N
 					JOIN users U on N.from_id = U.id
 					WHERE N.user_id = ? ORDER BY created_at DESC LIMIT 100`
 		const [raw] = await db.query(query, [req.userId])
+		await markUserOnline(req.userId)
 		return raw.map(x => ({
 			seen: x.open,
 			senderId: x.from_id,

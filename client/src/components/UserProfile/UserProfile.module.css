@@ -117,3 +117,22 @@
 .chat {
     color: green;
 }
+
+.onlineBall {
+    display: inline;
+    margin: 3px 6px 0 2px;
+    background-color: #2bd32b;
+    height: 10px;
+    width: 10px;
+    border-radius: 5px;
+}
+
+.offlineBall {
+    display: inline;
+    margin: 3px 5px 0 2px;
+    border: 1px solid black;
+    height: 8px;
+    width: 8px;
+    border-radius: 5px;
+}
+

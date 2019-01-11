@@ -11,6 +11,7 @@ import {likeInfoQuery} from "../../../../graphql/queries";
 import {fetchGraphql} from "../../../../utils/graphql";
 import {toggleBlockMutation, toggleLikeMutation} from "../../../../graphql/mutations";
 import 'react-toastify/dist/ReactToastify.css';
+import {stillOnline} from "../../../../utils/date";
 
 
 class ProfileCard extends Component {
@@ -31,7 +32,7 @@ class ProfileCard extends Component {
 	}
 
 	componentWillReceiveProps(props) {
-		if (props.profile && typeof props.profile.likeFrom !== 'undefined' ) {
+		if (props.profile && typeof props.profile.likeFrom !== 'undefined') {
 			this.setState({likeFrom: props.profile.likeFrom})
 		}
 	}
@@ -77,7 +78,7 @@ class ProfileCard extends Component {
 	}
 
 	render() {
-		const {firstName, age, profilePic, gender, id} = this.props.profile
+		const {firstName, age, profilePic, gender, id, online, lastOnline} = this.props.profile
 		const chat = this.state.likeFrom && this.state.likeTo
 		const borderStyle = gender === 'F' ? styles.f : styles.m
 
@@ -110,8 +111,11 @@ class ProfileCard extends Component {
 						     state: {id: id}
 					     })
 				     }}>
-					<div className={styles.fame}>
-						<FameStar className={styles.starIcon}/> 7767
+					<div className={styles.fameOnline}>
+						<div className={styles.fame}>
+							<FameStar className={styles.starIcon}/> 7767
+						</div>
+						<div>{online && stillOnline(lastOnline) &&  <div className={styles.onlineSymbol}/>}</div>
 					</div>
 				</div>
 				<div className={styles.icons}>

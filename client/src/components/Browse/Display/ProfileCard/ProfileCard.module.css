@@ -54,6 +54,12 @@
     /*margin-left: 23px;*/
 }
 
+.fameOnline {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
 .fame {
     background-color: rgba(0, 0, 0, 0.6);;
     color: yellow;
@@ -72,3 +78,13 @@
     height: 10px;
     margin: 0 2px 0 0;
 }
+
+.onlineSymbol {
+    background-color: #2bd32b;
+    /*border: 1px solid forestgreen;*/
+    height: 14px;
+    width: 14px;
+    border-radius: 7px;
+    margin: 10px;
+}
+

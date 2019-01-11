@@ -3,7 +3,8 @@ import styles from './Display.module.css'
 import ProfileCard from "./ProfileCard/ProfileCard";
 import Route from "react-router-dom/es/Route";
 import {graphql} from "react-apollo/index";
-import {likeToggledSubscription} from "../../../graphql/subscriptions";
+import {userInfoChangeSubscription} from "../../../graphql/subscriptions";
+import {currentDate} from "../../../utils/date";
 
 
 class Display extends Component {
@@ -20,10 +21,21 @@ class Display extends Component {
 	}
 
 	componentWillReceiveProps({data}) {
-		if (!!data && !!data.likeToggled) {
-			const { value, sender } = data.likeToggled
-			const newProfiles = this.state.profiles.map(x => x.id === sender ? {...x, likeFrom: value} : x )
-			this.setState({ profiles: newProfiles})
+		if (!this.state.profiles) {
+			return
+		}
+		if (!!data && !!data.userInfoChange) {
+			const {likeInfo, onlineInfo, sender} = data.userInfoChange
+			let newProfiles = this.state.profiles
+			if (likeInfo !== null)
+				newProfiles = this.state.profiles.map(x => x.id === sender ? {...x, likeFrom: likeInfo} : x)
+			else if (onlineInfo !== null)
+				newProfiles = this.state.profiles.map(x => x.id === sender ? {
+					...x,
+					online: onlineInfo,
+					lastOnline: onlineInfo ? currentDate() : x.lastOnline
+				} : x)
+			this.setState({profiles: newProfiles})
 		}
 	}
 
@@ -59,8 +71,8 @@ class Display extends Component {
 }
 
 
-export default (graphql(likeToggledSubscription, {
-	options: () =>({
+export default (graphql(userInfoChangeSubscription, {
+	options: () => ({
 		variables: {
 			userId: parseInt(localStorage.getItem('userId'))
 		},

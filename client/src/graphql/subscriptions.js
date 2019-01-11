@@ -23,10 +23,11 @@ export const chatSubscription = gql `
   }
 }`
 
-export const likeToggledSubscription = gql`
-	subscription likeToggled($userId: Int!) {
-		likeToggled(userId: $userId) {
-			value
+export const userInfoChangeSubscription = gql`
+	subscription userInfoChange($userId: Int!) {
+		userInfoChange(userId: $userId) {
+			likeInfo
 			sender
+			onlineInfo
 		}	
 	}`

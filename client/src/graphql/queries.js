@@ -23,6 +23,8 @@ export const matchesQuery = (gender, orientation, ageMin, ageMax, interests) => 
 				    blocked
 				    latitude
 				    longitude
+				    online
+				    lastOnline
 				  }  }     `
 })
 
@@ -56,6 +58,8 @@ export const getUserDataQuery = (userId) => ({
 										latitude
 										longitude
 										address
+										online
+										lastOnline
                 }
             } `
 })

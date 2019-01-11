@@ -30,7 +30,7 @@ import {
 } from "./graphql/queries";
 import {
 	markMessagesAsSeenMutation,
-	markNotificationsAsSeenMutation,
+	markNotificationsAsSeenMutation, markOfflineMutation,
 	saveLocationMutation,
 	sendMessageMutation
 } from "./graphql/mutations";
@@ -81,6 +81,7 @@ class App extends Component {
 	}
 
 	componentWillReceiveProps({data}) {
+		if (!this.state.notifications) { return }
 		const {trackNotification} = data
 		if (!!data && !!trackNotification) {
 			const {type, senderName} = trackNotification
@@ -319,10 +320,18 @@ class App extends Component {
 	}
 
 	logoutHandler = () => {
-		this.setState({isAuth: false, token: null});
-		localStorage.removeItem('token');
-		localStorage.removeItem('expiryDate');
-		localStorage.removeItem('userId');
+		const query = markOfflineMutation
+		const cb = (resData) => {
+			if (resData.errors) {
+				throw new Error("Couldn't mark user as offline")
+			}
+			this.setState({isAuth: false, token: null});
+			localStorage.removeItem('token');
+			localStorage.removeItem('expiryDate');
+			localStorage.removeItem('userId');
+		}
+		fetchGraphql(query, cb, this.state.token)
+
 	};
 
 	setAutoLogout = milliseconds => {

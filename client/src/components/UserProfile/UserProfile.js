@@ -1,23 +1,27 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import styles from './UserProfile.module.css'
 import Lightbox from 'react-images';
-import { getAge } from "../../utils/date";
+import {currentDate, formatLastOnline, getAge, lessThanFiveMinutes, stillOnline} from "../../utils/date";
 import LocationIcon from "@material-ui/icons/LocationOn"
 import Dialog from "@material-ui/core/es/Dialog/Dialog";
 import JobIcon from "@material-ui/icons/Work"
 import CakeIcon from "@material-ui/icons/Cake"
+import Online from "@material-ui/icons/Lens"
+import OfflineIcon from "@material-ui/icons/AccountCircle"
 import FullHeart from '@material-ui/icons/Favorite'
 import EmptyHeart from '@material-ui/icons/FavoriteBorder'
 import ChatBubbleEmpty from '@material-ui/icons/ChatBubbleOutline'
 import EditIcon from '@material-ui/icons/Edit'
 import ChatBubbleFull from '@material-ui/icons/ChatBubbleOutline'
 import Block from '@material-ui/icons/Block'
-import { getUserDataQuery, relationsDataQuery } from "../../graphql/queries";
-import { fetchGraphql } from "../../utils/graphql";
-import { markProfileVisitedMutation, toggleBlockMutation, toggleLikeMutation, reportUser } from "../../graphql/mutations";
-import { EMPTYAVATAR, HOST } from "../../constants";
+import {getUserDataQuery, relationsDataQuery} from "../../graphql/queries";
+import {fetchGraphql} from "../../utils/graphql";
+import {markProfileVisitedMutation, toggleBlockMutation, toggleLikeMutation, reportUser} from "../../graphql/mutations";
+import {EMPTYAVATAR, HOST} from "../../constants";
 import Button from '@material-ui/core/Button';
-import { toast } from 'react-toastify';
+import {toast} from 'react-toastify';
+import {userInfoChangeSubscription} from "../../graphql/subscriptions";
+import {graphql} from "react-apollo/index";
 
 // const getRandomBackground = () => {
 // 	const n = Math.floor(Math.random() * 999) + 1
@@ -46,10 +50,9 @@ class UserProfile extends Component {
 		}
 		const id = this.props.location.state.id
 		const isMe = this.props.location.state.me
-		this.setState({ token: token, isMe: isMe }, () => {
+		this.setState({token: token, isMe: isMe}, () => {
 			if (!isMe) {
 				this.getUserData(token, id)
-				this.getRelationsData(token, id)
 				this.markProfileVisited(id, token)
 			}
 		})
@@ -57,13 +60,36 @@ class UserProfile extends Component {
 	}
 
 	componentDidUpdate() {
-		const { user, me, id } = this.props.location.state
+		const {user, me, id} = this.props.location.state
 		if (user && me && this.state.user.id !== user.id) {
-			this.setState({ user: user, isMe: true })
+			this.setState({user: user, isMe: true})
 		}
 		if (!me && id !== this.state.user.id) {
-			this.getUserData(this.state.token, id)
-			this.getRelationsData(this.state.token, id)
+			this.setState({user: {id: id}}, () => {
+				this.getUserData(this.state.token, id)
+			})
+		}
+	}
+
+	componentWillReceiveProps({data}) {
+		const {user} = this.state
+		if (!user) {
+			return
+		}
+		if (!!data && !!data.userInfoChange && data.userInfoChange.sender === user.id) {
+			const {onlineInfo, likeInfo} = data.userInfoChange
+			if (onlineInfo !== null) {
+				this.setState({
+					user: {
+						...user,
+						online: onlineInfo,
+						lastOnline: onlineInfo ? currentDate() : this.state.user.lastOnline
+					}
+				})
+			}
+			else if (likeInfo !== null) {
+				this.setState({likeFrom: likeInfo})
+			}
 		}
 	}
 
@@ -87,7 +113,8 @@ class UserProfile extends Component {
 				console.log(resData.errors[0].message)
 				throw new Error("User data retrieval failed .")
 			}
-			this.setState({ user: { ...resData.data.getUserData } })
+			this.setState({user: {...resData.data.getUserData}})
+			this.getRelationsData(token, id)
 		}
 		fetchGraphql(query, cb, token)
 	}
@@ -99,26 +126,26 @@ class UserProfile extends Component {
 			if (resData.errors) {
 				throw new Error("Relations data retrieval failed .")
 			}
-			this.setState({ ...resData.data.relationsData })
+			this.setState({...resData.data.relationsData})
 		}
 		fetchGraphql(query, cb, token)
 	}
 
 	openLightbox = (index) => {
-		this.setState({ lightboxIsOpen: true, currentImage: index })
+		this.setState({lightboxIsOpen: true, currentImage: index})
 	}
 
 	closeLightbox = () => {
-		this.setState({ lightboxIsOpen: false })
+		this.setState({lightboxIsOpen: false})
 	}
 	gotoImage = (index) => {
-		this.setState({ currentImage: index })
+		this.setState({currentImage: index})
 	}
 	previousImage = () => {
-		this.setState({ currentImage: this.state.currentImage - 1 })
+		this.setState({currentImage: this.state.currentImage - 1})
 	}
 	nextImage = () => {
-		this.setState({ currentImage: this.state.currentImage + 1 })
+		this.setState({currentImage: this.state.currentImage + 1})
 	}
 
 	toggleLike = () => {
@@ -128,7 +155,7 @@ class UserProfile extends Component {
 				throw new Error(resData.errors[0].message)
 			}
 			console.log("like toggled")
-			this.setState({ likeTo: !this.state.likeTo })
+			this.setState({likeTo: !this.state.likeTo})
 		}
 		fetchGraphql(query, cb, this.state.token)
 	}
@@ -140,7 +167,7 @@ class UserProfile extends Component {
 				throw new Error(resData.errors[0].message)
 			}
 			console.log("block toggled")
-			this.setState({ blockTo: !this.state.blockTo })
+			this.setState({blockTo: !this.state.blockTo})
 		}
 		fetchGraphql(query, cb, this.state.token)
 	}
@@ -149,17 +176,18 @@ class UserProfile extends Component {
 		if (this.state.isMe) {
 			return this.state.isMe && <div>
 				<Button variant="contained" onClick={this.onEditClick} size="small">
-					<EditIcon /> Edit
+					<EditIcon/> Edit
 				</Button>
 			</div>
 		}
 
 		return <div>
 			<Button variant="contained" onClick={this.onReportClick} size="small">
-				<svg style={{ width: 24, height: 24 }} >
-					<path fill="#000000" d="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z" />
-				</svg> Report profile
-		</Button>
+				<svg style={{width: 24, height: 24}}>
+					<path fill="#000000" d="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z"/>
+				</svg>
+				Report profile
+			</Button>
 		</div>
 	}
 
@@ -169,18 +197,18 @@ class UserProfile extends Component {
 
 
 	reportDialog = () => {
-		return <Dialog onClose={this.closeDialog} open={this.state.report} >
-			<div style={{ margin: 10 }}>Are you sure you want to report this profile ?</div>
-			<Button style={{ margin: 10 }} variant={"contained"}
-				color="secondary"
-				onClick={this.onReportValidation}>
+		return <Dialog onClose={this.closeDialog} open={this.state.report}>
+			<div style={{margin: 10}}>Are you sure you want to report this profile ?</div>
+			<Button style={{margin: 10}} variant={"contained"}
+			        color="secondary"
+			        onClick={this.onReportValidation}>
 				Report
-						</Button>
+			</Button>
 		</Dialog>
 	}
 
 	onReportClick = () => {
-		this.setState({ report: true })
+		this.setState({report: true})
 	}
 
 	onReportValidation = () => {
@@ -190,111 +218,121 @@ class UserProfile extends Component {
 				throw new Error("Profile NOT marker as visited")
 			}
 			toast.success("User reported")
-			this.setState({ report: false })
+			this.setState({report: false})
 		}
 		fetchGraphql(query, cb, this.state.token)
 	}
 	closeDialog = () => {
-		this.setState({ report: false })
+		this.setState({report: false})
 	}
 
 	render() {
-		const { firstName, lastName, dob, gender, orientation, address, interests, job, bio, profilePic, picture2, picture3, picture4, picture5 } = this.state.user
+		const {firstName, lastName, dob, gender, lastOnline, orientation, online, address, interests, job, bio, profilePic, picture2, picture3, picture4, picture5} = this.state.user
 		const images = [picture2, picture3, picture4, picture5].filter(x => !!x && x !== 'undefined')
-		const imagesArray = [profilePic, ...images].map(x => ({ src: x }))
+		const imagesArray = [profilePic, ...images].map(x => ({src: x}))
 		// const printableAddress = address && address.replace(/[0-9]/g, '')
 
+		const isOnline = online && stillOnline(lastOnline)
 		const getProfilePic = () => {
 			const profileP = profilePic && profilePic.substring(0, 7) === "images/" ? `${HOST}/${profilePic}` : profilePic
 			return typeof profileP !== 'undefined' ? profileP : EMPTYAVATAR
 		}
-		const orientations = { 'F': 'woman', 'M': 'man', 'FM': "man or a woman" }
+		const orientations = {'F': 'woman', 'M': 'man', 'FM': "man or a woman"}
 		const preference = orientations[orientation]
 		const age = dob && getAge(dob)
 		const renderLikeIcon = () =>
 			this.state.likeTo
-				? <FullHeart onClick={this.toggleLike} color={"error"} />
-				: <EmptyHeart onClick={this.toggleLike} />
+				? <FullHeart onClick={this.toggleLike} color={"error"}/>
+				: <EmptyHeart onClick={this.toggleLike}/>
 		const renderBlockIcon = () =>
-			<Block onClick={this.toggleBlock} color={this.state.blockTo ? "primary" : "inherit"} />
+			<Block onClick={this.toggleBlock} color={this.state.blockTo ? "primary" : "inherit"}/>
 		const renderChatIcon = () =>
 			this.state.chatStarted
-				? <ChatBubbleFull className={styles.chat} />
-				: <ChatBubbleEmpty className={styles.chat} />
-		const iconStyle = { fontSize: 14, marginBottom: -2 }
+				? <ChatBubbleFull className={styles.chat}/>
+				: <ChatBubbleEmpty className={styles.chat}/>
+		const iconStyle = {fontSize: 14, marginBottom: -2}
+		const onlineIcon = isOnline ? <Online style={{...iconStyle, color: '#22a822'}}/> :
+			<OfflineIcon style={{...iconStyle, color: 'black'}}/>
+		const onlineText = isOnline ? 'Online' : `Last online: ${formatLastOnline(lastOnline)}`
 
 		return (
+
 			<div className={styles.component}>
 				{this.reportDialog()}
 				{this.state.user &&
-					<div className={styles.whitePage}>
-						<div className={styles.header}>
-							<div className={styles.pictureBlock}>
-								<img className={styles.profilePic}
-									src={getProfilePic()}
-									onClick={this.openLightbox.bind(this, 0)}
-									alt={`${firstName}+${lastName}`}
-								/>
-								{!this.state.isMe ?
-									<div className={styles.actionBlocks}>
-										<div className={styles.iconBlock}> {renderLikeIcon()} Like</div>
-										<div className={styles.iconBlock}> {renderBlockIcon()} Block</div>
-										{this.state.likeTo && this.state.likeFrom && !this.state.blockTo &&
-											<div className={styles.iconBlock}> {renderChatIcon()} Chat</div>}
-									</div> : null}
-							</div>
-							<div className={styles.infoBox}>
-								<div className={styles.name}>{firstName} {lastName}</div>
-								<div className={styles.minorInfo}><CakeIcon style={iconStyle} /> {age} years old</div>
-								<div className={styles.minorInfo}><LocationIcon style={iconStyle} /> {address}</div>
-								<div className={styles.minorInfo}><JobIcon style={iconStyle} /> {job} </div>
-								<div className={styles.minorInfo}><EmptyHeart style={iconStyle} /> Looking for a {preference} </div>
-							</div>
-							{this.renderButton()}
+				<div className={styles.whitePage}>
+					<div className={styles.header}>
+						<div className={styles.pictureBlock}>
+							<img className={styles.profilePic}
+							     src={getProfilePic()}
+							     onClick={this.openLightbox.bind(this, 0)}
+							     alt={`${firstName}+${lastName}`}
+							/>
+							{!this.state.isMe ?
+								<div className={styles.actionBlocks}>
+									<div className={styles.iconBlock}> {renderLikeIcon()} Like</div>
+									<div className={styles.iconBlock}> {renderBlockIcon()} Block</div>
+									{this.state.likeTo && this.state.likeFrom && !this.state.blockTo &&
+									<div className={styles.iconBlock}> {renderChatIcon()} Chat</div>}
+								</div> : null}
 						</div>
-						<div className={styles.body}>
-							<div className={styles.title}> Bio</div>
-							<div>{bio}</div>
+						<div className={styles.infoBox}>
+							<div className={styles.name}>{firstName} {lastName}</div>
+							{!this.state.isMe && <div className={styles.minorInfo}>{onlineIcon} {onlineText} </div>}
+							<div className={styles.minorInfo}><CakeIcon style={iconStyle}/> {age} years old</div>
+							<div className={styles.minorInfo}><LocationIcon style={iconStyle}/> {address}</div>
+							<div className={styles.minorInfo}><JobIcon style={iconStyle}/> {job} </div>
+							<div className={styles.minorInfo}><EmptyHeart style={iconStyle}/> Looking for a {preference} </div>
 						</div>
-						<div className={styles.body}>
-							<div className={styles.title}>Interests</div>
-							<ul>
-								{interests && interests.map(x => <li key={x}>{x}</li>)}
-							</ul>
-						</div>
-
-						<div className={styles.body}>
-							<div className={styles.title}> Photos</div>
-
-							{!images.length
-								? "No photos added"
-								: <div className={styles.photos}>
-									{images.map((x, i) =>
-										<div className={styles.pic}
-											style={{ backgroundImage: `url(${x})` }}
-											key={i}
-											onClick={this.openLightbox.bind(this, (i + 1))}
-										/>
-									)}
-									<Lightbox
-										currentImage={this.state.currentImage}
-										images={imagesArray}
-										isOpen={this.state.lightboxIsOpen}
-										onClose={this.closeLightbox}
-										onClickThumbnail={this.gotoImage}
-										onClickNext={this.nextImage}
-										onClickPrev={this.previousImage}
-									/>
-								</div>
-							}
-						</div>
+						{this.renderButton()}
 					</div>
+					<div className={styles.body}>
+						<div className={styles.title}> Bio</div>
+						<div>{bio}</div>
+					</div>
+					<div className={styles.body}>
+						<div className={styles.title}>Interests</div>
+						<ul>
+							{interests && interests.map(x => <li key={x}>{x}</li>)}
+						</ul>
+					</div>
+
+					<div className={styles.body}>
+						<div className={styles.title}> Photos</div>
+
+						{!images.length
+							? "No photos added"
+							: <div className={styles.photos}>
+								{images.map((x, i) =>
+									<div className={styles.pic}
+									     style={{backgroundImage: `url(${x})`}}
+									     key={i}
+									     onClick={this.openLightbox.bind(this, (i + 1))}
+									/>
+								)}
+								<Lightbox
+									currentImage={this.state.currentImage}
+									images={imagesArray}
+									isOpen={this.state.lightboxIsOpen}
+									onClose={this.closeLightbox}
+									onClickThumbnail={this.gotoImage}
+									onClickNext={this.nextImage}
+									onClickPrev={this.previousImage}
+								/>
+							</div>
+						}
+					</div>
+				</div>
 				}
 			</div>
 		)
 	}
 }
 
-
-export default UserProfile
-
+export default (graphql(userInfoChangeSubscription, {
+	options: () => ({
+		variables: {
+			userId: parseInt(localStorage.getItem('userId'))
+		},
+	})
+})(UserProfile))

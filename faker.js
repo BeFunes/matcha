@@ -94,12 +94,14 @@ const createUsersTable = `CREATE TABLE users (
 		address varchar(255),
 		isOnboarded tinyint(1) NOT NULL DEFAULT 0,
 		isConfirmed tinyint(1) NOT NULL DEFAULT 0,
+		online tinyint(1) NOT NULL DEFAULT 0,
+		lastOnline timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
 
 const populateUsersTable = `INSERT INTO users (first_name, last_name, email, password,
-dob, gender, orientation, job, bio, profilePic, latitude, longitude, address, isOnboarded, isConfirmed)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1)`
+dob, gender, orientation, job, bio, profilePic, latitude, longitude, address, isOnboarded, isConfirmed, lastOnline)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, '2000-01-01 00:01:01')`
 
 const createInterestsTable = `CREATE TABLE interests (
 		id int(11) unsigned NOT NULL AUTO_INCREMENT,
