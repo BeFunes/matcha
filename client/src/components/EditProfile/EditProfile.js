@@ -226,36 +226,37 @@ class EditProfile extends Component {
 
 	pictureDisplay = () => {
 		const dropZones = []
-		dropZones.push((<Dropzone {...this.props} profilePic={this.props.user.profilePic} ></Dropzone>))
+		const picArray = [this.props.user.profilePic, this.props.user.picture2, this.props.user.picture3, this.props.user.picture4, this.props.user.picture5]
+		const key = ['profilePic', 'picture2', 'picture3', 'picture4', 'picture5']
+		dropZones.push((<Dropzone {...this.props} key={key[0]} profilePic={picArray[0]} save={this.savePictureInState} delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped} picType={key[0]} ></Dropzone>))
 		let i;
-		for (i = 1; i < 5; i++){
-			dropZones.push((<Dropzone {...this.props} profilePic={`${ this.props.user.picture2}`} ></Dropzone>))
-	
+		for (i = 1; i < 5; i++) {
+			dropZones.push((<Dropzone {...this.props} key={key[i]} profilePic={picArray[i]} save={this.savePictureInState} delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped} picType={key[i]}></Dropzone>))
 		}
-		console.log("------",dropZones)
+		console.log("------", dropZones)
 		return dropZones
 	}
 
 	savePictureInState = (info) => {
 		console.log("test value ---> ", info)
-		this.setState({files: this.state.files.concat(info)},
-		() => {
-			let unique = [...new Set(this.state.files)]
-			this.setState({files: unique})
-		}
+		this.setState({ files: this.state.files.concat(info) },
+			() => {
+				let unique = [...new Set(this.state.files)]
+				this.setState({ files: unique })
+			}
 		)
 	}
 
 	deletePictureFromState = (info) => {
-		const indexPic = this.state.files.findIndex(item =>  info.preview === item.preview)
+		const indexPic = this.state.files.findIndex(item => info.preview === item.preview)
 		this.setState({
 			...this.state,
-			files: this.state.files.filter( (item, index) => index !== indexPic ) 
+			files: this.state.files.filter((item, index) => index !== indexPic)
 		})
 	}
 
 	checkIfPictureAlreadyDropped = (info) => {
-		const indexPic = this.state.files.findIndex(item =>  info.name === item.name)
+		const indexPic = this.state.files.findIndex(item => info.name === item.name)
 		if (indexPic !== -1) {
 			return false
 		}
@@ -264,13 +265,13 @@ class EditProfile extends Component {
 
 	uploadPic = (data, picType) => {
 		const formData = new FormData()
-		// this.state.files.forEach((item, i)=> {
-		// 	console.log(item)
-		// 	formData.append('images', item)
-		// })
-		formData.append('image', this.state.files[0])
-		formData.append('image', this.state.files[1])
-		console.log("files sent ----->", this.state.files[0])
+		this.state.files.forEach((item, i)=> {
+			console.log("what is it ", item)
+			formData.append('image', item)
+		})
+		// formData.append('image', this.state.files[0])
+		// formData.append('image', this.state.files[1])
+
 		fetch('http://localhost:3001/post-image', {
 			method: 'PUT',
 			headers: {
@@ -322,87 +323,81 @@ class EditProfile extends Component {
 		return (
 			<div className={styles.component}>
 
-			<div className={styles.page}>
+				<div className={styles.page}>
 
-				<div className={styles.headerName}>
-					<div className={styles.name}>
-						{elementsArray.map(element => (
-							<div key={element.id}>
-								<TextInput
-									label={element.label}
-									value={element.value}
-									// defaultValue={element.value}
-									style={element.style}
-									type={element.type}
-									onChange={this.inputChangeHandler.bind(this, element.id)}
-									error={!element.valid}
-								/></div>))}
+					<div className={styles.headerName}>
+						<div className={styles.name}>
+							{elementsArray.map(element => (
+								<div key={element.id}>
+									<TextInput
+										label={element.label}
+										value={element.value}
+										// defaultValue={element.value}
+										style={element.style}
+										type={element.type}
+										onChange={this.inputChangeHandler.bind(this, element.id)}
+										error={!element.valid}
+									/></div>))}
+						</div>
+						<div>
+							<FormSelector options={['Woman', 'Man']} formName={"Gender"} onChange={this.updateGender}
+								value={this.state.gender.value} /></div>
+						<div>
+							<FormSelector options={['Any', 'Woman', 'Man']} formName={"Looking for"} onChange={this.updateOrientation}
+								value={this.state.orientation.value} />
+						</div>
 					</div>
-					<div>
-						<FormSelector options={['Woman', 'Man']} formName={"Gender"} onChange={this.updateGender}
-							value={this.state.gender.value} /></div>
-					<div>
-						<FormSelector options={['Any', 'Woman', 'Man']} formName={"Looking for"} onChange={this.updateOrientation}
-							value={this.state.orientation.value} />
-					</div>
-				</div>
 
-{/* <div 				className={styles.bio}> */}
-				<TextInput
-					// className={styles.bio}
-					ref={(input) => {
-						this.bioInpyt = input;
-					}}
-					// style={{minHeight: 200}}
-					label={this.state.bio.label}
-					value={this.state.bio.value}
-					error={!this.state.bio.valid}
-					multiline={true}
-					rows={12}
-					onChange={this.bioChangeHandler.bind(this, "bio")}
-				/>
-				
-				<div className={styles.interests} style={interestBorderStyle}>
-					<div className={styles.interestsLabel}>Interests</div>
-					<div className={styles.chips}>
-						{this.state.tags.map((tag) =>
-							<Chip className={styles.chip} key={tag} label={tag} color="primary"
-								onDelete={this.deleteTag.bind(this, tag)} />
-						)}
-						{this.state.tags.length < 5 && <TextField
-							onChange={this.bioChangeHandler.bind(this, "currentTag")}
-							margin="normal"
-							style={{ height: '18px', width: "120px" }}
-							error={!this.state.currentTag.valid}
-							value={this.state.currentTag.value}
-							onFocus={this.interestsFocusHandler}
-							onBlur={this.interestsBlurHandler}
-							onKeyDown={e => {
-								if (e.key === 'Enter' || e.key === 'Tab') {
-									if (this.state.currentTag.value) {
-										e.preventDefault()
+					{/* <div 				className={styles.bio}> */}
+					<TextInput
+						// className={styles.bio}
+						ref={(input) => {
+							this.bioInpyt = input;
+						}}
+						// style={{minHeight: 200}}
+						label={this.state.bio.label}
+						value={this.state.bio.value}
+						error={!this.state.bio.valid}
+						multiline={true}
+						rows={12}
+						onChange={this.bioChangeHandler.bind(this, "bio")}
+					/>
+
+					<div className={styles.interests} style={interestBorderStyle}>
+						<div className={styles.interestsLabel}>Interests</div>
+						<div className={styles.chips}>
+							{this.state.tags.map((tag) =>
+								<Chip className={styles.chip} key={tag} label={tag} color="primary"
+									onDelete={this.deleteTag.bind(this, tag)} />
+							)}
+							{this.state.tags.length < 5 && <TextField
+								onChange={this.bioChangeHandler.bind(this, "currentTag")}
+								margin="normal"
+								style={{ height: '18px', width: "120px" }}
+								error={!this.state.currentTag.valid}
+								value={this.state.currentTag.value}
+								onFocus={this.interestsFocusHandler}
+								onBlur={this.interestsBlurHandler}
+								onKeyDown={e => {
+									if (e.key === 'Enter' || e.key === 'Tab') {
+										if (this.state.currentTag.value) {
+											e.preventDefault()
+										}
+										this.addTag()
 									}
-									this.addTag()
-								}
-							}}
-						/>}
+								}}
+							/>}
+						</div>
 					</div>
-				</div>
 
-				<div className={styles.pictureContainer}>
-				{/* {this.pictureDisplay()} */}
-				<Dropzone {...this.props} profilePic={this.props.user.profilePic} save={this.savePictureInState} delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped}  ></Dropzone>
-				<Dropzone {...this.props} profilePic={this.props.user.picture2} save={this.savePictureInState} delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped}></Dropzone>
-				<Dropzone {...this.props} profilePic={this.props.user.picture3} save={this.savePictureInState} delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped}></Dropzone>
-				<Dropzone {...this.props} profilePic={this.props.user.picture4} save={this.savePictureInState} delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped}></Dropzone>
-				<Dropzone {...this.props} profilePic={this.props.user.picutre4} save={this.savePictureInState} delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped}></Dropzone>
-					{/* <Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone><Dropzone></Dropzone> */}
-				</div>
-				<Button color="primary" variant={allValid ? "contained" : "outlined"} onClick={this.onSaveClick} 
-					style={{ marginTop: "10px" }}>
-					Save 
+					<div className={styles.pictureContainer}>
+						{this.pictureDisplay()}
+					</div>
+					<Button color="primary" variant={allValid ? "contained" : "outlined"} onClick={this.onSaveClick}
+						style={{ marginTop: "10px" }}>
+						Save
 					</Button>
-</div>
+				</div>
 			</div>
 
 		)

@@ -98,13 +98,13 @@ class DropzoneWithPreview extends React.Component {
 
     render() {
         const { files } = this.state;
+        console.log(this.props.picType)
         const thumbs = files.map(file => (
             <div key={file.name} style={{ margin: 'auto', maxWidth: '150px', maxHeight: '150px' }}>
                 <img
                     src={file.preview}
                     style={img}
                 />
-
             </div>
         ));
         const imageIcon = (<div style={{ margin: 'auto', maxWidth: '150px', maxHeight: '150px' }}>
@@ -124,7 +124,6 @@ class DropzoneWithPreview extends React.Component {
                     {({ getRootProps, getInputProps }) => (
                         <div {...getRootProps()}>
                             <input {...getInputProps()} />
-
                             <Container>
                                 {thumbs}
                                 {this.state.files.length <= 0 ? imageIcon : null}
