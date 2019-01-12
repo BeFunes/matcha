@@ -43,22 +43,23 @@ class Chat extends Component {
 
 	render() {
 		const {conversations} = this.state
+		const hasChats = !!conversations && !!conversations.length
 		const currentConversationWithContent = conversations && conversations.find(x => x.name === this.state.currentConversation)
 		return (
 			<div className={styles.component}>
-				<ChatList
+				{hasChats && <ChatList
 					userId={parseInt(localStorage.getItem('userId'))}
 					conversations={conversations}
 					onChatSelect={this.onChatSelect}
 					currentConversation={this.state.currentConversation}
 					redirectToProfile={this.redirectToProfile}
 					markMessagesAsSeen={this.props.markMessagesAsSeen}
-				/>
-				<ChatBody
+				/>}
+				{hasChats ? <ChatBody
 					userId={parseInt(localStorage.getItem('userId'))}
 					sendReply={this.props.sendReply}
 					currentConversation={currentConversationWithContent}
-				/>
+				/> :  <div className={styles.noChat}>You have no chats yet</div>}
 			</div>
 		)
 	}
