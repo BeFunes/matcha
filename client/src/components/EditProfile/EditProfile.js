@@ -1,21 +1,22 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import styles from './EditProfile.module.css'
 import TextInput from "../UI/TextInput/TextInput";
-import { sanitise, validator } from "../../utils/string";
+import {sanitise, validator} from "../../utils/string";
 import FormSelector from "../UI/FormSelector";
 
 import Chip from "@material-ui/core/es/Chip/Chip";
 import TextField from "@material-ui/core/es/TextField/TextField";
 import Button from '@material-ui/core/Button';
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
-import { blue } from '@material-ui/core/colors'
-import { editUserMutation } from "../../graphql/mutations";
-import { fetchGraphql } from "../../utils/graphql";
-import { toast } from 'react-toastify';
+import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles'
+import {blue} from '@material-ui/core/colors'
+import {editUserMutation} from "../../graphql/mutations";
+import {fetchGraphql} from "../../utils/graphql";
+import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Divider from '@material-ui/core/Divider';
 import Dropzone from '../DropZone/DropZoneWithPreview'
 import classNames from 'classnames'
+
 const blueTheme = createMuiTheme({
 	palette: {
 		primary: blue
@@ -31,9 +32,9 @@ class EditProfile extends Component {
 
 		this.setState({
 			textFields: {
-				firstName: { ...this.state.textFields.firstName, value: this.props.user.firstName },
-				lastName: { ...this.state.textFields.lastName, value: this.props.user.lastName },
-				email: { ...this.state.textFields.email, value: this.props.user.email }
+				firstName: {...this.state.textFields.firstName, value: this.props.user.firstName},
+				lastName: {...this.state.textFields.lastName, value: this.props.user.lastName},
+				email: {...this.state.textFields.email, value: this.props.user.email}
 			},
 
 			bio: {
@@ -59,6 +60,7 @@ class EditProfile extends Component {
 
 		this.updateOrientation(orientation)
 		this.updateGender(gender)
+		this.setState({somethingChanged: false})
 	}
 
 	state = {
@@ -67,7 +69,7 @@ class EditProfile extends Component {
 				label: "First name",
 				value: "",
 				valid: true,
-				style: { margin: '10px' },
+				style: {margin: '10px'},
 				rules: {
 					minLength: 2,
 					maxLength: 30,
@@ -78,7 +80,7 @@ class EditProfile extends Component {
 				label: "Last name",
 				value: "",
 				valid: true,
-				style: { margin: '10px' },
+				style: {margin: '10px'},
 				rules: {
 					minLength: 2,
 					maxLength: 30,
@@ -91,7 +93,7 @@ class EditProfile extends Component {
 				value: '',
 				valid: true,
 				placeholder: 'example@matcha.com',
-				style: { margin: '10px' },
+				style: {margin: '10px'},
 				autoComplete: 'email',
 				rules: {
 					minLength: 8,
@@ -125,43 +127,46 @@ class EditProfile extends Component {
 			value: ""
 		},
 		files: [],
+		somethingChanged: false
 	}
 
-	inputChangeHandler = (type, { target }) => {
+	inputChangeHandler = (type, {target}) => {
 		const valid = validator(target.value, this.state.textFields[type].rules, target.type)
 		if (this.state.textFields[type] !== target.value) {
 			this.setState({
 				textFields: {
 					...this.state.textFields,
-					[type]: { ...this.state.textFields[type], value: target.value, valid: valid }
-				}
+					[type]: {...this.state.textFields[type], value: target.value, valid: valid}
+				},
+				somethingChanged: true
 			});
 		}
 	}
 
-	bioChangeHandler = (type, { target }) => {
+	bioChangeHandler = (type, {target}) => {
 		let valid = validator(target.value, this.state[type].rules, target.type)
 		if (type === 'currentTag' && this.state.tags.includes(sanitise(target.value).toLowerCase()))
 			valid = false
-		this.setState({ [type]: { ...this.state[type], value: target.value, valid: valid } });
+		this.setState({[type]: {...this.state[type], value: target.value, valid: valid}, somethingChanged: true});
 	}
 
 	interestsFocusHandler = () => {
-		this.setState({ interestsSelected: true })
+		this.setState({interestsSelected: true})
 	}
 
 	interestsBlurHandler = () => {
-		this.setState({ interestsSelected: false })
+		this.setState({interestsSelected: false})
 	}
 
 	updateOrientation = (data) =>
-		this.setState({ orientation: { value: data } })
+		this.setState({orientation: {value: data}, somethingChanged: true})
 
 	addTag = () => {
 		if (this.state.currentTag.valid && this.state.currentTag.value !== '') {
 			this.setState({
 				tags: [...this.state.tags, sanitise(this.state.currentTag.value).toLowerCase()],
-				currentTag: { ...this.state.currentTag, value: '' }
+				currentTag: {...this.state.currentTag, value: ''},
+				somethingChanged: true
 			})
 			if (this.state.tags.length === 4)
 				this.interestsBlurHandler()
@@ -169,11 +174,11 @@ class EditProfile extends Component {
 	}
 
 	deleteTag = tag => {
-		this.setState({ tags: this.state.tags.filter((x) => x !== tag) })
+		this.setState({tags: this.state.tags.filter((x) => x !== tag), somethingChanged: true})
 	}
 
 	updateGender = (data) =>
-		this.setState({ gender: { value: data } })
+		this.setState({gender: {value: data, somethingChanged: true}})
 
 
 	onSaveClick = () => {
@@ -212,9 +217,9 @@ class EditProfile extends Component {
 				this.props.history.push({
 					pathname: `/user_profile`,
 					search: '',
-					state: { user: this.props.user, me: true }
+					state: {user: this.props.user, me: true}
 				})
-			}, 2700)
+			}, 800)
 		}
 		fetchGraphql(query, cb, this.props.token)
 	}
@@ -228,10 +233,14 @@ class EditProfile extends Component {
 		const dropZones = []
 		const picArray = [this.props.user.profilePic, this.props.user.picture2, this.props.user.picture3, this.props.user.picture4, this.props.user.picture5]
 		const key = ['profilePic', 'picture2', 'picture3', 'picture4', 'picture5']
-		dropZones.push((<Dropzone {...this.props} key={key[0]} profilePic={picArray[0]} save={this.savePictureInState} delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped} picType={key[0]} ></Dropzone>))
+		dropZones.push((<Dropzone {...this.props} key={key[0]} profilePic={picArray[0]} save={this.savePictureInState}
+		                          delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped}
+		                          picType={key[0]}/>))
 		let i;
 		for (i = 1; i < 5; i++) {
-			dropZones.push((<Dropzone {...this.props} key={key[i]} profilePic={picArray[i]} save={this.savePictureInState} delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped} picType={key[i]}></Dropzone>))
+			dropZones.push((<Dropzone {...this.props} key={key[i]} profilePic={picArray[i]} save={this.savePictureInState}
+			                          delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped}
+			                          picType={key[i]}/>))
 		}
 		console.log("------", dropZones)
 		return dropZones
@@ -239,10 +248,10 @@ class EditProfile extends Component {
 
 	savePictureInState = (info) => {
 		console.log("test value ---> ", info)
-		this.setState({ files: this.state.files.concat(info) },
+		this.setState({files: this.state.files.concat(info), somethingChanged: true},
 			() => {
 				let unique = [...new Set(this.state.files)]
-				this.setState({ files: unique })
+				this.setState({files: unique})
 			}
 		)
 	}
@@ -251,7 +260,8 @@ class EditProfile extends Component {
 		const indexPic = this.state.files.findIndex(item => info.preview === item.preview)
 		this.setState({
 			...this.state,
-			files: this.state.files.filter((item, index) => index !== indexPic)
+			files: this.state.files.filter((item, index) => index !== indexPic),
+			somethingChanged: true
 		})
 	}
 
@@ -265,7 +275,7 @@ class EditProfile extends Component {
 
 	uploadPic = (data, picType) => {
 		const formData = new FormData()
-		this.state.files.forEach((item, i)=> {
+		this.state.files.forEach((item, i) => {
 			console.log("what is it ", item)
 			formData.append('image', item)
 		})
@@ -318,7 +328,7 @@ class EditProfile extends Component {
 		const allValid = elementsArray.every((x) => x.valid && x.value !== '') && this.state.bio.valid && this.state.tags.length
 		console.log("State ", this.state)
 		console.log("Props user", this.props.user)
-		const interestBorderStyle = this.state.interestsSelected ? { border: "2px solid #3f51b5" } : { border: "1px solid #b7b7b7" }
+		const interestBorderStyle = this.state.interestsSelected ? {border: "2px solid #3f51b5"} : {border: "1px solid #b7b7b7"}
 
 		return (
 			<div className={styles.component}>
@@ -332,7 +342,6 @@ class EditProfile extends Component {
 									<TextInput
 										label={element.label}
 										value={element.value}
-										// defaultValue={element.value}
 										style={element.style}
 										type={element.type}
 										onChange={this.inputChangeHandler.bind(this, element.id)}
@@ -341,10 +350,10 @@ class EditProfile extends Component {
 						</div>
 						<div>
 							<FormSelector options={['Woman', 'Man']} formName={"Gender"} onChange={this.updateGender}
-								value={this.state.gender.value} /></div>
+							              value={this.state.gender.value}/></div>
 						<div>
 							<FormSelector options={['Any', 'Woman', 'Man']} formName={"Looking for"} onChange={this.updateOrientation}
-								value={this.state.orientation.value} />
+							              value={this.state.orientation.value}/>
 						</div>
 					</div>
 
@@ -368,12 +377,12 @@ class EditProfile extends Component {
 						<div className={styles.chips}>
 							{this.state.tags.map((tag) =>
 								<Chip className={styles.chip} key={tag} label={tag} color="primary"
-									onDelete={this.deleteTag.bind(this, tag)} />
+								      onDelete={this.deleteTag.bind(this, tag)}/>
 							)}
 							{this.state.tags.length < 5 && <TextField
 								onChange={this.bioChangeHandler.bind(this, "currentTag")}
 								margin="normal"
-								style={{ height: '18px', width: "120px" }}
+								style={{height: '18px', width: "120px"}}
 								error={!this.state.currentTag.valid}
 								value={this.state.currentTag.value}
 								onFocus={this.interestsFocusHandler}
@@ -394,7 +403,7 @@ class EditProfile extends Component {
 						{this.pictureDisplay()}
 					</div>
 					<Button color="primary" variant={allValid ? "contained" : "outlined"} onClick={this.onSaveClick}
-						style={{ marginTop: "10px" }}>
+					        style={{marginTop: "10px"}} disabled={!this.state.somethingChanged}>
 						Save
 					</Button>
 				</div>
@@ -403,9 +412,6 @@ class EditProfile extends Component {
 		)
 	}
 }
-
-
-
 
 
 export default EditProfile
