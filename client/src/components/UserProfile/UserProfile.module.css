@@ -2,10 +2,11 @@
     display: flex;
     justify-content: center;
     width: 100%;
-    height: 100%;
+    overflow-y: auto;
 }
 
 .whitePage {
+    height: 100%;
     display: flex;
     background-color: white;
     width: 100%;
@@ -14,7 +15,8 @@
     flex-direction: column;
     align-items: stretch;
     align-content: stretch;
-    padding: 25px 40px;
+    padding: 25px 40px 100px;
+
 }
 
 .pageWithMargins {
@@ -83,20 +85,23 @@
     justify-content: center;
 }
 
-.pic {
+.picContainer {
     border: 2px solid black;
     height: 150px;
     width: 150px;
-    background-repeat: noRepeat;
-    background-size: cover;
-    background-position: center;
+    /*display: block;*/
+}
+
+.pic {
+    display: block;
+    width: auto;
+    max-height: 100%;
+    margin: 0 auto;
 }
 
 .actionBlocks {
     width: 100%;
     display: flex;
-    /*height: 84px;*/
-    /*justify-content: stretch;*/
     align-items: stretch;
 }
 

@@ -83,7 +83,7 @@ class UserProfile extends Component {
 			this.props.addNewConversation(resData.data.startChat)
 			this.props.history.push({
 				pathname: `/chat`,
-				state: { openChat: resData.data.startChat.conversationName }
+				state: {openChat: resData.data.startChat.conversationName}
 			})
 		}
 		fetchGraphql(query, cb, this.props.token)
@@ -92,7 +92,7 @@ class UserProfile extends Component {
 	goToChat = () => {
 		this.props.history.push({
 			pathname: `/chat`,
-			state: { openChat: `${this.state.user.firstName} ${this.state.user.lastName}`}
+			state: {openChat: `${this.state.user.firstName} ${this.state.user.lastName}`}
 		})
 	}
 
@@ -328,11 +328,14 @@ class UserProfile extends Component {
 							? "No photos added"
 							: <div className={styles.photos}>
 								{images.map((x, i) =>
-									<div className={styles.pic}
-									     style={{backgroundImage: `url(${x})`}}
+									<div className={styles.picContainer} key={i}>
+									<img className={styles.pic}
+									     src={x}
+									     // style={{backgroundImage: `url(${x})`}}
 									     key={i}
 									     onClick={this.openLightbox.bind(this, (i + 1))}
 									/>
+									</div>
 								)}
 								<Lightbox
 									currentImage={this.state.currentImage}

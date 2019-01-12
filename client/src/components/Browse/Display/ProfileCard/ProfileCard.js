@@ -129,24 +129,24 @@ class ProfileCard extends Component {
 
 		return (
 			<div className={classnames(styles.component, borderStyle)}>
-				<div className={styles.img}
-				     style={{
-					     backgroundImage: `url(${getProfilePic()})`,
-					     backgroundRepeat: 'noRepeat', backgroundSize: 'cover'
-				     }}
-				     onClick={() => {
-					     this.props.history.push({
-						     pathname: `/user_profile`,
-						     search: '',
-						     state: {id: id}
-					     })
-				     }}>
+				<div className={styles.imgContainer}>
+					<img src={getProfilePic()}
+					     className={styles.img}
+					     onClick={() => {
+						     this.props.history.push({
+							     pathname: `/user_profile`,
+							     search: '',
+							     state: {id: id}
+						     })
+					     }}/>
+				</div>
+
+
 					<div className={styles.fameOnline}>
 						<div className={styles.fame}>
 							<FameStar className={styles.starIcon}/> 7767
 						</div>
 						<div>{online && stillOnline(lastOnline) &&  <div className={styles.onlineSymbol}/>}</div>
-					</div>
 				</div>
 				<div className={styles.icons}>
 					{renderHeart()}
