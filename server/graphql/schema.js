@@ -33,6 +33,11 @@ const typeDefs = gql`
         bio: String!
         gender: String!
         orientation: String!
+        profilePic: String!
+        picture2: String
+        picture3: String
+        picture4: String
+        picture5: String
     }
 		
 		input UserProfileInfo {

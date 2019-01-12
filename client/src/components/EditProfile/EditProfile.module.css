@@ -30,11 +30,16 @@
 
 }
 
-.bio {
-    height: 480px;
-    /* width: 100%; */
-    /* flex: 1; */
+.title {
+    font-size: 30px;
+    font-weight: bold;
 }
+
+/*.bio {*/
+    /*height: 280px;*/
+     /*width: 100%; */
+     /*flex: 1; */
+/*}*/
 
 .name {
     display: flex;
@@ -42,7 +47,7 @@
 }
 
 .interests {
-    margin: 10px 15px;
+    margin: 10px 15px 30px;
     border: 1px solid #b7b7b7;
     border-radius: 4px;
 }

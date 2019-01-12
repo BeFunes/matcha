@@ -128,7 +128,7 @@ export const saveLocationMutation = (lat, long, address) => ({
 	`
 })
 
-export const editUserMutation = (data) => ({
+export const editUserMutation = (data, pics) => ({
 	query: `mutation {
 		editUser(userInput: {
 			requestEmail: "${data.requestEmail}",
@@ -139,6 +139,11 @@ export const editUserMutation = (data) => ({
 			bio: ${data.bio},
 			gender: "${data.gender}",
 			orientation: "${data.orientation}"
+			profilePic: "${pics[0]}"
+			picture2: "${pics[1]}"
+			picture3: "${pics[2]}"
+			picture4: "${pics[3]}"
+			picture5: "${pics[4]}"
 		}) {content}
 	}`
 })

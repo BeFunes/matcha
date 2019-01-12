@@ -12,6 +12,7 @@ import {fetchGraphql} from "../../../../utils/graphql";
 import {startChatMutation, toggleBlockMutation, toggleLikeMutation} from "../../../../graphql/mutations";
 import 'react-toastify/dist/ReactToastify.css';
 import {stillOnline} from "../../../../utils/date";
+import {EMPTYAVATAR, HOST} from "../../../../constants";
 
 
 class ProfileCard extends Component {
@@ -104,6 +105,13 @@ class ProfileCard extends Component {
 		const chat = this.state.likeFrom && this.state.likeTo
 		const borderStyle = gender === 'F' ? styles.f : styles.m
 
+
+		const getProfilePic = () => {
+			if (!profilePic) return null
+			const profileP = profilePic && profilePic.substring(0, 7) === "images/" ? `${HOST}/${profilePic}` : profilePic
+			return typeof profileP !== 'undefined' ? profileP : EMPTYAVATAR
+		}
+
 		const renderHeart = () => {
 			return (this.state.likeTo)
 				? <FullHeart onClick={this.toggleLike}/>
@@ -123,7 +131,7 @@ class ProfileCard extends Component {
 			<div className={classnames(styles.component, borderStyle)}>
 				<div className={styles.img}
 				     style={{
-					     backgroundImage: `url(${profilePic})`,
+					     backgroundImage: `url(${getProfilePic()})`,
 					     backgroundRepeat: 'noRepeat', backgroundSize: 'cover'
 				     }}
 				     onClick={() => {
@@ -145,11 +153,9 @@ class ProfileCard extends Component {
 					{chat && renderChat()}
 					{renderBlock()}
 				</div>
-				{/*</div>*/}
 				<div className={styles.name}>
 					{firstName}, {age}
 				</div>
-				{/*<div>{age}</div>*/}
 			</div>
 		)
 	}

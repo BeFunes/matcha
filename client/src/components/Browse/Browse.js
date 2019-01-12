@@ -87,12 +87,6 @@ class Browse extends Component {
 
 	render() {
 		const {matches} = this.state
-///////////////////// todo: remove before moving to production
-		matches && matches.forEach((x, index) => {
-			if (matches.find((y, ind) => index > ind ? _.isEqual(y, x) : false)) {
-				console.log("DUPLICATE: ", x.id)
-			}
-		})
 
 		return (
 			<div className={styles.component}>

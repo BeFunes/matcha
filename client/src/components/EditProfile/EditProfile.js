@@ -181,18 +181,19 @@ class EditProfile extends Component {
 		this.setState({gender: {value: data, somethingChanged: true}})
 
 
-	onSaveClick = () => {
-		this.uploadPic()
-		console.log("EDIT user handler")
+	saveUserData = (picUrls) => {
+		console.log("SAVE USER DATA")
+		let paths = picUrls
+		while (paths.length < 5) { paths.push(null) }
 		const data = {}
 		data.requestEmail = this.props.user.email
 		data.name = this.state.textFields.firstName.value
 		data.lastName = this.state.textFields.lastName.value
 		data.interests = this.state.tags.map(x => x.replace(/.+/g, '"$&"'))
-		console.log("here", data.interests)
 		data.bio = JSON.stringify(this.state.bio.value)
 		data.email = JSON.stringify(this.state.textFields.email.value)
 		data.gender = this.state.gender.value === 'Man' ? "M" : "F"
+		console.log("GENDER", data.gender)
 		data.orientation = (function (orient) {
 			switch (orient) {
 				case 'Woman':
@@ -203,7 +204,7 @@ class EditProfile extends Component {
 					return 'FM'
 			}
 		})(this.state.orientation.value)
-		const query = editUserMutation(data)
+		const query = editUserMutation(data, picUrls)
 		const cb = resData => {
 			if (resData.errors) {
 				throw new Error(
@@ -224,6 +225,11 @@ class EditProfile extends Component {
 		fetchGraphql(query, cb, this.props.token)
 	}
 
+	onSaveClick = () => {
+		console.log("SAVE USER DATA")
+		this.uploadPic(this.saveUserData)
+	}
+
 	notify = () => toast.success("Profile modified !", {
 		position: toast.POSITION.BOTTOM_RIGHT,
 		autoClose: 2000
@@ -231,7 +237,8 @@ class EditProfile extends Component {
 
 	pictureDisplay = () => {
 		const dropZones = []
-		const picArray = [this.props.user.profilePic, this.props.user.picture2, this.props.user.picture3, this.props.user.picture4, this.props.user.picture5]
+		const { user} = this.props
+		const picArray = [user.profilePic, user.picture2, user.picture3, user.picture4, user.picture5]
 		const key = ['profilePic', 'picture2', 'picture3', 'picture4', 'picture5']
 		dropZones.push((<Dropzone {...this.props} key={key[0]} profilePic={picArray[0]} save={this.savePictureInState}
 		                          delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped}
@@ -242,12 +249,10 @@ class EditProfile extends Component {
 			                          delete={this.deletePictureFromState} exist={this.checkIfPictureAlreadyDropped}
 			                          picType={key[i]}/>))
 		}
-		console.log("------", dropZones)
 		return dropZones
 	}
 
 	savePictureInState = (info) => {
-		console.log("test value ---> ", info)
 		this.setState({files: this.state.files.concat(info), somethingChanged: true},
 			() => {
 				let unique = [...new Set(this.state.files)]
@@ -273,14 +278,19 @@ class EditProfile extends Component {
 		return true
 	}
 
-	uploadPic = (data, picType) => {
+	uploadPic = (cb) => {
+		const { user} = this.props
+		const oldUrls = [user.profilePic, user.picture2, user.picture3, user.picture4, user.picture5]
+
 		const formData = new FormData()
 		this.state.files.forEach((item, i) => {
-			console.log("what is it ", item)
 			formData.append('image', item)
+			console.log("OLD>>", oldUrls[i])
+			if (!!oldUrls[i]) {
+				console.log("OLD PATH", oldUrls[i])
+				formData.append('oldPath', oldUrls[i]);
+			}
 		})
-		// formData.append('image', this.state.files[0])
-		// formData.append('image', this.state.files[1])
 
 		fetch('http://localhost:3001/post-image', {
 			method: 'PUT',
@@ -291,31 +301,13 @@ class EditProfile extends Component {
 		})
 			.then(res => res.json())
 			.then(fileResData => {
-				console.log(fileResData)
+				console.log("FILE RES DATA", fileResData)
+				cb(fileResData.filePath.map(x => x.path))
 			})
 			.catch(err => {
 				console.log(err)
 			})
 	}
-
-	// submitPicInfo = (data) => {
-	// 	let query = insertPictureInfoMutation(data)
-	// 	const cb = resData => {
-	// 		if (resData.errors && resData.errors[0].status === 422) {
-	// 			throw new Error(
-	// 				"Validation failed"
-	// 			)
-	// 		}
-	// 		if (resData.errors) {
-	// 			throw new Error('Image upload failed')
-	// 		}
-	// 		console.log(resData.data.insertPictureInfo.content)
-	// 		this.setState({...data})
-	// 		this.nextPage()
-	// 	}
-	// 	fetchGraphql(query, cb, this.props.token)
-	// }
-
 
 	render() {
 		const elementsArray = [];
@@ -326,15 +318,14 @@ class EditProfile extends Component {
 			});
 		}
 		const allValid = elementsArray.every((x) => x.valid && x.value !== '') && this.state.bio.valid && this.state.tags.length
-		console.log("State ", this.state)
-		console.log("Props user", this.props.user)
 		const interestBorderStyle = this.state.interestsSelected ? {border: "2px solid #3f51b5"} : {border: "1px solid #b7b7b7"}
+		const enableSave = allValid && this.state.bio.valid && !!this.state.tags.length
 
 		return (
 			<div className={styles.component}>
 
 				<div className={styles.page}>
-
+					<div className={styles.title}>Your profile</div>
 					<div className={styles.headerName}>
 						<div className={styles.name}>
 							{elementsArray.map(element => (
@@ -357,13 +348,10 @@ class EditProfile extends Component {
 						</div>
 					</div>
 
-					{/* <div 				className={styles.bio}> */}
 					<TextInput
-						// className={styles.bio}
 						ref={(input) => {
-							this.bioInpyt = input;
+							this.bioInput = input;
 						}}
-						// style={{minHeight: 200}}
 						label={this.state.bio.label}
 						value={this.state.bio.value}
 						error={!this.state.bio.valid}
@@ -402,8 +390,8 @@ class EditProfile extends Component {
 					<div className={styles.pictureContainer}>
 						{this.pictureDisplay()}
 					</div>
-					<Button color="primary" variant={allValid ? "contained" : "outlined"} onClick={this.onSaveClick}
-					        style={{marginTop: "10px"}} disabled={!this.state.somethingChanged}>
+					<Button color="primary" variant={"contained"} onClick={this.onSaveClick}
+					        style={{marginTop: "10px"}} disabled={!enableSave}>
 						Save
 					</Button>
 				</div>

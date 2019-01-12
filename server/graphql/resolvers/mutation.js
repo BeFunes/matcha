@@ -307,10 +307,14 @@ module.exports = {
 
 	editUser: async function (_, {userInput}, {req}) {
 		checkAuth(req)
-		console.log(userInput)
-
-		const query = `UPDATE users SET first_name = ?, last_name = ?, email = ?, bio = ?, gender = ?, orientation = ? WHERE id = ?`
-		await db.query(query, [userInput.name, userInput.lastName, userInput.email, userInput.bio, userInput.gender, userInput.orientation, req.userId])
+		const { profilePic, picture2, picture3, picture4, picture5} = userInput
+		const pics = [profilePic, picture2, picture3, picture4, picture5]
+		const input = pics.map((x, i)=> !!x && x !== 'null' ? `picture${i+1} = ?` : '').join().replace(/,,/g, ",").replace("picture1", "profilePic").split(",").filter(x=> !!x).join(", ")
+		const values = pics.filter(x => !!x && x !== 'null')
+		const query = `UPDATE users SET first_name = ?, last_name = ?, email = ?, bio = ?, gender = ?, 
+		orientation = ?${!!values.length ? "," : ""} ${input} WHERE id = ?`
+		await db.query(query, [userInput.name, userInput.lastName, userInput.email, userInput.bio, userInput.gender, userInput.orientation,
+			...values, req.userId])
 		const [inter] = await db.query('Select title from interests')
 		const existingInterests = inter.map(y => y.title)
 		const newInterests = userInput.interests.filter(element => !existingInterests.includes(element))
