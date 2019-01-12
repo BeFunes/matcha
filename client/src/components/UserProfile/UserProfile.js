@@ -287,11 +287,13 @@ class UserProfile extends Component {
 				<div className={styles.whitePage}>
 					<div className={styles.header}>
 						<div className={styles.pictureBlock}>
+							<div className={styles.profilePicContainer}>
 							<img className={styles.profilePic}
 							     src={getProfilePic()}
 							     onClick={this.openLightbox.bind(this, 0)}
 							     alt={`${firstName}+${lastName}`}
 							/>
+							</div>
 							{!this.state.isMe ?
 								<div className={styles.actionBlocks}>
 									<div className={styles.iconBlock}> {renderLikeIcon()} Like</div>
