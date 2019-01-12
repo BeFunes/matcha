@@ -133,9 +133,7 @@ class App extends Component {
 	}
 
 	addNewConversation = (message) => {
-		console.log("here")
 		const newConv = {name: message.conversationName, id: message.otherId, messages: [message]}
-		console.log(this.state.conversations.filter(x => x.name === message.conversationName))
 		if (this.state.conversations.filter(x => x.name === message.conversationName).length) { return }
 		this.setState({conversations: [...this.state.conversations, newConv ], currentConversation: message.conversationName})
 	}
