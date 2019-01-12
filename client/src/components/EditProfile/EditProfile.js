@@ -29,14 +29,14 @@ const blueTheme = createMuiTheme({
 class EditProfile extends Component {
 
 	componentDidMount() {
-
+		const {user} = this.props
 		this.setState({
 			textFields: {
-				firstName: {...this.state.textFields.firstName, value: this.props.user.firstName},
-				lastName: {...this.state.textFields.lastName, value: this.props.user.lastName},
-				email: {...this.state.textFields.email, value: this.props.user.email}
+				firstName: {...this.state.textFields.firstName, value: user.firstName},
+				lastName: {...this.state.textFields.lastName, value: user.lastName},
+				email: {...this.state.textFields.email, value: user.email}
 			},
-
+			gender: user.gender === 'M' ? "Man" : "Woman",
 			bio: {
 				...this.state.bio, value: this.props.user.bio
 			},
