@@ -308,9 +308,11 @@ module.exports = {
 	editUser: async function (_, {userInput}, {req}) {
 		checkAuth(req)
 		const { profilePic, picture2, picture3, picture4, picture5} = userInput
+		console.log(userInput)
 		const pics = [profilePic, picture2, picture3, picture4, picture5]
-		const input = pics.map((x, i)=> !!x && x !== 'null' ? `picture${i+1} = ?` : '').join().replace(/,,/g, ",").replace("picture1", "profilePic").split(",").filter(x=> !!x).join(", ")
+		const input = pics.map((x, i)=> !!x && x !== 'null' ? `picture${i+1} = ?` : `picture${i+1} = NULL`).join().replace(/,,/g, ",").replace("picture1", "profilePic").split(",").filter(x=> !!x).join(", ")
 		const values = pics.filter(x => !!x && x !== 'null')
+		console.log(input, values)
 		const query = `UPDATE users SET first_name = ?, last_name = ?, email = ?, bio = ?, gender = ?, 
 		orientation = ?${!!values.length ? "," : ""} ${input} WHERE id = ?`
 		await db.query(query, [userInput.name, userInput.lastName, userInput.email, userInput.bio, userInput.gender, userInput.orientation,
@@ -323,6 +325,7 @@ module.exports = {
 		if (interests.length > 0) {
 			const [resInterests] = await db.query(interestQuery, [interests])
 		}
+
 		const interestsIdQuery = `SELECT id FROM interests WHERE title IN (${userInput.interests.map(() => "?").join()})`
 		const [ids] = await db.query(interestsIdQuery, userInput.interests)
 		const deleteInterest = 'DELETE FROM users_interests WHERE user_id = ?'

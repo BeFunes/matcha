@@ -65,27 +65,26 @@ class DropzoneWithPreview extends React.Component {
     }
 
     onDrop(files) {
+        console.log("---->", this.state.files)
         if (this.props.exist(files[0])) {
             files[0].picType = this.props.picType
             this.setState({
                 files: files.map(file => Object.assign(file, {
                     preview: URL.createObjectURL(file)
                 })),
-                upload: this.state.upload.concat(files[0])
-            }, () => { this.props.save(this.state.upload) });
+            }, () => { this.props.save(this.state.files) });
         }
     }
 
     onDelete = () => {
-        this.props.delete(this.state.upload[0])
+        this.props.delete(this.state.files[0])
         this.setState({ files: [], upload: [] })
     }
 
     componentWillMount() {
-
         if (this.props.profilePic && typeof this.props.profilePic !== 'undefined') {
             this.setState({
-                files: this.state.files.concat({ preview: this.props.profilePic, name: this.props.profilePic })
+                files: this.state.files.concat({ preview: this.props.profilePic, name: this.props.profilePic, picType: this.props.picType })
             });
         }
 

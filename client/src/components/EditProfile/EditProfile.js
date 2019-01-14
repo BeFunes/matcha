@@ -127,7 +127,9 @@ class EditProfile extends Component {
 			value: ""
 		},
 		files: [],
-		somethingChanged: false
+		somethingChanged: false,
+		startingPictures:  {"profilePic": {name: this.props.user.profilePic}, "picture2": {name:this.props.user.picture2},
+			"picture3": {name: this.props.user.picture3 }, "picture4": {name: this.props.user.picture4}, "picture5": {name:this.props.user.picture5}}
 	}
 
 	inputChangeHandler = (type, {target}) => {
@@ -181,11 +183,14 @@ class EditProfile extends Component {
 		this.setState({gender: {value: data, somethingChanged: true}})
 
 
-	saveUserData = (picUrls) => {
+	saveUserData = () => {
 		console.log("SAVE USER DATA")
-		let paths = picUrls
-		while (paths.length < 5) { paths.push(null) }
 		const data = {}
+		let picUrls = []
+		for (let picType in this.state.startingPictures) {
+			console.log(picType)
+			picUrls.push(this.state.startingPictures[picType].finalPath)
+		}
 		data.requestEmail = this.props.user.email
 		data.name = this.state.textFields.firstName.value
 		data.lastName = this.state.textFields.lastName.value
@@ -254,40 +259,58 @@ class EditProfile extends Component {
 
 	savePictureInState = (info) => {
 		console.log("result ----->", info)
-		this.setState({ files: this.state.files.concat(info) },
-		)
+		this.state.startingPictures[info[0].picType] = info[0]
 	}
 
 	deletePictureFromState = (info) => {
-		const indexPic = this.state.files.findIndex(item => info.preview === item.preview)
-		this.setState({
-			...this.state,
-			files: this.state.files.filter((item, index) => index !== indexPic),
-			somethingChanged: true
-		})
+		if (info.name === this.state.startingPictures[info.picType].name ) {
+			console.log("hey")
+			this.state.startingPictures[info.picType] = { name: null } 
+		}
 	}
 
 	checkIfPictureAlreadyDropped = (info) => {
-		const indexPic = this.state.files.findIndex(item => info.name === item.name)
-		if (indexPic !== -1) {
-			return false
+		let ret = true
+		for (var property1 in this.state.startingPictures) {
+			console.log(this.state.startingPictures[property1])
+			if (this.state.startingPictures[property1].name === info.name) {
+				ret = false
+			}
 		}
-		return true
+		return ret
+	}
+
+	matchPath = (result) => {
+		for (let filePath in result) {
+			for (let picType in this.state.startingPictures) {
+				if (result[filePath].originalname === this.state.startingPictures[picType].name) {
+					this.state.startingPictures[picType].finalPath = result[filePath].path
+				}
+			}
+		}
+		for (let picType in this.state.startingPictures) {
+			if (!this.state.startingPictures[picType].hasOwnProperty('finalPath')){
+				this.state.startingPictures[picType].finalPath = this.state.startingPictures[picType].name
+			}
+		}
+		console.log(this.state.startingPictures)
 	}
 
 	uploadPic = (cb) => {
 		const { user} = this.props
 		const oldUrls = [user.profilePic, user.picture2, user.picture3, user.picture4, user.picture5]
-
 		const formData = new FormData()
-		this.state.files.forEach((item, i) => {
-			formData.append('image', item)
-			console.log("OLD>>", oldUrls[i])
-			if (!!oldUrls[i]) {
-				console.log("OLD PATH", oldUrls[i])
-				formData.append('oldPath', oldUrls[i]);
+		for (let picType in this.state.startingPictures) {
+			if (this.state.startingPictures[picType].hasOwnProperty('preview')){
+				formData.append('image', this.state.startingPictures[picType])
 			}
-		})
+		}
+		// for (let i = 0; i < 5; i++) {
+		// 	if (!!oldUrls[i]) {
+		// 		console.log("OLD PATH", oldUrls[i])
+		// 		formData.append('oldPath', oldUrls[i]);
+		// 	}
+		// }
 		fetch('http://localhost:3001/post-image', {
 			method: 'PUT',
 			headers: {
@@ -298,7 +321,8 @@ class EditProfile extends Component {
 			.then(res => res.json())
 			.then(fileResData => {
 				console.log("FILE RES DATA", fileResData)
-				cb(fileResData.filePath.map(x => x.path))
+				this.matchPath(fileResData.filePath)
+				cb()
 			})
 			.catch(err => {
 				console.log(err)
