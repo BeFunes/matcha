@@ -1,3 +1,5 @@
+const { checkAuth, markUserOnline} = require("../../util/graphql")
+
 const db = require('../../util/db')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
@@ -38,26 +40,34 @@ const query = {
 			CONST.SECRET,
 			{expiresIn: '1h'}
 		)
+		await markUserOnline(user[0].id)
+		// pubsub.publish('userInfoChange', {userInfoChange: {onlineInfo: true, sender: req.userId, likeInfo: null}})
 		return {token: token, userId: user[0].id, isOnboarded: !!user[0].isOnboarded}
 	},
 
 	getUserData: async function (_, {id}, {req}) {
 		console.log("GET USER INFO")
-		if (!req.isAuth) {
-			const error = new Error('Not authenticated!')
-			error.code = 401
-			throw error
-		}
-		const query = `SELECT U.*, GROUP_CONCAT(I.title) interests FROM (SELECT * from users WHERE id=?) U
-		JOIN users_interests UI on U.id = UI.user_id
-		JOIN interests I ON I.id = UI.interest_id
-		GROUP BY UI.user_id `
-		const [user] = await db.query(query, id)
+		checkAuth(req)
+		const query = `
+		SELECT A.* , B.chats FROM 
+			(SELECT U.*, GROUP_CONCAT(I.title) interests FROM (SELECT * from users WHERE id=?) U
+			JOIN users_interests UI on U.id = UI.user_id
+			JOIN interests I ON I.id = UI.interest_id
+			GROUP BY UI.user_id ) A
+		LEFT JOIN 
+			(SELECT U.id, COUNT(U.id) chats
+			FROM users U
+			JOIN messages M ON (M.sender_id = U.id AND M.receiver_id = ?) OR (M.sender_id = ? AND M.receiver_id = U.id)
+			WHERE M.meta = 0
+			GROUP BY U.id) = B
+		ON A.id = B.id`
+		const [user] = await db.query(query, [id, req.userId, req.userId])
 		if (user.length === 0) {
 			const error = new Error('User not found.')
 			error.code = 401
 			throw error
 		}
+		await markUserOnline(req.userId)
 		return {
 			id: user[0].id,
 			firstName: user[0].first_name,
@@ -76,16 +86,15 @@ const query = {
 			latitude: user[0].latitude,
 			longitude: user[0].longitude,
 			address: user[0].address,
+			online: user[0].online,
+			chats: user[0].chats || 0,
+			lastOnline: user[0].lastOnline.toLocaleString(),
 		}
 	},
 
 	getUserAgentData: async function (_, x, {req}) {
 		console.log("GET AGENT USER INFO")
-		if (!req.isAuth) {
-			const error = new Error('Not authenticated!')
-			error.code = 401
-			throw error
-		}
+		checkAuth(req)
 		const query = `SELECT U.*, GROUP_CONCAT(I.title) interests FROM (SELECT * from users WHERE id=?) U
 		JOIN users_interests UI on U.id = UI.user_id
 		JOIN interests I ON I.id = UI.interest_id
@@ -96,6 +105,7 @@ const query = {
 			error.code = 401
 			throw error
 		}
+		await markUserOnline(req.userId)
 		return {
 			id: user[0].id,
 			firstName: user[0].first_name,
@@ -122,11 +132,7 @@ const query = {
 
 	isOnboarded: async function (_, x, {req}) {
 		console.log("GET IS ONBOARDED")
-		if (!req.isAuth) {
-			const error = new Error('Not authenticated!')
-			error.code = 401
-			throw error
-		}
+		checkAuth(req)
 		// req.email = "david.baron@hotmail.com"
 		const [user] = await db.query('SELECT isOnboarded FROM users WHERE email= ? ', req.email)
 		if (user.length === 0) {
@@ -134,6 +140,7 @@ const query = {
 			error.code = 401
 			throw error
 		}
+		await markUserOnline(req.userId)
 		return user[0].isOnboarded
 	},
 
@@ -145,35 +152,44 @@ const query = {
 		const interestsCondition = filters.interests.length ? `AND (${filters.interests.map(() => "I.title = ?").join(" OR ")})` : ''
 
 		const query = `
-		SELECT DISTINCT U.* FROM 
-			(SELECT Z.*, COALESCE(B.count, 0) AS blocked FROM 
-				(SELECT * FROM (SELECT R.*, GROUP_CONCAT(I.title) interests FROM 
-					( SELECT *
-						FROM users
-						WHERE (gender REGEXP ?)
-						AND (dob > ?)
-						AND (dob < ?)
-						AND (orientation LIKE ?) 
-						ORDER BY id LIMIT 0,1000 
-						) R
-					JOIN users_interests UI on R.id = UI.user_id
-					JOIN interests I ON I.id = UI.interest_id
-					GROUP BY UI.user_id) A
-					LEFT JOIN blocks B ON A.id = B.sender_id
-					WHERE B.sender_id IS NULL OR B.receiver_id != ?) Z
-				LEFT JOIN (
-					SELECT receiver_id, COUNT(*) as COUNT
-					FROM blocks WHERE sender_id = ?
-					GROUP BY receiver_id ) as B
-			ON Z.id = B.receiver_id) U
-			JOIN users_interests UI ON UI.user_id = U.id
-			JOIN interests I on I.id = UI.interest_id
-			WHERE U.id != ?
-			${interestsCondition} `
+		SELECT A.*, B.chats 
+			FROM (SELECT DISTINCT U.* FROM 
+				(SELECT Z.*, COALESCE(B.count, 0) AS blocked FROM 
+					(SELECT * FROM (SELECT R.*, GROUP_CONCAT(I.title) interests FROM 
+						( SELECT *
+							FROM users
+							WHERE (gender REGEXP ?)
+							AND (dob > ?)
+							AND (dob < ?)
+							AND (orientation LIKE ?) 
+							ORDER BY id LIMIT 0,1000 
+							) R
+						JOIN users_interests UI on R.id = UI.user_id
+						JOIN interests I ON I.id = UI.interest_id
+						GROUP BY UI.user_id) A
+						LEFT JOIN blocks B ON A.id = B.sender_id
+						WHERE B.sender_id IS NULL OR B.receiver_id != ?) Z
+					LEFT JOIN (
+						SELECT receiver_id, COUNT(*) as COUNT
+						FROM blocks WHERE sender_id = ?
+						GROUP BY receiver_id ) as B
+				ON Z.id = B.receiver_id) U
+				JOIN users_interests UI ON UI.user_id = U.id
+				JOIN interests I on I.id = UI.interest_id
+				WHERE U.id != ?
+				${interestsCondition} ) A
+			LEFT JOIN  (SELECT U.id, COUNT(U.id) chats
+					FROM users U
+					JOIN messages M ON (M.sender_id = U.id AND M.receiver_id = ?) OR (M.sender_id = ? AND M.receiver_id = U.id)
+					WHERE M.meta = 0
+					GROUP BY U.id) = B
+			ON A.id = B.id
+			`
 
 		/// IF NO INTERESTS ARE SPECIFIED, ALL ARE RETURNED
-		const array = [`^[${filters.orientation}]$`, minDob, maxDob, `%${filters.gender}%`, req.userId, req.userId, req.userId]
+		const array = [`^[${filters.orientation}]$`, minDob, maxDob, `%${filters.gender}%`, req.userId, req.userId, req.userId, req.userId, req.userId]
 		const [users] = await db.query(query, [...array, ...filters.interests])
+
 		const result = users.map((x) => (
 			{
 				firstName: x.first_name,
@@ -195,18 +211,18 @@ const query = {
 				latitude: x.latitude,
 				longitude: x.longitude,
 				address: x.address,
+				online: x.online,
+				lastOnline: x.lastOnline.toLocaleString(),
+				chats: x.chats || 0
 			})
 		)
+		await markUserOnline(req.userId)
 		return lodash.filter(result, (x) => lodash.difference(filters.interests, x.interests).length === 0)
 	},
 
 	usedInterests: async function (_, x, {req}) {
 		console.log("GET USED INTERESTS")
-		if (!req.isAuth) {
-			const error = new Error('Not authenticated!')
-			error.code = 401
-			throw error
-		}
+		checkAuth(req)
 		const query = `SELECT DISTINCT I.title FROM interests I
 									RIGHT JOIN users_interests UI ON UI.interest_id = I.id`
 		const [interests] = await db.query(query, req.email)
@@ -215,14 +231,11 @@ const query = {
 			error.code = 401
 			throw error
 		}
+		await markUserOnline(req.userId)
 		return interests.map(x => x.title)
 	},
 	likeInfo: async function (_, {info}, {req}) {
-		if (!req.isAuth) {
-			const error = new Error('Not authenticated!')
-			error.code = 401
-			throw error
-		}
+		checkAuth(req)
 		const userToMatchQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
 		const matchToUserQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
 		const [userToMatch] = await db.query(userToMatchQuery, [req.userId, info.receiverId])
@@ -232,11 +245,7 @@ const query = {
 
 	relationsData: async function (_, {id}, {req}) {
 		console.log("GET RELATIONS DATA")
-		if (!req.isAuth) {
-			const error = new Error('Not authenticated!')
-			error.code = 401
-			throw error
-		}
+		checkAuth(req)
 		const userLikesMatchQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
 		const matchLikesUserQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
 		const userBlocksMatchQuery = `SELECT EXISTS(SELECT * FROM blocks WHERE sender_id = ? AND receiver_id = ?) val`
@@ -246,6 +255,7 @@ const query = {
 		const [matchLikesUser] = await db.query(matchLikesUserQuery, [id, req.userId])
 		const [userBlocksMatch] = await db.query(userBlocksMatchQuery, [req.userId, id])
 		const [matchBlocksUser] = await db.query(matchBlocksUserQuery, [id, req.userId])
+		await markUserOnline(req.userId)
 		return {
 			likeTo: userLikesMatch[0].val,
 			likeFrom: matchLikesUser[0].val,
@@ -256,11 +266,7 @@ const query = {
 
 	conversations: async function (_, x, {req}) {
 		console.log('GET USER MESSAGES')
-		if (!req.isAuth) {
-			const error = new Error('Not authenticated!')
-			error.code = 401
-			throw error
-		}
+		checkAuth(req)
 
 		const query = `SELECT M.*, CONCAT(Sender.first_name, ' ', Sender.last_name) sender_name, 
 CONCAT(Receiver.first_name, ' ', Receiver.last_name) receiver_name, Sender.profilePic sender_pic, Receiver.profilePic receiver_pic
@@ -279,29 +285,28 @@ CONCAT(Receiver.first_name, ' ', Receiver.last_name) receiver_name, Sender.profi
 			receiverId: x.receiver_id,
 			timestamp: x.time,
 			seen: x.seen,
+			meta: x.meta,
 			content: x.content,
 			conversationId: x.conversation_id,
 			picture: req.userId === x.sender_id ? x.receiver_pic : x.sender_pic,
 			conversationName: req.userId === x.sender_id ? x.receiver_name : x.sender_name,
 			otherId: req.userId === x.sender_id ? x.receiver_id : x.sender_id,
-		}))
+		})).filter(x => !x.meta)
 		///order by timestamp
+		await markUserOnline(req.userId)
 		const conversations = lodash.groupBy(conv, x => x.conversationId)
 		return Object.keys(conversations).map(x => conversations[x])
 	},
 
 	notifications: async function (_, x, {req}) {
 		console.log("GET NOTIFICATIONS FOR USER ", req.userId)
-		if (!req.isAuth) {
-			const error = new Error('Not authenticated!')
-			error.code = 401
-			throw error
-		}
+		checkAuth(req)
 		const query = `SELECT N.*, U.first_name, U.last_name 
 					FROM notifications N
 					JOIN users U on N.from_id = U.id
 					WHERE N.user_id = ? ORDER BY created_at DESC LIMIT 100`
 		const [raw] = await db.query(query, [req.userId])
+		await markUserOnline(req.userId)
 		return raw.map(x => ({
 			seen: x.open,
 			senderId: x.from_id,

@@ -33,6 +33,11 @@ const typeDefs = gql`
         bio: String!
         gender: String!
         orientation: String!
+        profilePic: String!
+        picture2: String
+        picture3: String
+        picture4: String
+        picture5: String
     }
 		
 		input UserProfileInfo {
@@ -89,6 +94,9 @@ const typeDefs = gql`
         interests: [String]
         blocked: Boolean
         address: String
+        online: Boolean
+        lastOnline: String
+        chats: Int
     }
     
     input MatchFilter {
@@ -134,17 +142,13 @@ const typeDefs = gql`
         conversationName: String
         otherId: Int
         picture: String
+        meta: Boolean
     }
     
     type Conversation {
         messages: [UserMessage]
     }
-    
-    
-    type Like {
-      value: Boolean
-      sender: Int
-    }
+ 
 
     type Notification {
         senderId: Int!
@@ -171,11 +175,18 @@ const typeDefs = gql`
         notifications: [Notification]!
     }
 
+		type UserInfo {
+				likeInfo: Boolean
+				onlineInfo: Boolean
+				sender: Int!
+		}
+    
     type RootSubscription {
-        likeToggled (userId: Int!) : Like
+        userInfoChange (userId: Int!) : UserInfo
         trackNotification (userId: Int!): Notification
         trackProfileVisited (userId: Int!) :  Visited
         newMessage (userId: Int!) : UserMessage
+        newConversation(userId: Int!): UserMessage
     }
     
     type RootMutation {
@@ -198,6 +209,8 @@ const typeDefs = gql`
         markMessagesAsSeen(senderId: Int!) : Message
         sendMessage(content: String!, receiverId: Int!) : Message
         reportUser(userId: Int!): Message
+        markOffline: Message
+        startChat(receiverId: Int!): UserMessage
     }
 
     schema {

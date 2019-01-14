@@ -19,14 +19,30 @@ export const chatSubscription = gql `
 	    senderId
 	    timestamp
 	    seen
+	    meta
 	    conversationName
   }
 }`
 
-export const likeToggledSubscription = gql`
-	subscription likeToggled($userId: Int!) {
-		likeToggled(userId: $userId) {
-			value
+export const userInfoChangeSubscription = gql`
+	subscription userInfoChange($userId: Int!) {
+		userInfoChange(userId: $userId) {
+			likeInfo
 			sender
+			onlineInfo
+		}	
+	}`
+
+
+export const newConversationSubscription = gql`
+	subscription newConversation($userId: Int!) {
+		newConversation(userId: $userId) {
+			content
+			receiverId
+			senderId
+			timestamp
+			meta
+			conversationName
+			picture
 		}	
 	}`

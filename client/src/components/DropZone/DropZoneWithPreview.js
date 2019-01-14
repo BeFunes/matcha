@@ -99,7 +99,6 @@ class DropzoneWithPreview extends React.Component {
 
     render() {
         const { files } = this.state;
-        console.log(this.props.picType)
         const thumbs = files.map(file => (
             <div key={file.name} style={{ margin: 'auto', maxWidth: '150px', maxHeight: '150px' }}>
                 <img

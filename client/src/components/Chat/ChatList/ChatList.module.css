@@ -1,6 +1,7 @@
 .component {
     width: 260px;
-    border-right: 2px solid #bbbbbe
+    border-right: 2px solid #bbbbbe;
+    background-color: white;
 }
 
 .unreadBadge {

@@ -1,12 +1,12 @@
 .component {
-
     display: flex;
     justify-content: center;
     width: 100%;
-    height: 100%;
+    overflow-y: auto;
 }
 
 .whitePage {
+    height: 100%;
     display: flex;
     background-color: white;
     width: 100%;
@@ -15,7 +15,8 @@
     flex-direction: column;
     align-items: stretch;
     align-content: stretch;
-    padding: 25px 40px;
+    padding: 25px 40px 100px;
+
 }
 
 .pageWithMargins {
@@ -30,15 +31,24 @@
     display: flex;
     flex-direction: column;
 }
-.profilePic {
-    border-radius: 100%;
-    max-height: 150px;
-    max-width: 150px;
-    min-height: 150px;
-    min-width: 150px;
+
+.profilePicContainer {
+    height: 180px;
+    width: 180px;
     margin-bottom: 10px;
-    /*margin-left: 10px;*/
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
+.profilePic {
+    border-radius: 5%;
+    object-fit: contain;
+    display: block;
+    width: 180px;
+    height: 180px;
+}
+
 
 .header {
     display: flex;
@@ -84,20 +94,23 @@
     justify-content: center;
 }
 
-.pic {
+.picContainer {
     border: 2px solid black;
     height: 150px;
     width: 150px;
-    background-repeat: noRepeat;
-    background-size: cover;
-    background-position: center;
+    /*display: block;*/
+}
+
+.pic {
+    display: block;
+    width: auto;
+    max-height: 100%;
+    margin: 0 auto;
 }
 
 .actionBlocks {
     width: 100%;
     display: flex;
-    /*height: 84px;*/
-    /*justify-content: stretch;*/
     align-items: stretch;
 }
 
@@ -117,3 +130,22 @@
 .chat {
     color: green;
 }
+
+.onlineBall {
+    display: inline;
+    margin: 3px 6px 0 2px;
+    background-color: #2bd32b;
+    height: 10px;
+    width: 10px;
+    border-radius: 5px;
+}
+
+.offlineBall {
+    display: inline;
+    margin: 3px 5px 0 2px;
+    border: 1px solid black;
+    height: 8px;
+    width: 8px;
+    border-radius: 5px;
+}
+
