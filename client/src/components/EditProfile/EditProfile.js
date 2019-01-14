@@ -238,12 +238,8 @@ class EditProfile extends Component {
 	}
 
 	savePictureInState = (info) => {
-		console.log("test value ---> ", info)
+		console.log("result ----->", info)
 		this.setState({ files: this.state.files.concat(info) },
-			() => {
-				let unique = [...new Set(this.state.files)]
-				this.setState({ files: unique })
-			}
 		)
 	}
 
@@ -269,9 +265,6 @@ class EditProfile extends Component {
 			console.log("what is it ", item)
 			formData.append('image', item)
 		})
-		// formData.append('image', this.state.files[0])
-		// formData.append('image', this.state.files[1])
-
 		fetch('http://localhost:3001/post-image', {
 			method: 'PUT',
 			headers: {

@@ -66,6 +66,7 @@ class DropzoneWithPreview extends React.Component {
 
     onDrop(files) {
         if (this.props.exist(files[0])) {
+            files[0].picType = this.props.picType
             this.setState({
                 files: files.map(file => Object.assign(file, {
                     preview: URL.createObjectURL(file)
