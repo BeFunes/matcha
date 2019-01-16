@@ -7,21 +7,33 @@ import LinearProgress from "@material-ui/core/es/LinearProgress/LinearProgress";
 import ImageUploader from 'react-images-upload';
 
 class OnboardingPics extends React.Component {
-	state = {}
-///////// PROBLEM. This is called twice, therefore uploadPic is called twice.
+	constructor() {
+		super()
+		this.flag = false
+	}
+	state = {
+		pictures: [],
+	}
+
+	///////// PROBLEM. This is called twice, therefore uploadPic is called twice.
 	/// This will be fixed once we change the picture uploader
 	onDrop = (pictures) => {
-		this.uploadPic(pictures[0], 'profilePic')
+		if (this.flag) {
+			console.log("yeah", pictures)
+			this.setState({
+				pictures: pictures,
+			}, () => { console.log("statePicture ----> ", this.state.pictures) });
+		}
+
+		this.flag = !this.flag
 	}
-//////////////////
+	//////////////////
 
 	uploadPic = (data, picType) => {
 		const formData = new FormData()
-		formData.append('image', data)
-		if (this.state[`${picType}Path`]) {
-			console.log("OLD PATH", this.state[`${picType}Path`])
-			formData.append('oldPath', this.state[`${picType}Path`]);
-		}
+		this.state.pictures.forEach((item) => {
+			formData.append('image', item)
+		})
 		fetch('http://localhost:3001/post-image', {
 			method: 'PUT',
 			headers: {
@@ -32,15 +44,19 @@ class OnboardingPics extends React.Component {
 			.then(res => res.json())
 			.then(fileResData => {
 				console.log(fileResData)
-				this.setState({[`${picType}Path`]: fileResData.filePath, [picType]: data})
+				this.save(fileResData.filePath)
 			})
 			.catch(err => {
 				console.log(err)
 			})
 	}
 
+	setPath = (fileResData) => {
+
+	}
 	componentDidMount() {
-		const {profilePic, picture2, picture3, picture4, picture5} = this.props
+		const { profilePic, picture2, picture3, picture4, picture5 } = this.props
+		console.log("Propssss", this.props)
 		this.setState({
 			profilePicPath: profilePic,
 			picture2Path: picture2,
@@ -50,17 +66,21 @@ class OnboardingPics extends React.Component {
 		})
 	}
 
+	save = (fileResData) => {
+		this.props.save({
+			profilePic: fileResData[0].path,
+			picture2: fileResData[1] ? fileResData[1].path : null,
+			picture3: fileResData[2] ? fileResData[2].path : null,
+			picture4: fileResData[3] ? fileResData[3].path : null,
+			picture5: fileResData[4] ? fileResData[4].path : null
+
+		})
+	}
+
 	render() {
-		const {previousPage, completedProgress} = this.props
+		const { previousPage, completedProgress } = this.props
 
 		// const allValid = elementsArray.every((x) => x.valid && x.value !== '')
-		const save = () => this.props.save({
-			profilePic: this.state.profilePicPath,
-			picture2: this.state.picture2Path,
-			picture3: this.state.picture3Path,
-			picture4: this.state.picture4Path,
-			picture5: this.state.picture5Path
-		})
 
 		return (
 			<div className={styles.component}>
@@ -78,13 +98,14 @@ class OnboardingPics extends React.Component {
 				<div className={styles.navigation}>
 					<div className={styles.buttons}>
 						<Fab onClick={previousPage} color="secondary" variant="extended" >
-							<NavigateBeforeIcon/>
+							<NavigateBeforeIcon />
 						</Fab>
-						<Fab onClick={save} color="secondary" variant="extended" >
-							<NavigateNextIcon/>
+						<Fab onClick={() => { if (this.state.pictures.length > 0) { this.uploadPic() } }}
+							color="secondary" variant="extended" >
+							<NavigateNextIcon />
 						</Fab>
 					</div>
-					<LinearProgress color="primary" className={styles.progress} variant="determinate" value={completedProgress}/>
+					<LinearProgress color="primary" className={styles.progress} variant="determinate" value={completedProgress} />
 				</div>
 			</ div>
 		)

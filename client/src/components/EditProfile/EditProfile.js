@@ -297,20 +297,19 @@ class EditProfile extends Component {
 	}
 
 	uploadPic = (cb) => {
+		if (this.state.startingPictures["profilePic"].name === null) {
+			toast.error("Profile picture needed !")
+			return
+		}
 		const { user} = this.props
-		const oldUrls = [user.profilePic, user.picture2, user.picture3, user.picture4, user.picture5]
+
 		const formData = new FormData()
+
 		for (let picType in this.state.startingPictures) {
 			if (this.state.startingPictures[picType].hasOwnProperty('preview')){
 				formData.append('image', this.state.startingPictures[picType])
 			}
 		}
-		// for (let i = 0; i < 5; i++) {
-		// 	if (!!oldUrls[i]) {
-		// 		console.log("OLD PATH", oldUrls[i])
-		// 		formData.append('oldPath', oldUrls[i]);
-		// 	}
-		// }
 		fetch('http://localhost:3001/post-image', {
 			method: 'PUT',
 			headers: {
@@ -339,11 +338,10 @@ class EditProfile extends Component {
 		}
 		const allValid = elementsArray.every((x) => x.valid && x.value !== '') && this.state.bio.valid && this.state.tags.length
 		const interestBorderStyle = this.state.interestsSelected ? {border: "2px solid #3f51b5"} : {border: "1px solid #b7b7b7"}
-		const enableSave = allValid && this.state.bio.valid && !!this.state.tags.length
+		const enableSave = allValid && this.state.bio.valid && !!this.state.tags.length && this.state.startingPictures["profilePic"]
 
 		return (
 			<div className={styles.component}>
-
 				<div className={styles.page}>
 					<div className={styles.title}>Your profile</div>
 					<div className={styles.headerName}>

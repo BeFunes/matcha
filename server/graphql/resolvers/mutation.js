@@ -1,9 +1,9 @@
-const {checkAuth, markUserOnline} = require("../../util/graphql")
+const { checkAuth, markUserOnline } = require("../../util/graphql")
 
 const jwt = require('jsonwebtoken')
 const db = require('../../util/db')
 const bcrypt = require('bcryptjs')
-const {validate} = require('./../../util/validator')
+const { validate } = require('./../../util/validator')
 const emailUtil = require('../../util/email')
 const CONST = require('../../../constants')
 const pubsub = require('./pubsub')
@@ -21,7 +21,7 @@ const typeOflike = (sender, receiver, like) => {
 }
 
 module.exports = {
-	createUser: async function (_, {userInput}) {
+	createUser: async function (_, { userInput }) {
 		console.log("CREATE USER")
 		if (!validate(userInput.email, "email") || !validate(userInput.password, "password")) {
 			const error = new Error('Validation Error')
@@ -39,16 +39,16 @@ module.exports = {
 
 		// check return value and send error if appropriate
 		// console.log(row)
-		return {email: userInput.email}
+		return { email: userInput.email }
 	},
 
-	emailConfirmation: async function (_, {token}) {
+	emailConfirmation: async function (_, { token }) {
 		console.log("EMAIL CONFIRMATION")
 		let decodedToken;
 		try {
 			decodedToken = jwt.verify(token, CONST.EMAIL_CONFIRMATION_SECRET);
 		} catch (err) {
-			const {email} = jwt.verify(token, '🍗🍡⏰', {ignoreExpiration: true})
+			const { email } = jwt.verify(token, '🍗🍡⏰', { ignoreExpiration: true })
 			const e = new Error(err.message)
 			e.data = email
 			throw e
@@ -69,31 +69,31 @@ module.exports = {
 		console.log(row)
 
 		const authToken = jwt.sign(
-			{userId: users[0].id, email: decodedToken.email},
+			{ userId: users[0].id, email: decodedToken.email },
 			CONST.SECRET,
-			{expiresIn: '1h'}
+			{ expiresIn: '1h' }
 		)
-		return {token: authToken, userId: users[0].id, isOnboarded: !!users[0].isOnboarded}
+		return { token: authToken, userId: users[0].id, isOnboarded: !!users[0].isOnboarded }
 		// return { content: "Account confirmed successfully"}
 	},
 
-	passwordResetEmail: async function (_, {data}) {
+	passwordResetEmail: async function (_, { data }) {
 		const query = `SELECT id FROM users WHERE email = ?`
 		const [users] = await db.query(query, [data.email])
 		if (users.length <= 0) {
 			throw new Error("User does not exist")
 		}
 		await emailUtil.sendEmail(CONST.RESET_PASSWORD_SECRET, data.email, data.subject)
-		return {content: "Reset password succesfully sent"}
+		return { content: "Reset password succesfully sent" }
 	},
 
-	resetPassword: async function (_, {token, password, confirmationPassword}) {
+	resetPassword: async function (_, { token, password, confirmationPassword }) {
 		console.log("EMAIL CONFIRMATION")
 		let decodedToken;
 		try {
 			decodedToken = jwt.verify(token, CONST.RESET_PASSWORD_SECRET);
 		} catch (err) {
-			const {email} = jwt.verify(token, CONST.RESET_PASSWORD_SECRET, {ignoreExpiration: true})
+			const { email } = jwt.verify(token, CONST.RESET_PASSWORD_SECRET, { ignoreExpiration: true })
 			const e = new Error(err.message)
 			e.data = email
 			throw e
@@ -122,15 +122,15 @@ module.exports = {
 		console.log(row)
 
 		const authToken = jwt.sign(
-			{userId: users[0].id, email: decodedToken.email},
+			{ userId: users[0].id, email: decodedToken.email },
 			CONST.SECRET,
-			{expiresIn: '1h'}
+			{ expiresIn: '1h' }
 		)
-		return {token: authToken, userId: users[0].id, isOnboarded: !!users[0].isOnboarded}
+		return { token: authToken, userId: users[0].id, isOnboarded: !!users[0].isOnboarded }
 		// return { content: "Account confirmed successfully"}
 	},
 
-	insertProfileInfo: async function (_, {info}, {req}) {
+	insertProfileInfo: async function (_, { info }, { req }) {
 		console.log("INSERT PROFILE INFO")
 		checkAuth(req)
 		if (!validate(info.firstName, "firstName") || !validate(info.lastName, "lastName")
@@ -144,10 +144,10 @@ module.exports = {
 		const [row] = await db.query(query, [info.firstName, info.lastName, info.dob, info.gender, info.orientation, req.email])
 		console.log(row)
 		await markUserOnline(req.userId)
-		return {content: "UserProfile data updated successfully"}
+		return { content: "UserProfile data updated successfully" }
 	},
 
-	insertBioInfo: async function (_, {info}, {req}) {
+	insertBioInfo: async function (_, { info }, { req }) {
 		console.log("INSERT BIO INFO")
 		checkAuth(req)
 		if (!validate(info.job, "job"), !validate(info.bio, "bio"), !validate(info.interests, "tags")) {
@@ -170,21 +170,21 @@ module.exports = {
 		const [resUserInterests] = await db.query(usersInterestsQuery, [ids.map((x) => [x.id, req.userId])])
 		console.log(resUserInterests)
 		await markUserOnline(req.userId)
-		return {content: "Bio data updated successfully"}
+		return { content: "Bio data updated successfully" }
 	},
-	markOnboarded: async function (_, x, {req}) {
+	markOnboarded: async function (_, x, { req }) {
 		console.log("MARK ONBOARDED")
 		checkAuth(req)
 		const query = `UPDATE users SET isOnboarded = ? WHERE email = ?`
 		const [row] = await db.query(query, [1, req.email])
 		console.log(`User ${req.email} marked onboarded\n`, row)
 		await markUserOnline(req.userId)
-		return {content: "User successfully marked onboarded!"}
+		return { content: "User successfully marked onboarded!" }
 	},
-	changePassword: async function (_, {info}, {req}) {
+	changePassword: async function (_, { info }, { req }) {
 		console.log("HERE")
 		if (!req.isAuth) {
-			return {content: "REQUEST UNAUTHORIZED"}
+			return { content: "REQUEST UNAUTHORIZED" }
 		}
 		const [user] = await db.query('SELECT isOnboarded, password, id, email FROM users WHERE email=?', req.email)
 		if (user.length === 0) {
@@ -199,26 +199,29 @@ module.exports = {
 			throw error
 		}
 		if (info.oldPassword === info.newPassword) {
-			return {content: "Invalid new password"}
+			return { content: "Invalid new password" }
 		}
 		const hashedPw = await bcrypt.hash(info.newPassword, 12)
 		await db.query('UPDATE users SET password = (?) WHERE email=?', [hashedPw, info.email])
-		return {content: "Password succesfully changed "}
+		return { content: "Password succesfully changed " }
 	},
-	insertPictureInfo: async function (_, {info}, {req}) {
+	insertPictureInfo: async function (_, { info }, { req }) {
 		console.log("INSERT PICTURE INFO")
 		checkAuth(req)
-		if (!validate(info.profilePic, "pic")) {
-			const error = new Error('Validation Error')
-			error.code = 422
-			throw error
-		}
-		const query = `UPDATE users SET profilePic = ?, picture2 = ?, picture3 = ?, picture4 = ?, picture5 = ? WHERE email = ?`
+		// if (!validate(info.profilePic, "pic")) {
+		// 	const error = new Error('Validation Error')
+		// 	error.code = 422
+		// 	throw error
+		// }
+		console.log("after req")
+		const query = `UPDATE users SET profilePic = ?, picture2 = ${info.picture2 !== 'null' ? '?' : 'NULL'}, picture3 = ${info.picture3 !== 'null' ? '?' : 'NULL'}, picture4 = ${info.picture4 !== 'null' ? '?' : 'NULL'}, picture5 = ${info.picture5 !== 'null' ? '?' : 'NULL'} WHERE email = "${req.email}"`
+		console.log(query)
+		info.picture5 = "toto"
 		const [row] = await db.query(query, [info.profilePic, info.picture2, info.picture3, info.picture4, info.picture5, req.email])
 		await markUserOnline(req.userId)
-		return {content: "Pic data updated successfully"}
+		return { content: "Pic data updated successfully" }
 	},
-	resendConfirmationEmail: async function (_, {email}) {
+	resendConfirmationEmail: async function (_, { email }) {
 		console.log("RESEND CONFIRMATION EMAIL")
 		const [users] = await db.query('SELECT isConfirmed FROM users WHERE email=?', email)
 		if (users.length <= 0) {
@@ -228,9 +231,9 @@ module.exports = {
 			throw new Error("Account already confirmed")
 		}
 		await emailUtil.sendEmail(CONST.EMAIL_CONFIRMATION_SECRET, email, 'confirmation')
-		return {content: "Email re-sent successfully"}
+		return { content: "Email re-sent successfully" }
 	},
-	toggleLike: async function (_, {info}, {req}) {
+	toggleLike: async function (_, { info }, { req }) {
 		console.log("TOGGLE LIKE")
 		checkAuth(req)
 		const likeExist = 'SELECT * FROM likes WHERE (sender_id = ?) AND (receiver_id = ?)'
@@ -282,9 +285,9 @@ module.exports = {
 		}
 		await db.query(query, [req.userId, info.receiverId])
 		await markUserOnline(req.userId)
-		return {content: "Liked updated successfully"}
+		return { content: "Liked updated successfully" }
 	},
-	toggleBlock: async function (_, {info}, {req}) {
+	toggleBlock: async function (_, { info }, { req }) {
 		console.log("TOGGLE BLOCK")
 		checkAuth(req)
 
@@ -294,29 +297,29 @@ module.exports = {
 
 		await db.query(query, [req.userId, info.receiverId])
 		await markUserOnline(req.userId)
-		return {content: "User blocked successfully"}
+		return { content: "User blocked successfully" }
 	},
-	saveLocation: async function (_, {lat, long, address}, {req}) {
+	saveLocation: async function (_, { lat, long, address }, { req }) {
 		console.log("SAVE LOCATION")
 		checkAuth(req)
 		const query = 'UPDATE users SET latitude = ?, longitude = ?, address = ? WHERE id = ?'
 		await db.query(query, [lat, long, address, req.userId])
 		await markUserOnline(req.userId)
-		return ({content: "location updated successfully"})
+		return ({ content: "location updated successfully" })
 	},
 
-	editUser: async function (_, {userInput}, {req}) {
+	editUser: async function (_, { userInput }, { req }) {
 		checkAuth(req)
-		const { profilePic, picture2, picture3, picture4, picture5} = userInput
+		const { profilePic, picture2, picture3, picture4, picture5 } = userInput
 		console.log(userInput)
 		const pics = [profilePic, picture2, picture3, picture4, picture5]
-		const input = pics.map((x, i)=> !!x && x !== 'null' ? `picture${i+1} = ?` : `picture${i+1} = NULL`).join().replace(/,,/g, ",").replace("picture1", "profilePic").split(",").filter(x=> !!x).join(", ")
+		const input = pics.map((x, i) => !!x && x !== 'null' ? `picture${i + 1} = ?` : `picture${i + 1} = NULL`).join().replace(/,,/g, ",").replace("picture1", "profilePic").split(",").filter(x => !!x).join(", ")
 		const values = pics.filter(x => !!x && x !== 'null')
 		console.log(input, values)
 		const query = `UPDATE users SET first_name = ?, last_name = ?, email = ?, bio = ?, gender = ?, 
 		orientation = ?${!!values.length ? "," : ""} ${input} WHERE id = ?`
 		await db.query(query, [userInput.name, userInput.lastName, userInput.email, userInput.bio, userInput.gender, userInput.orientation,
-			...values, req.userId])
+		...values, req.userId])
 		const [inter] = await db.query('Select title from interests')
 		const existingInterests = inter.map(y => y.title)
 		const newInterests = userInput.interests.filter(element => !existingInterests.includes(element))
@@ -333,10 +336,10 @@ module.exports = {
 		const usersInterestsQuery = 'INSERT INTO users_interests (interest_id, user_id) values ?'
 		await db.query(usersInterestsQuery, [ids.map((x) => [x.id, req.userId])])
 		await markUserOnline(req.userId)
-		return {content: "User modified"}
+		return { content: "User modified" }
 	},
 
-	profileVisited: async function (_, {receiverId}, {req}) {
+	profileVisited: async function (_, { receiverId }, { req }) {
 		console.log("PROFILE VISITED")
 		checkAuth(req)
 		//Insert notification in db
@@ -355,28 +358,28 @@ module.exports = {
 			}
 		})
 		await markUserOnline(req.userId)
-		return {content: "User visited"}
+		return { content: "User visited" }
 	},
 
-	markNotificationsAsSeen: async function (_, x, {req}) {
+	markNotificationsAsSeen: async function (_, x, { req }) {
 		console.log("MARK NOTIFICATIONS AS SEEN FOR USER ", req.userId)
 		checkAuth(req)
 		query = `UPDATE notifications SET open = 1 WHERE user_id = ? AND open = 0`
 		await db.query(query, [req.userId])
 		await markUserOnline(req.userId)
-		return {content: "notifications marked as seen"}
+		return { content: "notifications marked as seen" }
 	},
 
-	markMessagesAsSeen: async function (_, {senderId}, {req}) {
+	markMessagesAsSeen: async function (_, { senderId }, { req }) {
 		console.log("MARK MESSAGES AS SEEN")
 		checkAuth(req)
 		query = `UPDATE messages SET seen = 1 WHERE receiver_id = ? AND seen = 0 AND sender_id = ?`
 		await db.query(query, [req.userId, senderId])
 		await markUserOnline(req.userId)
-		return {content: "messages marked as seen"}
+		return { content: "messages marked as seen" }
 	},
 
-	sendMessage: async function (_, {content, receiverId}, {req}) {
+	sendMessage: async function (_, { content, receiverId }, { req }) {
 		console.log("SEND MESSAGE")
 		checkAuth(req)
 		const convId = req.userId < receiverId ? `${req.userId}:${receiverId}` : `${receiverId}:${req.userId}`
@@ -395,34 +398,34 @@ module.exports = {
 			meta: false
 		}
 		await markUserOnline(req.userId)
-		pubsub.publish('newMessage', {newMessage: message})
-		return {content: "message added successfully"}
+		pubsub.publish('newMessage', { newMessage: message })
+		return { content: "message added successfully" }
 	},
 
-	reportUser: async function (_, {userId}, {req}) {
+	reportUser: async function (_, { userId }, { req }) {
 		console.log("Report USer")
 		checkAuth(req)
 		const query = 'SELECT * FROM reports WHERE (sender_id = ?) AND (receiver_id = ?)'
 		const [reportExist] = await db.query(query, [req.userId, userId])
 		if (reportExist.length > 0) {
-			return {content: "Already reported"}
+			return { content: "Already reported" }
 		}
 		reportQuery = "INSERT INTO reports (sender_id, receiver_id) VALUES (?,?)"
 
 		await db.query(reportQuery, [req.userId, userId])
 		await markUserOnline(req.userId)
-		return {content: "report succesful"}
+		return { content: "report succesful" }
 	},
 
-	markOffline: async function (_, x, {req}) {
+	markOffline: async function (_, x, { req }) {
 		console.log("MARK OFFLINE")
 		checkAuth(req)
 		await db.query(`UPDATE users SET online = 0, lastOnline = now() WHERE id = ?`, [req.userId])
-		pubsub.publish('userInfoChange', {userInfoChange: {onlineInfo: false, sender: req.userId, likeInfo: null}})
-		return {content: "user marked offline"}
+		pubsub.publish('userInfoChange', { userInfoChange: { onlineInfo: false, sender: req.userId, likeInfo: null } })
+		return { content: "user marked offline" }
 	},
 
-	startChat: async function (_, {receiverId}, {req}) {
+	startChat: async function (_, { receiverId }, { req }) {
 		console.log("START CHAT")
 		checkAuth(req)
 		const convId = req.userId < receiverId ? `${req.userId}:${receiverId}` : `${receiverId}:${req.userId}`
@@ -442,6 +445,6 @@ module.exports = {
 		}
 		await markUserOnline(req.userId)
 		// pubsub.publish('newConversation', {newConversation: message})
-		return {...message}
+		return { ...message }
 	}
 }
