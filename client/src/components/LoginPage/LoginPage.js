@@ -29,7 +29,6 @@ class LoginPage extends Component {
 	};
 
 	openPasswordHandler = () => {
-		console.log("In openPassword -------------")
 		this.setState({ passwordDialogOpen: true,
 						loginDialogOpen: false
 		 });

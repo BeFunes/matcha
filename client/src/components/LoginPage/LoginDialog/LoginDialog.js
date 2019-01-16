@@ -43,7 +43,7 @@ class LoginDialog extends React.Component {
 		const sanitisedValue = target.value.trim()
 		const valid = validator(target.value, this.state.inputFields[type].rules, type)
 		if (this.state.inputFields[type].value !== sanitisedValue)
-			this.setState({inputFields: {...this.state.inputFields, [type]: {...this.state.inputFields[type], value: sanitisedValue, valid: valid}}});
+			this.setState({inputFields: {...this.state.inputFields, [type]: {...this.state.inputFields[type], value: sanitisedValue, valid: valid}}, loginFail: false});
 	}
 
 
@@ -53,24 +53,20 @@ class LoginDialog extends React.Component {
 		const password = JSON.stringify(authData.password)
 		const query = loginQuery(authData.email, password)
 		const cb = resData => {
-			if (resData.errors && resData.errors[0].status === 422) {
-				throw new Error(
-					"Validation failed."
-				)
-			}
 			if (resData.errors) {
-				throw new Error ("User login failed.")
+				this.setState({isAuth: false, loginFail: true, inputFields: {...this.state.inputFields, password: {...this.state.inputFields.password, value: ''}}})
+				return
 			}
 			this.props.onLogin(resData.data.login)
 		}
 		const errorCb = () => {
-			this.setState({isAuth: false, loginFail: true})
+			this.setState({isAuth: false, loginFail: true, inputFields: {...this.state.inputFields, password: {...this.state.inputFields.password, value: ''}}})
 		}
 		fetchGraphql(query, cb, null, errorCb)
 	}
 
 	render() {
-		const { open, onClose, loginFail, onPasswordReset } = this.props;
+		const { open, onClose, onPasswordReset } = this.props;
 		const elementsArray = [];
 		for (let key in this.state.inputFields) {
 			elementsArray.push({
@@ -98,8 +94,8 @@ class LoginDialog extends React.Component {
 								tooltip={element.tooltip}
 							/>
 						</div> ))}
-					{loginFail || this.state.loginFail ? (<div className={styles.errorMessage}>
-							Incorrect email or password
+					{this.state.loginFail ? (<div className={styles.errorMessage}>
+							Incorrect email or password. Try again
 						</div>) : null}
 					<div className={styles.buttons}>
 						<Button variant={allValid ? "contained" : "outlined"}

@@ -197,7 +197,7 @@ const query = {
 				const [matchToUser] = await db.query(matchToUserQuery, [x.id, req.userId])
 				const [likesReceived] = await db.query('SELECT COUNT(DISTINCT sender_id) count FROM likes WHERE receiver_id = ?', x.id)
 				const [visitsReceived] = await db.query(`SELECT COUNT(DISTINCT from_id) count FROM notifications WHERE user_id = ? `, x.id)
-				const fameRating = likesReceived[0].count + visitsReceived[0].count
+				const fameRating = (likesReceived[0].count * 3) + visitsReceived[0].count
 				return {
 					firstName: x.first_name,
 					id: x.id,
