@@ -55,7 +55,7 @@ const img = {
 
 };
 
-class DropzoneWithPreview extends React.Component {
+class DropzoneWithPreview extends Component {
     constructor() {
         super()
         this.state = {

@@ -37,6 +37,8 @@ import {
 import {
 	notificationSubscription
 } from "./graphql/subscriptions";
+import Error401 from "./components/ErrorPages/Error401/Error401";
+import Error500 from "./components/ErrorPages/Error500/Error500";
 
 
 class App extends Component {
@@ -412,8 +414,6 @@ class App extends Component {
 					                                                 interests={this.state.interests}
 					                                                  addNewConversation={this.addNewConversation}
 					                                                 geolocation={this.state.geolocation}{...props} />}/>
-					// 	<Route path="profile" component={UserProfile}/>
-					// 	<Route path="chat" component={Chat}/>
 				)
 		}
 		return (
@@ -457,6 +457,8 @@ class App extends Component {
 						                                                           markMessagesAsSeen={this.markMessagesAsSeen}
 						                                                           sendReply={this.sendReply}
 						/>}/>}
+						<Route path="/401" component={Error401} />
+						<Route path="/500" component={Error500} />
 						{routeZero()}
 					</Switch>
 				</main>

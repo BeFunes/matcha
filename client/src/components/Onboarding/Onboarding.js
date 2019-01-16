@@ -55,13 +55,21 @@ class Onboarding extends React.Component {
 		})(data.orientation)
 		const query = insertProfileInfoMutation(data.firstName, data.lastName, data.dob, gender, orientation)
 		const cb = resData => {
-			if (resData.errors && resData.errors[0].status === 422) {
-				throw new Error(
-					"Validation failed. Make sure the email address isn't used yet!"
-				)
-			}
 			if (resData.errors) {
-				throw new Error(resData.errors[0].message)
+				if (resData.errors[0].code === 401){
+					throw new Error("NOT AUTHENTICATED")
+				}
+					//////// Go to page 401
+				else if (resData.errors[0].code === 422){
+					this.setState({errorMessage: "Sorry, the information you entered are invalid"})
+					//////// todo: do something with error message
+				}
+				else {
+					/////// Go to page "SOMETHING WENT WRONG
+					console.log(resData.errors[0].message)
+
+				}
+				return
 			}
 			console.log(resData)
 			this.nextPage()

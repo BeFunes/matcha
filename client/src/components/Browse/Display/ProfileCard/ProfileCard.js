@@ -115,6 +115,7 @@ class ProfileCard extends Component {
 		const renderBlock = () =>
 			<Block onClick={this.blockUser} color={this.props.profile.blocked ? "error" : "inherit"}/>
 
+
 		return (
 			<div className={classnames(styles.component, borderStyle)}>
 				<div className={styles.imgContainer}>
