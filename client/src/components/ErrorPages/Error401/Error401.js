@@ -10,7 +10,7 @@ const Error401 = (props) => {
 		localStorage.removeItem('token');
 		localStorage.removeItem('expiryDate');
 		localStorage.removeItem('userId');
-		props.history.push({pathname: `/user_profile`})
+		props.history.push({pathname: `/`})
 	}
 
 	return (

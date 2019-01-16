@@ -2,11 +2,10 @@ import React, {Component} from 'react';
 import Button from "@material-ui/core/es/Button/Button";
 import {emailConfirmationMutation, resendConfirmationEmailMutation} from "../../graphql/mutations";
 import {fetchGraphql} from "../../utils/graphql";
-// import styles from "./Confirmation.module.css"
+import styles from "./Confirmation.module.css"
 
 class Confirmation extends Component {
-	state = {
-	}
+	state = {}
 
 	componentDidMount () {
 		const token = this.props.location.pathname.split("/confirmation/")[1]
@@ -20,22 +19,20 @@ class Confirmation extends Component {
 			if (resData.errors) {
 				let err = resData.errors[0].message
 				if (err === "Account already confirmed") {
-					this.props.markLoggedIn(resData.data.emailConfirmation)
-					this.props.history.push('/')
+					this.setState({error: "Your account is already confirmed. You will be redirected to the LOG IN page shortly."})
+					setTimeout(() => {this.props.history.push('/')}, 2400)
 				}
 				else if (err === "jwt expired") {
 					const email = resData.errors[0].data
 					this.setState({error: "Sorry, your link is no longer valid", resendButton: true, userEmail: email})
 				}
 				else {
-					this.setState({error: "Confirmation failed"})
+					this.setState({error: "Sorry, your account could not be activated."})
 				}
-				throw new Error ("Token confirmation failed")
+				return
 			}
 			this.setState({isConfirmed: true})
-			console.log(resData.data.emailConfirmation)
-			this.props.markLoggedIn(resData.data.emailConfirmation)
-			setTimeout(() => {this.props.history.push('/')}, 3000)
+			setTimeout(() => {this.props.markLoggedIn(resData.data.emailConfirmation); this.props.history.push('/')}, 1800)
 
 		}
 		fetchGraphql(query, cb)
@@ -59,18 +56,19 @@ class Confirmation extends Component {
 
 	render() {
 		return (
-			<div>
-				{this.state.isConfirmed &&  <div>GOOD</div>}
-				{this.state.error && <div>{this.state.error}</div>}
+			<div className={styles.component}>
+				{this.state.isConfirmed &&  <div className={styles.message}>Great! Your account is now active.</div>}
+				{this.state.error && <div className={styles.message}>{this.state.error}</div>}
 				{this.state.resendButton && !this.state.emailSent &&
 				<Button
+					className={styles.button}
 					onClick={this.resendEmail}
 					color="secondary"
 					variant="contained"
 				>
 					Resend link
 				</Button>}
-				{this.state.emailSent && <div>email sent</div>}
+				{this.state.emailSent && <div className={styles.emailSent}>Check your emails! We have sent you a new link to activate your account.</div>}
 			</div>
 		)
 	}
