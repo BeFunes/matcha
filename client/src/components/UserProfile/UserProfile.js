@@ -288,11 +288,11 @@ class UserProfile extends Component {
 					<div className={styles.header}>
 						<div className={styles.pictureBlock}>
 							<div className={styles.profilePicContainer}>
-							<img className={styles.profilePic}
-							     src={getProfilePic()}
-							     onClick={this.openLightbox.bind(this, 0)}
-							     alt={`${firstName}+${lastName}`}
-							/>
+								<img className={styles.profilePic}
+								     src={getProfilePic()}
+								     onClick={this.openLightbox.bind(this, 0)}
+								     alt={`${firstName}+${lastName}`}
+								/>
 							</div>
 							{!this.state.isMe ?
 								<div className={styles.actionBlocks}>
@@ -331,12 +331,11 @@ class UserProfile extends Component {
 							: <div className={styles.photos}>
 								{images.map((x, i) =>
 									<div className={styles.picContainer} key={i}>
-									<img className={styles.pic}
-									     src={x}
-									     // style={{backgroundImage: `url(${x})`}}
-									     key={i}
-									     onClick={this.openLightbox.bind(this, (i + 1))}
-									/>
+										<img className={styles.pic}
+										     src={x}
+											   key={i}
+											   onClick={this.openLightbox.bind(this, (i + 1))}
+										/>
 									</div>
 								)}
 								<Lightbox
