@@ -97,6 +97,9 @@ const typeDefs = gql`
         online: Boolean
         lastOnline: String
         chats: Int
+        likeTo: Boolean
+        likeFrom: Boolean
+        fameRating: Int
     }
     
     input MatchFilter {
@@ -118,11 +121,6 @@ const typeDefs = gql`
      input BlockInput {
         receiverId: Int!
         blocked: Boolean
-    }
-    
-    type LikeData {
-        likeTo: Boolean!
-        likeFrom: Boolean!
     }
     
     type RelationsData {
@@ -170,7 +168,6 @@ const typeDefs = gql`
         isOnboarded: Boolean!
         match(filters: MatchFilter) : [UserData]
         usedInterests: [String]!
-        likeInfo(info: LikeInput) : LikeData
         conversations: [[UserMessage]]
         notifications: [Notification]!
     }

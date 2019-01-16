@@ -19,13 +19,15 @@ class ProfileCard extends Component {
 	_isMounted = false
 
 	state = {
-		likeTo: false,
-		likeFrom: false
+		likeTo: null,
+		likeFrom: null
 	}
 
 	componentDidMount() {
 		this._isMounted = true;
-		this.getLikeInfo()
+		if (this.props.profile) {
+			this.setState({likeFrom: this.props.profile.likeFrom, likeTo: this.props.profile.likeTo})
+		}
 	}
 
 	componentWillUnmount() {
@@ -33,8 +35,8 @@ class ProfileCard extends Component {
 	}
 
 	componentWillReceiveProps(props) {
-		if (props.profile && typeof props.profile.likeFrom !== 'undefined') {
-			this.setState({likeFrom: props.profile.likeFrom})
+		if (props.profile && this.state.likeTo === null) {
+			this.setState({likeFrom: props.profile.likeFrom, likeTo: this.props.profile.likeTo})
 		}
 	}
 
@@ -51,19 +53,6 @@ class ProfileCard extends Component {
 		fetchGraphql(query, cb, this.props.token)
 	}
 
-	getLikeInfo = () => {
-		const query = likeInfoQuery(this.props.profile.id)
-		const cb = resData => {
-			if (resData.errors) {
-				throw new Error(resData.errors[0].message)
-			}
-			const {likeTo, likeFrom} = resData.data.likeInfo
-			if (this._isMounted) {
-				this.setState({likeTo: likeTo, likeFrom: likeFrom})
-			}
-		}
-		fetchGraphql(query, cb, this.props.token)
-	}
 
 	startChat = () => {
 		const query = startChatMutation(this.props.profile.id)
@@ -88,23 +77,23 @@ class ProfileCard extends Component {
 	}
 
 	blockUser = () => {
-		const query = toggleBlockMutation(this.props.profile.id, !this.state.blocked)
+		const { blocked }  = this.props.profile
+		console.log("EFFECT", !blocked)
+		const query = toggleBlockMutation(this.props.profile.id, !blocked)
 		const cb = resData => {
 			if (resData.errors) {
 				throw new Error(resData.errors[0].message)
 			}
 			console.log("user block toggled successfully")
-			// this.setState({blocked: !this.state.blocked})
 			this.props.onBlock(this.props.profile.id)
 		}
 		fetchGraphql(query, cb, this.props.token)
 	}
 
 	render() {
-		const {firstName, age, profilePic, gender, id, online, lastOnline} = this.props.profile
+		const {firstName, age, profilePic, gender, id, online, lastOnline, fameRating} = this.props.profile
 		const chat = this.state.likeFrom && this.state.likeTo
 		const borderStyle = gender === 'F' ? styles.f : styles.m
-
 
 		const getProfilePic = () => {
 			if (!profilePic) return null
@@ -126,7 +115,6 @@ class ProfileCard extends Component {
 		const renderBlock = () =>
 			<Block onClick={this.blockUser} color={this.props.profile.blocked ? "error" : "inherit"}/>
 
-
 		return (
 			<div className={classnames(styles.component, borderStyle)}>
 				<div className={styles.imgContainer}>
@@ -144,7 +132,7 @@ class ProfileCard extends Component {
 
 					<div className={styles.fameOnline}>
 						<div className={styles.fame}>
-							<FameStar className={styles.starIcon}/> 7767
+							<FameStar className={styles.starIcon}/> {fameRating}
 						</div>
 						<div>{online && stillOnline(lastOnline) &&  <div className={styles.onlineSymbol}/>}</div>
 				</div>

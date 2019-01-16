@@ -26,6 +26,9 @@ export const matchesQuery = (gender, orientation, ageMin, ageMax, interests) => 
 				    online
 				    lastOnline
 				    chats
+				    likeTo
+				    likeFrom
+				    fameRating
 				  }  }     `
 })
 
@@ -128,15 +131,6 @@ export const relationsDataQuery = (id) => ({
                     blockFrom
                 }
             } `
-})
-
-export const likeInfoQuery = (id) => ({
-	query: ` {
-				likeInfo (info: {receiverId: ${id} }) {
-				    likeTo
-				    likeFrom
-				  }
-			}`
 })
 
 export const notificationsQuery = {

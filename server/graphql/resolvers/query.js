@@ -1,4 +1,4 @@
-const { checkAuth, markUserOnline} = require("../../util/graphql")
+const {checkAuth, markUserOnline} = require("../../util/graphql")
 
 const db = require('../../util/db')
 const bcrypt = require('bcryptjs')
@@ -6,11 +6,11 @@ const jwt = require('jsonwebtoken')
 const {validate} = require('./../../util/validator')
 const CONST = require('../../../constants')
 const lodash = require('lodash')
-const moment = require ("moment")
+const moment = require("moment")
 
 
 const query = {
-	login: async function (_, {email, password} , {req}) {
+	login: async function (_, {email, password}, {req}) {
 
 		console.log("LOGIN")
 		if (!validate(email, "email") || !validate(password, "password")) {
@@ -190,31 +190,42 @@ const query = {
 		const array = [`^[${filters.orientation}]$`, minDob, maxDob, `%${filters.gender}%`, req.userId, req.userId, req.userId, req.userId, req.userId]
 		const [users] = await db.query(query, [...array, ...filters.interests])
 
-		const result = users.map((x) => (
-			{
-				firstName: x.first_name,
-				id: x.id,
-				lastName: x.last_name,
-				email: x.email,
-				dob: x.dob,
-				gender: x.gender,
-				orientation: x.orientation,
-				job: x.job,
-				bio: x.bio,
-				profilePic: x.profilePic,
-				picture2: x.picture2,
-				picture3: x.picture3,
-				picture4: x.picture4,
-				picture5: x.picture5,
-				interests: x.interests.split(","),
-				blocked: !!x.blocked,
-				latitude: x.latitude,
-				longitude: x.longitude,
-				address: x.address,
-				online: x.online,
-				lastOnline: x.lastOnline.toLocaleString(),
-				chats: x.chats || 0
-			})
+		const userToMatchQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
+		const matchToUserQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
+		const result = users.map(async (x) => {
+				const [userToMatch] = await db.query(userToMatchQuery, [req.userId, x.id])
+				const [matchToUser] = await db.query(matchToUserQuery, [x.id, req.userId])
+				const [likesReceived] = await db.query('SELECT COUNT(DISTINCT sender_id) count FROM likes WHERE receiver_id = ?', x.id)
+				const [visitsReceived] = await db.query(`SELECT COUNT(DISTINCT from_id) count FROM notifications WHERE user_id = ? `, x.id)
+				const fameRating = likesReceived[0].count + visitsReceived[0].count
+				return {
+					firstName: x.first_name,
+					id: x.id,
+					lastName: x.last_name,
+					email: x.email,
+					dob: x.dob,
+					gender: x.gender,
+					orientation: x.orientation,
+					job: x.job,
+					bio: x.bio,
+					profilePic: x.profilePic,
+					picture2: x.picture2,
+					picture3: x.picture3,
+					picture4: x.picture4,
+					picture5: x.picture5,
+					interests: x.interests.split(","),
+					blocked: !!x.blocked,
+					latitude: x.latitude,
+					longitude: x.longitude,
+					address: x.address,
+					online: x.online,
+					lastOnline: x.lastOnline.toLocaleString(),
+					chats: x.chats || 0,
+					likeTo: userToMatch[0].val,
+					likeFrom: matchToUser[0].val,
+					fameRating: fameRating
+				}
+			}
 		)
 		await markUserOnline(req.userId)
 		return lodash.filter(result, (x) => lodash.difference(filters.interests, x.interests).length === 0)
@@ -233,14 +244,6 @@ const query = {
 		}
 		await markUserOnline(req.userId)
 		return interests.map(x => x.title)
-	},
-	likeInfo: async function (_, {info}, {req}) {
-		checkAuth(req)
-		const userToMatchQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
-		const matchToUserQuery = `SELECT EXISTS(SELECT * FROM likes WHERE sender_id = ? AND receiver_id = ?) val`
-		const [userToMatch] = await db.query(userToMatchQuery, [req.userId, info.receiverId])
-		const [matchToUser] = await db.query(matchToUserQuery, [info.receiverId, req.userId])
-		return {likeTo: userToMatch[0].val, likeFrom: matchToUser[0].val}
 	},
 
 	relationsData: async function (_, {id}, {req}) {
@@ -315,6 +318,6 @@ CONCAT(Receiver.first_name, ' ', Receiver.last_name) receiver_name, Sender.profi
 			senderName: `${x.first_name} ${x.last_name}`
 		}))
 	}
- }
+}
 
 module.exports = query
