@@ -94,9 +94,9 @@ class LoginDialog extends React.Component {
 								tooltip={element.tooltip}
 							/>
 						</div> ))}
-					{this.state.loginFail ? (<div className={styles.errorMessage}>
+					{this.state.loginFail && (<div className={styles.errorMessage}>
 							Incorrect email or password. Try again
-						</div>) : null}
+						</div>)}
 					<div className={styles.buttons}>
 						<Button variant={allValid ? "contained" : "outlined"}
 						        color="secondary"

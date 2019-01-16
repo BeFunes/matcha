@@ -26,7 +26,7 @@ class PasswordDialog extends React.Component {
 			},
 		},
 		buttonDisabled: false,
-		message: ""
+		errorMessage: ""
 	};
 
 	inputChangeHandler = (type, {target}) => {
@@ -48,16 +48,9 @@ class PasswordDialog extends React.Component {
 		const query = passwordResetEmailMutation(email)
 		const cb = resData => {
 			if (resData.errors) {
-				this.setState({message: "Email Unknown"})
-				throw new Error(
-					"Validation failed."
-				)
+				this.setState({errorMessage: "There is no user with this email address.", inputFields: { email: {...this.state.inputFields.email, valid: false } }})
+				return
 			}
-			if (resData.errors) {
-				this.setState({message: "Email Unknown"})
-				// throw new Error("Email Unknown")
-			}
-			console.log(resData)
 			toast.success("Check your emails! We have sent you a link to reset your password", {
 				autoClose: 3000
 			})
@@ -67,13 +60,17 @@ class PasswordDialog extends React.Component {
 		fetchGraphql(query, cb)
 	}
 	onClose = () => {
-		this.setState({message: "", inputFields : {
-			...this.state.inputFields,
-			email : {...this.state.inputFields.email, value: "", valid: true }} }, this.props.onClose())
+		this.setState({
+			errorMessage: "", inputFields: {
+				...this.state.inputFields,
+				email: {...this.state.inputFields.email, value: "", valid: true}
+			}
+		}, this.props.onClose())
 	}
 
 	render() {
 		const {open, onClose} = this.props;
+		const {errorMessage} = this.state
 		const element = this.state.inputFields['email']
 		const allValid = (element.valid && element.value !== '')
 		return (
@@ -96,6 +93,9 @@ class PasswordDialog extends React.Component {
 						tooltip={element.tooltip}
 					/>
 				</div>
+				{!!errorMessage && <div className={styles.errorMessage}>
+					{errorMessage}
+				</div>}
 				<div className={styles.buttons}>
 					<Button variant={allValid && !this.state.buttonDisabled ? "contained" : "outlined"}
 					        color="secondary"
@@ -103,9 +103,6 @@ class PasswordDialog extends React.Component {
 						Reset Password
 					</Button>
 				</div>
-				{this.state.message.length > 0 ? <div style={{textAlign: "center", color: "#DD0E52", marginBottom: 10, marginTop: 5}}>
-							{this.state.message}
-						</div> : null}
 			</Dialog>
 		);
 	}
