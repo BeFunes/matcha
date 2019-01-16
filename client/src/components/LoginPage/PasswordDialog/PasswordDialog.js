@@ -37,7 +37,8 @@ class PasswordDialog extends React.Component {
 				inputFields: {
 					...this.state.inputFields,
 					[type]: {...this.state.inputFields[type], value: sanitisedValue, valid: valid}
-				}
+				},
+				errorMessage: ""
 			});
 	}
 

@@ -13,55 +13,59 @@ import {toast} from 'react-toastify';
 class SignupDialog extends React.Component {
 
 	state = {
-		email: {
-			label: 'Email',
-			type: 'email',
-			value: '',
-			valid: true,
-			placeholder: 'example@matcha.com',
-			style: {margin: '20px 15px 10px'},
-			autoComplete: 'email',
-			rules: {
-				minLength: 8,
-				maxLength: 70,
-			}
-		},
-		password: {
-			label: 'Password',
-			type: 'password',
-			value: '',
-			tooltip: passwordCriteria,
-			valid: true,
-			rules: {
-				minLength: 8,
-				maxLength: 40,
-			}
-		},
-		password2: {
-			label: 'Repeat password',
-			type: 'password',
-			value: '',
-			valid: true,
-			rules: {
-				minLength: 8,
-				maxLength: 40,
-			}
-		},
+		textFields: {
+			email: {
+				label: 'Email',
+				type: 'email',
+				value: '',
+				valid: true,
+				placeholder: 'example@matcha.com',
+				style: {margin: '20px 15px 10px'},
+				autoComplete: 'email',
+				rules: {
+					minLength: 8,
+					maxLength: 70,
+				}
+			},
+			password: {
+				label: 'Password',
+				type: 'password',
+				value: '',
+				tooltip: passwordCriteria,
+				valid: true,
+				rules: {
+					minLength: 8,
+					maxLength: 40,
+				}
+			},
+			password2: {
+				label: 'Repeat password',
+				type: 'password',
+				value: '',
+				valid: true,
+				rules: {
+					minLength: 8,
+					maxLength: 40,
+				}
+			},
+		}
 	};
 
 	signupHandler = () => {
-		const password = JSON.stringify(this.state.password.value)
-		const query = createUserMutation(this.state.email.value, password)
+		const password = JSON.stringify(this.state.textFields.password.value)
+		const query = createUserMutation(this.state.textFields.email.value, password)
 		const cb = resData => {
-			if (resData.errors && resData.errors[0].status === 422) {
-				throw new Error(
-					"Validation failed. Make sure the email address isn't used yet!"
-				);
-			}
 			if (resData.errors) {
-				throw new Error('User creation failed!');
+				let message
+				if (resData.errors[0].status === 422)
+					message = "Sorry, the email or password are invalid."
+				else if (resData.errors[0].message === "User exists already!")
+					message = "Sorry, a user with this email address already exists."
+				else
+					message = "Sorry, we couldn't sign you up."
+				this.setState({errorMessage: message, textFields: {...this.state.textFields, email: {...this.state.textFields.email, valid: false}}})
+				return
 			}
-			console.log(resData)
 			toast.success("Check your emails! We have sent you a link to confirm the creation of your account", {
 				autoClose: 3000
 			})
@@ -72,27 +76,27 @@ class SignupDialog extends React.Component {
 
 	inputChangeHandler = (type, {target}) => {
 		const sanitisedValue = target.value.trim()
-		const valid = validator(sanitisedValue, this.state[type].rules, target.type)
-		console.log(type)
+		const valid = validator(sanitisedValue, this.state.textFields[type].rules, target.type)
 		const checkConfirmationPassword = () => {
 			if (type === 'password2' || type === 'password') {
-				const pass2valid = (type === 'password2') ? valid : this.state.password2.valid
-				const equal = this.state.password.value === this.state.password2.value
-				this.setState({password2: {...this.state.password2, valid: pass2valid && equal}})
+				const pass2valid = (type === 'password2') ? valid : this.state.textFields.password2.valid
+				const equal = this.state.textFields.password.value === this.state.textFields.password2.value
+				this.setState({textFields: {...this.state.textFields, password2: {...this.state.textFields.password2, valid: pass2valid && equal}}, errorMessage: ""})
 			}
 		}
 		if (this.state[type] !== sanitisedValue) {
-			this.setState({[type]: {...this.state[type], value: sanitisedValue, valid: valid}}, checkConfirmationPassword);
+			this.setState({textFields: {...this.state.textFields, [type]: {...this.state.textFields[type], value: sanitisedValue, valid: valid}}, errorMessage: ""}, checkConfirmationPassword);
 			}
 		}
 
 
 	render() {
 		const { open, onClose} = this.props;
+		const {errorMessage} = this.state
 		const elementsArray = [];
-		for (let key in this.state) {
+		for (let key in this.state.textFields) {
 			elementsArray.push({
-				...this.state[key],
+				...this.state.textFields[key],
 				id: key});
 		}
 		const allValid = elementsArray.every((x) => x.valid && x.value !== '')
@@ -115,6 +119,7 @@ class SignupDialog extends React.Component {
 							tooltip={element.tooltip}
 						/>
 					</div> ))}
+					{!!errorMessage && <div className={styles.errorMessage}>{errorMessage}</div>}
 					<div className={styles.buttons}>
 						<Button variant={allValid ? "contained" : "outlined"} color="secondary" onClick={onClick}>
 							Sign Up

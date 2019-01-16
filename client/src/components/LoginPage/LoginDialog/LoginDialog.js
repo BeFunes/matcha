@@ -104,7 +104,7 @@ class LoginDialog extends React.Component {
 							Login
 						</Button>
 					</div>
-					<p className={styles.passwordReset} onClick={onPasswordReset}> Forgot your password ?</p>
+					<p className={styles.passwordReset} onClick={onPasswordReset}> Forgot your password?</p>
 				</form>
 			</Dialog>
 		);

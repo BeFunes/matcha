@@ -1,33 +1,23 @@
-.DialogTitle {
-    font-size: 5px;
-}
 
-.textField {
-    margin: 100px;
-    padding: 100px;
-}
-
-
-.dialogTitle {
-    text-align: center;
-}
 
 .buttons {
     display: flex;
     justify-content: space-around;
-    margin: 10px 0;
+    margin: 10px 0 7px;
 }
 
 .passwordReset {
-    font-size: 10px;
+    font-size: 12px;
     text-align: center;
-    margin-bottom: 10px;
-    
+    margin-bottom: 15px;
+    font-weight: 500;
+
 }
 
 .passwordReset:hover {
     color: blue;
     cursor: pointer;
+    font-weight: 600;
 }
 .errorMessage {
     font-size: 13px;
