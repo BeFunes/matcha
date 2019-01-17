@@ -44,6 +44,12 @@ class Display extends Component {
 		this.setState({profiles: newProfiles})
 	}
 
+	toggleLike = (id) => {
+		const newProfiles = this.state.profiles.map(x => x.id === id ? {...x, likeTo: !x.likeTo } : x)
+		this.setState({profiles: newProfiles})
+
+	}
+
 	render() {
 		const {token, allowBlocked} = this.props
 		const {profiles} = this.state
@@ -61,6 +67,7 @@ class Display extends Component {
 								user={this.props.user}
 								token={token}
 								onBlock={this.blockUser}
+								onToggleLike={this.toggleLike}
 								{...props}
 							/>}/>
 					))}

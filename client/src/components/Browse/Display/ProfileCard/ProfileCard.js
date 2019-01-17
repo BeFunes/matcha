@@ -34,12 +34,13 @@ class ProfileCard extends Component {
 	}
 
 	componentWillReceiveProps(props) {
-		if (props.profile && this.state.likeTo === null) {
+		if (props.profile && (this.state.likeTo !== this.props.likeTo || this.state.likeFrom !== this.props.likeFrom)) {
 			this.setState({likeFrom: props.profile.likeFrom, likeTo: this.props.profile.likeTo})
 		}
 	}
 
 	toggleLike = () => {
+		this.props.onToggleLike(this.props.profile.id)
 		const query = toggleLikeMutation(this.props.profile.id, !this.state.likeTo)
 		const cb = resData => {
 			if (resData.errors) {
@@ -90,6 +91,11 @@ class ProfileCard extends Component {
 
 	render() {
 		const {firstName, lastName, age, profilePic, gender, id, online, lastOnline, fameRating} = this.props.profile
+
+		if (this.state.likeTo !== null && (id === 14 || id === 18)) {
+			console.log(this.state)
+		}
+
 		const chat = this.state.likeFrom && this.state.likeTo
 		const borderStyle = gender === 'F' ? styles.f : styles.m
 
