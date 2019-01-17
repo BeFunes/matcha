@@ -84,6 +84,7 @@ class App extends Component {
 
 	componentWillReceiveProps({data}) {
 		if (!this.state.notifications) { return }
+		console.log("NOTIFICATION", data)
 		const {trackNotification} = data
 		if (!!data && !!trackNotification) {
 			const {type, senderName} = trackNotification
@@ -94,12 +95,12 @@ class App extends Component {
 				"unmatch": `You unmatched with ${name}`,
 				"visited": `${name} visited your profile`
 			})
-			if (!this.state.notifications.length || !_.isEqual(this.state.notifications[0], trackNotification)) {
+			// if (!this.state.notifications.length || !_.isEqual(this.state.notifications[0], trackNotification)) {
 				this.setState({newNotifications: this.state.newNotifications + 1, notifications: newNotifications})
 				toast.success(text(senderName)[type], {
 					autoClose: 1300
 				})
-			}
+			// }
 		}
 		// else if (data && !!newMessage) {
 		// 	const rightConv = this.state.conversations.find(x => x.id === newMessage.senderId)
@@ -337,6 +338,7 @@ class App extends Component {
 			localStorage.removeItem('token');
 			localStorage.removeItem('expiryDate');
 			localStorage.removeItem('userId');
+			this.props.client.resetStore()
 		}
 		fetchGraphql(query, cb, this.state.token)
 

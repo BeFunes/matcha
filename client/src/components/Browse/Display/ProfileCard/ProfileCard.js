@@ -34,20 +34,24 @@ class ProfileCard extends Component {
 	}
 
 	componentWillReceiveProps(props) {
-		if (props.profile && (this.state.likeTo !== this.props.likeTo || this.state.likeFrom !== this.props.likeFrom)) {
-			this.setState({likeFrom: props.profile.likeFrom, likeTo: this.props.profile.likeTo})
+		if (props.profile.id === 14 || props.profile.id === 302)
+			console.log("NEXT PROPS", props)
+		if (props.profile && (this.state.likeTo !== props.likeTo || this.state.likeFrom !== props.likeFrom)) {
+			console.log("update")
+			this.setState({likeFrom: props.profile.likeFrom, likeTo: props.profile.likeTo})
 		}
 	}
 
 	toggleLike = () => {
-		this.props.onToggleLike(this.props.profile.id)
 		const query = toggleLikeMutation(this.props.profile.id, !this.state.likeTo)
 		const cb = resData => {
 			if (resData.errors) {
 				throw new Error(resData.errors[0].message)
 			}
 			if (this._isMounted) {
-				this.setState({likeTo: !this.state.likeTo})
+				// this.setState({likeTo: !this.state.likeTo}, () => {
+				this.props.onToggleLike(this.props.profile.id)
+				// })
 			}
 		}
 		fetchGraphql(query, cb, this.props.token)

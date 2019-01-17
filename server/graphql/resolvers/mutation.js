@@ -249,19 +249,19 @@ module.exports = {
 			? 'INSERT INTO likes (sender_id, receiver_id) VALUES (?, ?)'
 			: 'DELETE FROM likes WHERE sender_id = ? AND receiver_id = ?'
 
+		pubsub.publish('userInfoChange', {
+			userInfoChange: {
+				likeInfo: info.liked,
+				receiver: info.receiverId,
+				sender: req.userId,
+				onlineInfo: null
+			}
+		})
 		if (likeResult !== "unlike") {
 			const notificationQuery = 'INSERT INTO notifications (user_id, from_id, type, open) VALUES (?, ?, ?, ?)'
 			await db.query(notificationQuery, [info.receiverId, req.userId, likeResult, 0, 'current_timestamp()'])
 			const [r] = await db.query('SELECT first_name, last_name FROM users WHERE id = ?', [req.userId])
 			const name = r[0].first_name + " " + r[0].last_name
-			pubsub.publish('userInfoChange', {
-				userInfoChange: {
-					likeInfo: info.liked,
-					receiver: info.receiverId,
-					sender: req.userId,
-					onlineInfo: null
-				}
-			})
 			pubsub.publish('notification', {
 				trackNotification: {
 					type: likeResult,
