@@ -126,7 +126,7 @@ display: flex;
   height: 150px;
   border-width: 2px;
   border-radius: 5px;
-  border-color: ${props => {console.log(props); return getColor(props)}};
+  border-color: ${props => getColor(props)};
   border-style: ${props => props.isDragReject || props.isDragActive ? 'solid' : 'dashed'};
   background-color: ${props => props.isDragReject || props.isDragActive ? '#eee' : ''};
 `;
