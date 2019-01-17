@@ -46,7 +46,7 @@ class ChatList extends Component {
 						</ListItemAvatar>
 						<ListItemText
 							primary={x.name}
-							secondary={x.messages[0].timestamp}
+							// secondary={x.messages[0].timestamp}
 						/>
 						<ListItemSecondaryAction>
 							{countUnread(x.messages) > 0 && (<div className={styles.unreadBadge}>{countUnread(x.messages)} </div>)}
