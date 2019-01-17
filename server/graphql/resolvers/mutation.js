@@ -155,6 +155,7 @@ module.exports = {
 
 	insertBioInfo: async function (_, { info }, { req }) {
 		console.log("INSERT BIO INFO")
+		console.log(info)
 		checkAuth(req)
 		if (!validate(info.job, "job"), !validate(info.bio, "bio"), !validate(info.interests, "tags")) {
 			const error = new Error('Validation Error')
@@ -219,10 +220,7 @@ module.exports = {
 		// 	error.code = 422
 		// 	throw error
 		// }
-		console.log("after req")
 		const query = `UPDATE users SET profilePic = ?, picture2 = ${info.picture2 !== 'null' ? '?' : 'NULL'}, picture3 = ${info.picture3 !== 'null' ? '?' : 'NULL'}, picture4 = ${info.picture4 !== 'null' ? '?' : 'NULL'}, picture5 = ${info.picture5 !== 'null' ? '?' : 'NULL'} WHERE email = "${req.email}"`
-		console.log(query)
-		info.picture5 = "toto"
 		const [row] = await db.query(query, [info.profilePic, info.picture2, info.picture3, info.picture4, info.picture5, req.email])
 		await markUserOnline(req.userId)
 		return { content: "Pic data updated successfully" }

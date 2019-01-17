@@ -15,7 +15,7 @@ module.exports = {
 					return value && value.length >= 8 && value.length <= 40 && !unicodePattern.test(value) && passwordPattern.test(value)
 				case "firstName":
 					return value && value.length >= 2 && value.length <= 20 && isAlpha(value)
-				case "lastName":lo
+				case "lastName":
 					return value && value.length >= 2 && value.length <= 30 && isAlpha(value)
 				case "gender":
 					return value && value === 'M' || value === 'F'
