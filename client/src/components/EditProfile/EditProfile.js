@@ -12,6 +12,7 @@ import {fetchGraphql} from "../../utils/graphql";
 import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Dropzone from '../DropZone/DropZoneWithPreview'
+import {SERVER} from "../../constants";
 
 
 class EditProfile extends Component {
@@ -306,7 +307,7 @@ class EditProfile extends Component {
 				formData.append('image', this.state.startingPictures[picType])
 			}
 		}
-		fetch('http://localhost:3001/post-image', {
+		fetch(`${SERVER}/post-image`, {
 			method: 'PUT',
 			headers: {
 				Authorization: 'Bearer ' + this.props.token,

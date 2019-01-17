@@ -5,6 +5,7 @@ import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 import LinearProgress from "@material-ui/core/es/LinearProgress/LinearProgress";
 import ImageUploader from 'react-images-upload';
+import {SERVER} from "../../../constants";
 
 class OnboardingPics extends React.Component {
 	constructor() {
@@ -34,7 +35,7 @@ class OnboardingPics extends React.Component {
 		this.state.pictures.forEach((item) => {
 			formData.append('image', item)
 		})
-		fetch('http://localhost:3001/post-image', {
+		fetch(`${SERVER}/post-image`, {
 			method: 'PUT',
 			headers: {
 				Authorization: 'Bearer ' + this.props.token,

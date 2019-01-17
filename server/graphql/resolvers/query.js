@@ -12,7 +12,7 @@ const moment = require("moment")
 const query = {
 	login: async function (_, {email, password}, {req}) {
 
-		console.log("LOGIN")
+		console.log("LOGIN", email, password)
 		if (!validate(email, "email") || !validate(password, "password")) {
 			const error = new Error('Validation Error')
 			error.code = 422

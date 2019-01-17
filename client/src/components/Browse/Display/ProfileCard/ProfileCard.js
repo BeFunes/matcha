@@ -11,7 +11,7 @@ import {fetchGraphql} from "../../../../utils/graphql";
 import {startChatMutation, toggleBlockMutation, toggleLikeMutation} from "../../../../graphql/mutations";
 import 'react-toastify/dist/ReactToastify.css';
 import {stillOnline} from "../../../../utils/date";
-import {EMPTYAVATAR, HOST} from "../../../../constants";
+import {EMPTYAVATAR, SERVER} from "../../../../constants";
 
 
 class ProfileCard extends Component {
@@ -95,7 +95,7 @@ class ProfileCard extends Component {
 
 		const getProfilePic = () => {
 			if (!profilePic) return null
-			const profileP = profilePic && profilePic.substring(0, 7) === "images/" ? `${HOST}/${profilePic}` : profilePic
+			const profileP = profilePic && profilePic.substring(0, 7) === "images/" ? `${SERVER}/${profilePic}` : profilePic
 			return typeof profileP !== 'undefined' ? profileP : EMPTYAVATAR
 		}
 

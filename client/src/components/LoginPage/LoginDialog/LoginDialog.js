@@ -60,7 +60,6 @@ class LoginDialog extends React.Component {
 					errorMess = "Your account is not active yet. Please check your emails and click on the confirmation link."
 				else
 					errorMess = "Incorrect email or password. Please try again"
-				console.log("ERROR ESS", errorMess)
 				this.setState({isAuth: false, loginFail: true, inputFields: {...this.state.inputFields, password: {...this.state.inputFields.password, value: ''}}, errorMessage: errorMess})
 				return
 			}

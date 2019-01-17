@@ -20,7 +20,7 @@ import {
 	markProfileVisitedMutation, toggleBlockMutation, toggleLikeMutation, reportUser,
 	startChatMutation
 } from "../../graphql/mutations";
-import {EMPTYAVATAR, HOST} from "../../constants";
+import {EMPTYAVATAR, SERVER} from "../../constants";
 import Button from '@material-ui/core/Button';
 import {toast} from 'react-toastify';
 import {userInfoChangeSubscription} from "../../graphql/subscriptions";
@@ -253,12 +253,12 @@ class UserProfile extends Component {
 
 	render() {
 		const {firstName, lastName, dob, lastOnline, orientation, online, address, interests, job, bio, profilePic, picture2, picture3, picture4, picture5} = this.state.user
+		const formatPic = (pic) => pic && pic.substring(0, 7) === "images/" ? `${SERVER}/${pic}` : pic
 		const images = [picture2, picture3, picture4, picture5].filter(x => !!x && x !== 'undefined')
-		const imagesArray = [profilePic, ...images].map(x => ({src: x}))
-
+		const imagesArray = [profilePic, ...images].map(x => ({src: formatPic(x)}))
 		const isOnline = online && stillOnline(lastOnline)
 		const getProfilePic = () => {
-			const profileP = profilePic && profilePic.substring(0, 7) === "images/" ? `${HOST}/${profilePic}` : profilePic
+			const profileP = formatPic(profilePic)
 			return typeof profileP !== 'undefined' ? profileP : EMPTYAVATAR
 		}
 		const orientations = {'F': 'woman', 'M': 'man', 'FM': "man or a woman"}
@@ -332,7 +332,7 @@ class UserProfile extends Component {
 								{images.map((x, i) =>
 									<div className={styles.picContainer} key={i}>
 										<img className={styles.pic}
-										     src={x}
+										     src={formatPic(x)}
 											   key={i}
 											   onClick={this.openLightbox.bind(this, (i + 1))}
 										     alt={x}

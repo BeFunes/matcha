@@ -12,8 +12,10 @@ import { SubscriptionClient } from "subscriptions-transport-ws";
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { ApolloProvider } from 'react-apollo';
 import { ApolloClient } from 'apollo-client';
+import {HOST} from "./constants";
 
-const GRAPHQL_ENDPOINT = "ws://localhost:3002/graphql";
+
+const GRAPHQL_ENDPOINT = `ws://${HOST}:3002/graphql`;
 
 const link = new WebSocketLink(
 	new SubscriptionClient(GRAPHQL_ENDPOINT, {

@@ -2,9 +2,9 @@ export const matchesQuery = (gender, orientation, ageMin, ageMax, interests) => 
 	query: ` {
 			      match(
 					    filters:{
-					       gender : "${gender}",
-					        orientation : "${orientation}",
-					        minAge : ${ageMin},
+					       gender : ${JSON.stringify(gender)},
+					        orientation : ${JSON.stringify(orientation)},
+					        minAge : ${JSON.stringify(ageMin)},
 					        maxAge : ${ageMax},
 					        interests : [${interests}],
 					        latitude : 48.85154659837264,

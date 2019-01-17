@@ -1,8 +1,8 @@
 const isAlpha = str => str.match(/^[a-z àáâãäçèéêëìíîïñòóôõöšùúûüýÿž]+$/i) !== null
 const unicodePattern = /[^\x00-\x7F]/
-const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})$/   /// must contain one lowercase, one uppercase, one digit. To add a symbol: (?=.*[!@#\$%\^&\*])
-const emailPattern = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/
-const datePattern = /^([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))$/
+const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/   /// must contain one lowercase, one uppercase, one digit. To add a symbol: (?=.*[!@#\$%\^&\*])
+const emailPattern = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+const datePattern = /([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))/
 const urlPattern = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/
 const storedImagePattern = /^images\/[\w\-. \:()]+\.(gif|png|jpg|jpeg)$/
 module.exports = {
@@ -15,7 +15,7 @@ module.exports = {
 					return value && value.length >= 8 && value.length <= 40 && !unicodePattern.test(value) && passwordPattern.test(value)
 				case "firstName":
 					return value && value.length >= 2 && value.length <= 20 && isAlpha(value)
-				case "lastName":
+				case "lastName":lo
 					return value && value.length >= 2 && value.length <= 30 && isAlpha(value)
 				case "gender":
 					return value && value === 'M' || value === 'F'

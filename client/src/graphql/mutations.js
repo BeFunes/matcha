@@ -2,7 +2,7 @@ export const createUserMutation = (email, password) => ({
 	query: `
             mutation {
                 createUser(userInput: {
-                    email: "${email}", 
+                    email: ${JSON.stringify(email)}, 
                     password: ${password}
                     }) { email }
                }`
@@ -10,7 +10,12 @@ export const createUserMutation = (email, password) => ({
 
 export const insertProfileInfoMutation = (firstName, lastName, dob, gender, orientation) => ({
 		query: ` mutation {
-				insertProfileInfo (info: {firstName: "${firstName}", lastName:"${lastName}", dob:"${dob}", gender: "${gender}", orientation:"${orientation}"}) {
+				insertProfileInfo (info: {
+						firstName: ${JSON.stringify(firstName)}, 
+						lastName:${JSON.stringify(lastName)}, 
+						dob:${JSON.stringify(dob)}, 
+						gender: ${JSON.stringify(gender)}, 
+						orientation:${JSON.stringify(orientation)}}) {
 					content
 				}
 			}`
@@ -22,11 +27,11 @@ export const insertPictureInfoMutation = (data) => {
 		query: `
 			      mutation {
 			        insertPictureInfo(info: {
-			          profilePic: "${profilePic}",
-			          picture2: "${picture2}",
-			          picture3: "${picture3}",
-			          picture4: "${picture4}",
-			          picture5: "${picture5}",
+			          profilePic: ${JSON.stringify(profilePic)},
+			          picture2: ${JSON.stringify(picture2)},
+			          picture3: ${JSON.stringify(picture3)},
+			          picture4: ${JSON.stringify(picture4)},
+			          picture5: ${JSON.stringify(picture5)},
 			        }) {
 			          content
 			        } } `
@@ -66,7 +71,7 @@ export const insertBioInfoMutation = (job, bio, interests) => ({
 
 export const emailConfirmationMutation = token => ({
 	query: `mutation {
-				emailConfirmation(token: "${token}") {
+				emailConfirmation(token: ${JSON.stringify(token)}) {
 				    token
 	          userId
 	          isOnboarded
@@ -75,7 +80,7 @@ export const emailConfirmationMutation = token => ({
 
 export const resendConfirmationEmailMutation = (email) => ({
 	query: `mutation {
-				resendConfirmationEmail(email: "${email}") {
+				resendConfirmationEmail(email: ${JSON.stringify(email)}) {
 				    content
 			  } }`
 })
@@ -115,14 +120,14 @@ export const passwordResetEmailMutation = (email) => ({
 
 export const resetPasswordMutation = (token, password, confirmPassword) => ({
 	query: `mutation {
-				resetPassword(token: "${token}", password: ${password}, confirmationPassword: ${confirmPassword}) {
+				resetPassword(token: ${JSON.stringify(token)}, password: ${password}, confirmationPassword: ${confirmPassword}) {
 				   userId
               } }`
 })
 
 export const saveLocationMutation = (lat, long, address) => ({
 	query: `mutation {
-				saveLocation(lat: ${lat}, long: ${long}, address: "${address}") {
+				saveLocation(lat: ${lat}, long: ${long}, address: ${JSON.stringify(address)}) {
 				content 
 				}}
 	`
@@ -131,19 +136,19 @@ export const saveLocationMutation = (lat, long, address) => ({
 export const editUserMutation = (data, pics) => ({
 	query: `mutation {
 		editUser(userInput: {
-			requestEmail: "${data.requestEmail}",
-			name: "${data.name}",
-			lastName: "${data.lastName}",
+			requestEmail: ${JSON.stringify(data.requestEmail)},
+			name: ${JSON.stringify(data.name)},
+			lastName: ${JSON.stringify(data.lastName)},
 			email: ${data.email},
 			interests: [${data.interests}],
 			bio: ${data.bio},
-			gender: "${data.gender}",
-			orientation: "${data.orientation}"
-			profilePic: "${pics[0]}"
-			picture2: "${pics[1]}"
-			picture3: "${pics[2]}"
-			picture4: "${pics[3]}"
-			picture5: "${pics[4]}"
+			gender: ${JSON.stringify(data.gender)},
+			orientation: ${JSON.stringify(data.orientation)}
+			profilePic: ${JSON.stringify(pics[0])}
+			picture2: ${JSON.stringify(pics[1])}
+			picture3: ${JSON.stringify(pics[2])}
+			picture4: ${JSON.stringify(pics[3])}
+			picture5: ${JSON.stringify(pics[4])}
 		}) {content}
 	}`
 })
