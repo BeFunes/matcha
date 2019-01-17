@@ -114,7 +114,7 @@ export const getConversationsQuery = {
 
 export const loginQuery = (email, password) => ({
 	query: `{
-                login(email: "${email}", password: ${password}) {
+                login(email: ${JSON.stringify(email)}, password: ${password}) {
                     token
                     userId
                     isOnboarded
