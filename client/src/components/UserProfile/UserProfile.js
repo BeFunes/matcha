@@ -75,7 +75,7 @@ class UserProfile extends Component {
 	}
 
 	startChat = () => {
-		const query = startChatMutation(this.props.profile.id)
+		const query = startChatMutation(this.state.user.id)
 		const cb = resData => {
 			if (resData.errors) {
 				throw new Error(resData.errors[0].message)
@@ -86,7 +86,7 @@ class UserProfile extends Component {
 				state: {openChat: resData.data.startChat.conversationName}
 			})
 		}
-		fetchGraphql(query, cb, this.props.token)
+		fetchGraphql(query, cb, this.state.token)
 	}
 
 	goToChat = () => {

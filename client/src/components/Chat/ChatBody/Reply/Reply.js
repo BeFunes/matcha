@@ -22,6 +22,7 @@ class Reply extends Component {
 
 	onKeyDown = (event) => {
 		if (event.key === 'Enter') {
+			if (!this.state.reply.trim().length) { return }
 			this.onPressSend()
 			event.preventDefault()
 		}
