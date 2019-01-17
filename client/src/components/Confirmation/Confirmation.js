@@ -17,6 +17,7 @@ class Confirmation extends Component {
 		const query = emailConfirmationMutation(token)
 		const cb = resData => {
 			if (resData.errors) {
+				console.log("_______________________", resData.errors)
 				let err = resData.errors[0].message
 				if (err === "Account already confirmed") {
 					this.setState({error: "Your account is already confirmed. You will be redirected to the LOG IN page shortly."})
@@ -24,6 +25,7 @@ class Confirmation extends Component {
 				}
 				else if (err === "jwt expired") {
 					const email = resData.errors[0].data
+					console.log(resData.errors[0])
 					this.setState({error: "Sorry, your link is no longer valid", resendButton: true, userEmail: email})
 				}
 				else {

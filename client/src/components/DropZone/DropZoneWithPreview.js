@@ -20,7 +20,7 @@ const button = {
 }
 
 
-class DropzoneWithPreview extends React.Component {
+class DropzoneWithPreview extends Component {
 	constructor() {
 		super()
 		this.state = {
@@ -73,6 +73,7 @@ class DropzoneWithPreview extends React.Component {
 				<img
 					src={file.preview}
 					className={styles.img}
+					alt={picType}
 				/>
 			</div>
 		));

@@ -252,7 +252,7 @@ class UserProfile extends Component {
 	}
 
 	render() {
-		const {firstName, lastName, dob, gender, lastOnline, orientation, online, address, interests, job, bio, profilePic, picture2, picture3, picture4, picture5} = this.state.user
+		const {firstName, lastName, dob, lastOnline, orientation, online, address, interests, job, bio, profilePic, picture2, picture3, picture4, picture5} = this.state.user
 		const images = [picture2, picture3, picture4, picture5].filter(x => !!x && x !== 'undefined')
 		const imagesArray = [profilePic, ...images].map(x => ({src: x}))
 
@@ -335,6 +335,7 @@ class UserProfile extends Component {
 										     src={x}
 											   key={i}
 											   onClick={this.openLightbox.bind(this, (i + 1))}
+										     alt={x}
 										/>
 									</div>
 								)}

@@ -36,7 +36,8 @@ class LoginDialog extends React.Component {
 				}
 			},
 		},
-		loginFail: false
+		loginFail: false,
+		errorMessage: ''
 	};
 
 	inputChangeHandler = (type, {target}) => {
@@ -54,13 +55,20 @@ class LoginDialog extends React.Component {
 		const query = loginQuery(authData.email, password)
 		const cb = resData => {
 			if (resData.errors) {
-				this.setState({isAuth: false, loginFail: true, inputFields: {...this.state.inputFields, password: {...this.state.inputFields.password, value: ''}}})
+				let errorMess
+				if (resData.errors[0].message === 'User is not confirmed.')
+					errorMess = "Your account is not active yet. Please check your emails and click on the confirmation link."
+				else
+					errorMess = "Incorrect email or password. Please try again"
+				console.log("ERROR ESS", errorMess)
+				this.setState({isAuth: false, loginFail: true, inputFields: {...this.state.inputFields, password: {...this.state.inputFields.password, value: ''}}, errorMessage: errorMess})
 				return
 			}
 			this.props.onLogin(resData.data.login)
 		}
 		const errorCb = () => {
-			this.setState({isAuth: false, loginFail: true, inputFields: {...this.state.inputFields, password: {...this.state.inputFields.password, value: ''}}})
+			const errorMess = "Incorrect email or password. Please try again"
+			this.setState({isAuth: false, loginFail: true, inputFields: {...this.state.inputFields, password: {...this.state.inputFields.password, value: ''}}, errorMessage: errorMess})
 		}
 		fetchGraphql(query, cb, null, errorCb)
 	}
@@ -95,7 +103,7 @@ class LoginDialog extends React.Component {
 							/>
 						</div> ))}
 					{this.state.loginFail && (<div className={styles.errorMessage}>
-							Incorrect email or password. Try again
+							{this.state.errorMessage}
 						</div>)}
 					<div className={styles.buttons}>
 						<Button variant={allValid ? "contained" : "outlined"}

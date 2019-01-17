@@ -37,8 +37,6 @@ module.exports = {
 		await db.query('Insert into users (email, password) VALUES (?, ?)', [userInput.email, hashedPw])
 
 
-		// check return value and send error if appropriate
-		// console.log(row)
 		return { email: userInput.email }
 	},
 
@@ -49,6 +47,14 @@ module.exports = {
 			decodedToken = jwt.verify(token, CONST.EMAIL_CONFIRMATION_SECRET);
 		} catch (err) {
 			const { email } = jwt.verify(token, '🍗🍡⏰', { ignoreExpiration: true })
+			const q = `SELECT isConfirmed, id, isOnboarded FROM users WHERE email = ?`
+			const [u] = await db.query(q, [email])
+			if (u.length <= 0) {
+				throw new Error("User does not exist")
+			}
+			if (u[0].isConfirmed === 1) {
+				throw new Error("Account already confirmed")
+			}
 			const e = new Error(err.message)
 			e.data = email
 			throw e
@@ -311,11 +317,9 @@ module.exports = {
 	editUser: async function (_, { userInput }, { req }) {
 		checkAuth(req)
 		const { profilePic, picture2, picture3, picture4, picture5 } = userInput
-		console.log(userInput)
 		const pics = [profilePic, picture2, picture3, picture4, picture5]
 		const input = pics.map((x, i) => !!x && x !== 'null' ? `picture${i + 1} = ?` : `picture${i + 1} = NULL`).join().replace(/,,/g, ",").replace("picture1", "profilePic").split(",").filter(x => !!x).join(", ")
 		const values = pics.filter(x => !!x && x !== 'null')
-		console.log(input, values)
 		const query = `UPDATE users SET first_name = ?, last_name = ?, email = ?, bio = ?, gender = ?, 
 		orientation = ?${!!values.length ? "," : ""} ${input} WHERE id = ?`
 		await db.query(query, [userInput.name, userInput.lastName, userInput.email, userInput.bio, userInput.gender, userInput.orientation,

@@ -7,24 +7,12 @@ import FormSelector from "../UI/FormSelector";
 import Chip from "@material-ui/core/es/Chip/Chip";
 import TextField from "@material-ui/core/es/TextField/TextField";
 import Button from '@material-ui/core/Button';
-import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles'
-import {blue} from '@material-ui/core/colors'
 import {editUserMutation} from "../../graphql/mutations";
 import {fetchGraphql} from "../../utils/graphql";
 import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Divider from '@material-ui/core/Divider';
 import Dropzone from '../DropZone/DropZoneWithPreview'
-import classNames from 'classnames'
 
-const blueTheme = createMuiTheme({
-	palette: {
-		primary: blue
-	},
-	typography: {
-		useNextVariants: true,
-	},
-})
 
 class EditProfile extends Component {
 
@@ -128,8 +116,13 @@ class EditProfile extends Component {
 		},
 		files: [],
 		somethingChanged: false,
-		startingPictures:  {"profilePic": {name: this.props.user.profilePic}, "picture2": {name:this.props.user.picture2},
-			"picture3": {name: this.props.user.picture3 }, "picture4": {name: this.props.user.picture4}, "picture5": {name:this.props.user.picture5}}
+		startingPictures: {
+			"profilePic": {name: this.props.user.profilePic},
+			"picture2": {name: this.props.user.picture2},
+			"picture3": {name: this.props.user.picture3},
+			"picture4": {name: this.props.user.picture4},
+			"picture5": {name: this.props.user.picture5}
+		}
 	}
 
 	inputChangeHandler = (type, {target}) => {
@@ -188,7 +181,6 @@ class EditProfile extends Component {
 		const data = {}
 		let picUrls = []
 		for (let picType in this.state.startingPictures) {
-			console.log(picType)
 			picUrls.push(this.state.startingPictures[picType].finalPath)
 		}
 		data.requestEmail = this.props.user.email
@@ -198,7 +190,6 @@ class EditProfile extends Component {
 		data.bio = JSON.stringify(this.state.bio.value)
 		data.email = JSON.stringify(this.state.textFields.email.value)
 		data.gender = this.state.gender.value === 'Man' ? "M" : "F"
-		console.log("GENDER", data.gender)
 		data.orientation = (function (orient) {
 			switch (orient) {
 				case 'Woman':
@@ -242,7 +233,7 @@ class EditProfile extends Component {
 
 	pictureDisplay = () => {
 		const dropZones = []
-		const { user} = this.props
+		const {user} = this.props
 		const picArray = [user.profilePic, user.picture2, user.picture3, user.picture4, user.picture5]
 		const key = ['profilePic', 'picture2', 'picture3', 'picture4', 'picture5']
 		dropZones.push((<Dropzone {...this.props} key={key[0]} profilePic={picArray[0]} save={this.savePictureInState}
@@ -258,21 +249,18 @@ class EditProfile extends Component {
 	}
 
 	savePictureInState = (info) => {
-		console.log("result ----->", info)
-		this.state.startingPictures[info[0].picType] = info[0]
+		this.setState({startingPictures: {...this.state.startingPictures, [info[0].picType]: info[0]}})
 	}
 
 	deletePictureFromState = (info) => {
-		if (info.name === this.state.startingPictures[info.picType].name ) {
-			console.log("hey")
-			this.state.startingPictures[info.picType] = { name: null } 
+		if (info.name === this.state.startingPictures[info.picType].name) {
+			this.setState({startingPictures: {...this.state.startingPictures, [info.picType]: {name: null}}})
 		}
 	}
 
 	checkIfPictureAlreadyDropped = (info) => {
 		let ret = true
 		for (var property1 in this.state.startingPictures) {
-			console.log(this.state.startingPictures[property1])
 			if (this.state.startingPictures[property1].name === info.name) {
 				ret = false
 			}
@@ -284,16 +272,25 @@ class EditProfile extends Component {
 		for (let filePath in result) {
 			for (let picType in this.state.startingPictures) {
 				if (result[filePath].originalname === this.state.startingPictures[picType].name) {
-					this.state.startingPictures[picType].finalPath = result[filePath].path
+					this.setState({
+						startingPictures: {
+							...this.state.startingPictures,
+							[picType]: {...this.state.startingPictures[picType], finalPath: result[filePath].path}
+						}
+					})
 				}
 			}
 		}
 		for (let picType in this.state.startingPictures) {
-			if (!this.state.startingPictures[picType].hasOwnProperty('finalPath')){
-				this.state.startingPictures[picType].finalPath = this.state.startingPictures[picType].name
+			if (!this.state.startingPictures[picType].hasOwnProperty('finalPath')) {
+				this.setState({
+					startingPictures: {
+						...this.state.startingPictures,
+						[picType]: {...this.state.startingPictures[picType], finalPath: this.state.startingPictures[picType].name}
+					}
+				})
 			}
 		}
-		console.log(this.state.startingPictures)
 	}
 
 	uploadPic = (cb) => {
@@ -301,12 +298,11 @@ class EditProfile extends Component {
 			toast.error("Profile picture needed !")
 			return
 		}
-		const { user} = this.props
 
 		const formData = new FormData()
 
 		for (let picType in this.state.startingPictures) {
-			if (this.state.startingPictures[picType].hasOwnProperty('preview')){
+			if (this.state.startingPictures[picType].hasOwnProperty('preview')) {
 				formData.append('image', this.state.startingPictures[picType])
 			}
 		}
@@ -319,7 +315,6 @@ class EditProfile extends Component {
 		})
 			.then(res => res.json())
 			.then(fileResData => {
-				console.log("FILE RES DATA", fileResData)
 				this.matchPath(fileResData.filePath)
 				cb()
 			})

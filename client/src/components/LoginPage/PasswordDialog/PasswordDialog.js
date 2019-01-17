@@ -70,7 +70,7 @@ class PasswordDialog extends React.Component {
 	}
 
 	render() {
-		const {open, onClose} = this.props;
+		const {open} = this.props;
 		const {errorMessage} = this.state
 		const element = this.state.inputFields['email']
 		const allValid = (element.valid && element.value !== '')

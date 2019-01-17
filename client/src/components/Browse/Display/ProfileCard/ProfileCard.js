@@ -7,7 +7,6 @@ import ChatBubbleEmpty from '@material-ui/icons/ChatBubbleOutline'
 import ChatBubbleFull from '@material-ui/icons/ChatBubble'
 import FameStar from '@material-ui/icons/Star'
 import Block from '@material-ui/icons/Block'
-import {likeInfoQuery} from "../../../../graphql/queries";
 import {fetchGraphql} from "../../../../utils/graphql";
 import {startChatMutation, toggleBlockMutation, toggleLikeMutation} from "../../../../graphql/mutations";
 import 'react-toastify/dist/ReactToastify.css';
@@ -78,7 +77,6 @@ class ProfileCard extends Component {
 
 	blockUser = () => {
 		const { blocked }  = this.props.profile
-		console.log("EFFECT", !blocked)
 		const query = toggleBlockMutation(this.props.profile.id, !blocked)
 		const cb = resData => {
 			if (resData.errors) {
@@ -91,7 +89,7 @@ class ProfileCard extends Component {
 	}
 
 	render() {
-		const {firstName, age, profilePic, gender, id, online, lastOnline, fameRating} = this.props.profile
+		const {firstName, lastName, age, profilePic, gender, id, online, lastOnline, fameRating} = this.props.profile
 		const chat = this.state.likeFrom && this.state.likeTo
 		const borderStyle = gender === 'F' ? styles.f : styles.m
 
@@ -120,6 +118,7 @@ class ProfileCard extends Component {
 			<div className={classnames(styles.component, borderStyle)}>
 				<div className={styles.imgContainer}>
 					<img src={getProfilePic()}
+					     alt={`${firstName}_${lastName}`}
 					     className={styles.img}
 					     onClick={() => {
 						     this.props.history.push({
