@@ -41,16 +41,26 @@ import Error401 from "./components/ErrorPages/Error401/Error401";
 import Error500 from "./components/ErrorPages/Error500/Error500";
 
 
+const defaultState = {
+	isAuth: false,
+	token: null,
+	userId: null,
+	isLoading: true,
+	geolocationDialogOpen: false,
+	newNotifications: 0,
+	conversations: undefined,
+	geolocation: undefined,
+	interests: undefined,
+	isOnboarded: undefined,
+	notifications: undefined,
+	notificationsOpen: undefined,
+	unreadMessages: undefined,
+	user: undefined,
+}
+
 class App extends Component {
 
-	state = {
-		isAuth: false,
-		token: null,
-		userId: null,
-		isLoading: true,
-		geolocationDialogOpen: false,
-		newNotifications: 0,
-	}
+	state = defaultState
 
 	componentDidMount() {
 		console.log("COMP DID MOUNT")
@@ -95,12 +105,12 @@ class App extends Component {
 				"unmatch": `You unmatched with ${name}`,
 				"visited": `${name} visited your profile`
 			})
-			// if (!this.state.notifications.length || !_.isEqual(this.state.notifications[0], trackNotification)) {
+			if (!this.state.notifications.length || !_.isEqual(this.state.notifications[0], trackNotification)) {
 				this.setState({newNotifications: this.state.newNotifications + 1, notifications: newNotifications})
 				toast.success(text(senderName)[type], {
 					autoClose: 1300
 				})
-			// }
+			}
 		}
 		// else if (data && !!newMessage) {
 		// 	const rightConv = this.state.conversations.find(x => x.id === newMessage.senderId)
@@ -324,7 +334,9 @@ class App extends Component {
 			this.getUsedInterests(data.token)
 			this.getNotifications(data.token)
 			this.getChats(data.token)
-
+		}
+		if (this.state.loggedOut) {
+			window.location.reload()
 		}
 	}
 
@@ -334,11 +346,10 @@ class App extends Component {
 			if (resData.errors) {
 				throw new Error("Couldn't mark user as offline")
 			}
-			this.setState({isAuth: false, token: null});
+			this.setState({...defaultState, loggedOut: true});
 			localStorage.removeItem('token');
 			localStorage.removeItem('expiryDate');
 			localStorage.removeItem('userId');
-			this.props.client.resetStore()
 		}
 		fetchGraphql(query, cb, this.state.token)
 

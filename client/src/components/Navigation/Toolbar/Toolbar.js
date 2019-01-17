@@ -61,8 +61,8 @@ class Toolbar extends Component {
 				<nav style={{flex: 1}}>
 					<Route render={(props) => <NavigationItems  {...props} onLogout={onLogout} unread={unread} user={user}/>}/>
 				</nav>
-				<div className={styles.logoutIcon}>
-					<LogOutIcon style={{fontSize: 30}} onClick={onLogout}/>
+				<div className={styles.logoutIcon} onClick={onLogout}>
+					<LogOutIcon style={{fontSize: 30}} />
 				</div>
 			</header>
 		)
