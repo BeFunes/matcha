@@ -4,6 +4,7 @@ import styles from './DropZoneWithPreview.module.css'
 import PictureIcon from '@material-ui/icons/AddPhotoAlternate'
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete';
+import {SERVER} from "../../constants";
 
 const button = {
 	color: 'rgb(251, 250, 250)',
@@ -67,11 +68,12 @@ class DropzoneWithPreview extends Component {
 
 	render() {
 		const {files} = this.state;
+		const formatPic = (pic) => pic && pic.substring(0, 7) === "images/" ? `${SERVER}/${pic}` : pic
 		const { picType } = this.props
 		const thumbs = files.map(file => (
 			<div key={file.name} style={{margin: 'auto', maxWidth: '150px', maxHeight: '150px'}}>
 				<img
-					src={file.preview}
+					src={formatPic(file.preview)}
 					className={styles.img}
 					alt={picType}
 				/>

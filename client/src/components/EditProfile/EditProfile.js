@@ -25,7 +25,7 @@ class EditProfile extends Component {
 				lastName: {...this.state.textFields.lastName, value: user.lastName},
 				email: {...this.state.textFields.email, value: user.email}
 			},
-			gender: user.gender === 'M' ? "Man" : "Woman",
+			gender: { value: user.gender === 'M' ? "Man" : "Woman"},
 			bio: {
 				...this.state.bio, value: this.props.user.bio
 			},
