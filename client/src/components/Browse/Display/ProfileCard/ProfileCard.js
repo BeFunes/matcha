@@ -91,11 +91,6 @@ class ProfileCard extends Component {
 
 	render() {
 		const {firstName, lastName, age, profilePic, gender, id, online, lastOnline, fameRating} = this.props.profile
-
-		if (this.state.likeTo !== null && (id === 14 || id === 18)) {
-			console.log(this.state)
-		}
-
 		const chat = this.state.likeFrom && this.state.likeTo
 		const borderStyle = gender === 'F' ? styles.f : styles.m
 
