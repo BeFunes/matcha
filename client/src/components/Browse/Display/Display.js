@@ -45,10 +45,8 @@ class Display extends Component {
 	}
 
 	toggleLike = (id) => {
-		console.log("toggle like on Display")
 		const newProfiles = this.state.profiles.map(x => x.id === id ? {...x, likeTo: !x.likeTo } : x)
 		this.setState({profiles: newProfiles})
-
 	}
 
 	render() {
