@@ -14,6 +14,8 @@ class ChatBody extends Component {
 					userId={userId}
 				/>
 				<Reply
+					blockedByUsers={this.props.blockedByUsers}
+					blockedUsers={this.props.blockedUsers}
 					receiverId={currentConversation && currentConversation.id}
 					sendReply={sendReply}
 				/>

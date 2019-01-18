@@ -92,10 +92,16 @@ const query = {
 	getUserAgentData: async function (_, x, {req}) {
 		console.log("GET AGENT USER INFO")
 		checkAuth(req)
-		const query = `SELECT U.*, GROUP_CONCAT(I.title) interests FROM (SELECT * from users WHERE id=?) U
+		const query = `SELECT U.*, GROUP_CONCAT(B.receiver_id) blocked FROM (SELECT U.*, GROUP_CONCAT(B.sender_id) blocked_by FROM (SELECT U.*, GROUP_CONCAT(I.title) interests FROM (SELECT * from users WHERE id=?) U
 		JOIN users_interests UI on U.id = UI.user_id
 		JOIN interests I ON I.id = UI.interest_id
-		GROUP BY UI.user_id `
+		GROUP BY UI.user_id ) U
+		LEFT JOIN blocks B ON U.id = B.receiver_id
+		GROUP BY U.id) U
+		LEFT JOIN blocks B ON U.id = B.sender_id
+		GROUP BY U.id
+		
+		`
 		const [user] = await db.query(query, req.userId)
 		if (user.length === 0) {
 			const error = new Error('User not found.')
@@ -123,7 +129,9 @@ const query = {
 			isOnboarded: user[0].isOnboarded,
 			latitude: user[0].latitude,
 			longitude: user[0].longitude,
-			address: user[0].address
+			address: user[0].address,
+			blockedUsers: !!user[0].blocked && user[0].blocked.split(',') || [],
+			blockedByUsers: !!user[0].blocked_by && user[0].blocked_by.split(',') || []
 		}
 	},
 

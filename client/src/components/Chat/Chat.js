@@ -35,7 +35,7 @@ class Chat extends Component {
 		this.props.history.push({
 			pathname: `/user_profile`,
 			search: '',
-			state: { id: id}
+			state: { id: id, userAgent: this.props.userAgent}
 		})
 	}
 
@@ -59,6 +59,8 @@ class Chat extends Component {
 					userId={parseInt(localStorage.getItem('userId'))}
 					sendReply={this.props.sendReply}
 					currentConversation={currentConversationWithContent}
+					blockedByUsers={this.props.userAgent.blockedByUsers}
+					blockedUsers={this.props.userAgent.blockedUsers}
 				/> :  <div className={styles.noChat}>You have no chats yet</div>}
 			</div>
 		)

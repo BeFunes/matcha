@@ -99,7 +99,9 @@ const typeDefs = gql`
         chats: Int
         likeTo: Boolean
         likeFrom: Boolean
-        fameRating: Int
+        fameRating: Int,
+        blockedUsers: [Int],
+        blockedByUsers: [Int]
     }
     
     input MatchFilter {

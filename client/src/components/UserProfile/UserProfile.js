@@ -279,8 +279,8 @@ class UserProfile extends Component {
 		const onlineIcon = isOnline ? <Online style={{...iconStyle, color: '#22a822'}}/> :
 			<OfflineIcon style={{...iconStyle, color: 'black'}}/>
 		const onlineText = isOnline ? 'Online' : `Last online: ${formatLastOnline(lastOnline)}`
-		const myGender = this.props.location.state.userAgent.gender
-		const myOrientation = this.props.location.state.userAgent.orientation
+		const myGender = this.props.location && this.props.location.state && this.props.location.state.userAgent && this.props.location.state.userAgent.gender
+		const myOrientation = this.props.location && this.props.location.state && this.props.location.state.userAgent && this.props.location.state.userAgent.orientation
 		const canShowActions = this.state.user && !!myGender && !!myOrientation && orientation && gender && orientation.includes(myGender) && myOrientation.includes(gender)
 
 		return (

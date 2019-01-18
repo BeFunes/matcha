@@ -92,6 +92,8 @@ export const getUserAgentDataQuery = {
 										latitude
 										longitude
 										address
+										blockedUsers
+										blockedByUsers
                 }
             } `
 }

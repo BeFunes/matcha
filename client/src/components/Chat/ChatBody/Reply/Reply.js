@@ -21,8 +21,11 @@ class Reply extends Component {
 	}
 
 	onKeyDown = (event) => {
+		const {blockedByUsers, blockedUsers } = this.props
+		const id = this.props.receiverId
+		const blocked = (blockedUsers && (blockedByUsers.includes(id) || blockedByUsers === id)) || (blockedUsers && (blockedUsers.includes(id) || blockedUsers === id))
 		if (event.key === 'Enter') {
-			if (!this.state.reply.trim().length) { return }
+			if (!this.state.reply.trim().length || blocked ) { return }
 			this.onPressSend()
 			event.preventDefault()
 		}
@@ -30,13 +33,16 @@ class Reply extends Component {
 	}
 
 	render() {
-		return (
+		const {blockedByUsers, blockedUsers } = this.props
+		const id = this.props.receiverId
+		const blocked = (blockedUsers && (blockedByUsers.includes(id) || blockedByUsers === id)) || (blockedUsers && (blockedUsers.includes(id) || blockedUsers === id))
+			return (
 			<div className={styles.component}>
 				<TextField
 					multiline
 					rowsMax="6"
 					rows="3"
-					value={this.state.reply}
+					value={!blocked ? this.state.reply : "        **** this user blocked you or you blocked them ****"}
 					onChange={this.onReplyChange}
 					className={styles.input}
 					style={{margin: 15}}
@@ -45,7 +51,7 @@ class Reply extends Component {
 				/>
 				<Button
 					onClick={this.onPressSend}
-					disabled={!this.state.reply.trim().length}
+					disabled={!this.state.reply.trim().length || blocked}
 				>
 					<Send/>
 				</Button>

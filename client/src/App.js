@@ -94,7 +94,6 @@ class App extends Component {
 
 	componentWillReceiveProps({data}) {
 		if (!this.state.notifications) { return }
-		console.log("NOTIFICATION", data)
 		const {trackNotification} = data
 		if (!!data && !!trackNotification) {
 			const {type, senderName} = trackNotification
@@ -112,15 +111,6 @@ class App extends Component {
 				})
 			}
 		}
-		// else if (data && !!newMessage) {
-		// 	const rightConv = this.state.conversations.find(x => x.id === newMessage.senderId)
-		// 	if (rightConv.messages.find(x => x.timestamp === newMessage.timestamp)) {
-		// 		return
-		// 	}
-		// 	const newConv = {...rightConv, messages: [...rightConv.messages, newMessage]}
-		// 	const newConversations = this.state.conversations.map(x => x.id === newMessage.senderId ? newConv : x)
-		// 	this.setState({conversations: newConversations, unreadMessages: true})
-		// }
 	}
 
 	sendReply = (content, receiverId) => {
@@ -281,7 +271,6 @@ class App extends Component {
 						address.shift()
 					}
 					address = address.join()[0] === ',' ? address.join().substring(1) : address.join()
-					console.log(address)
 					openDialog(latitude, longitude, address)
 				}
 			}, {key: 'AIzaSyDhO5lFvlxnnGx_eBwAmDsagl0tE-vxE2U'})
@@ -473,6 +462,7 @@ class App extends Component {
 						                                                           conversations={this.state.conversations}
 						                                                           markMessagesAsSeen={this.markMessagesAsSeen}
 						                                                           sendReply={this.sendReply}
+						                                                           userAgent={this.state.user}
 						/>}/>}
 						<Route path="/401" component={Error401} />
 						<Route path="/500" component={Error500} />
