@@ -259,7 +259,8 @@ class App extends Component {
 			fetch('http://www.geoplugin.net/json.gp')
 				.then((res) => res.json())
 				.then((data) => {
-						openDialog(data.geoplugin_latitude, data.geoplugin_longitude, data.geoplugin_city + ", " + data.geoplugin_countryName)
+						const address = data.geoplugin_city + ", " + data.geoplugin_countryName
+						openDialog(data.geoplugin_latitude, data.geoplugin_longitude, address[0] === ',' ? address.substring(1) : address)
 					}
 				)
 				.catch((err) => console.log(err))
@@ -279,7 +280,9 @@ class App extends Component {
 					while (address.length >= 3) {
 						address.shift()
 					}
-					openDialog(latitude, longitude, address.join())
+					address = address.join()[0] === ',' ? address.join().substring(1) : address.join()
+					console.log(address)
+					openDialog(latitude, longitude, address)
 				}
 			}, {key: 'AIzaSyDhO5lFvlxnnGx_eBwAmDsagl0tE-vxE2U'})
 		}, (err) => {
@@ -298,7 +301,6 @@ class App extends Component {
 			if (resData.errors) {
 				throw new Error(resData.errors[0].message)
 			}
-			console.log(resData.data)
 		}
 		fetchGraphql(query, cb, this.state.token)
 	}
