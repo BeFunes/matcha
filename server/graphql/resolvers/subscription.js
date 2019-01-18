@@ -10,7 +10,7 @@ const subscription = {
 	},
 	trackNotification: {
 		subscribe: withFilter(() => pubsub.asyncIterator('notification'), ({trackNotification}, {userId}) => {
-			return trackNotification.receiver === userId && trackNotification.receiver !== trackNotification.sender
+			return trackNotification.receiver === userId && trackNotification.receiver !== trackNotification.senderId
 		})
 	},
 	newMessage: {
