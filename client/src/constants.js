@@ -1,5 +1,5 @@
 // export const HOST = 'http://localhost'
-export const HOST = '192.168.18.22'
+export const HOST = '10.18.197.137'
 export const HTTPHOST = `http://${HOST}`
 
 export const SERVER = `${HTTPHOST}:3001`

@@ -49,7 +49,7 @@ class Browse extends Component {
 				throw new Error("Profiles search failed")
 			}
 			const matchesWithAge = resData.data.match.map(x => ({...x, age: getAge(x.dob)}))
-			const sortedMatches = this.sort(matchesWithAge, this.state.sortValue)
+			const sortedMatches = _.uniqBy((this.sort(matchesWithAge, this.state.sortValue)), 'id')
 			this.setState({matches: sortedMatches, filters: {...data}})
 		}
 		fetchGraphql(query, cb, this.props.token)
