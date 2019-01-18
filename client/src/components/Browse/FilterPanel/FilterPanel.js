@@ -69,6 +69,7 @@ class FilterPanel extends Component {
 					<header className={styles.header}> FILTERS</header>
 					<div className={styles.title}>
 						<div className={styles.label}>Age range</div>
+						<div className={styles.range}>
 						<Range
 							min={18}
 							max={99}
@@ -80,6 +81,7 @@ class FilterPanel extends Component {
 							railStyle={{backgroundColor: '#aeaeae'}}
 							value={[filters.ageMin, filters.ageMax]}
 						/>
+						</div>
 					</div>
 					<div className={styles.title}>
 						<div className={styles.label}>Interests</div>
