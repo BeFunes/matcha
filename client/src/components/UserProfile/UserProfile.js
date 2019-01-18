@@ -8,6 +8,7 @@ import JobIcon from "@material-ui/icons/Work"
 import CakeIcon from "@material-ui/icons/Cake"
 import Online from "@material-ui/icons/Lens"
 import OfflineIcon from "@material-ui/icons/AccountCircle"
+import GenderIcon from "@material-ui/icons/Wc"
 import FullHeart from '@material-ui/icons/Favorite'
 import EmptyHeart from '@material-ui/icons/FavoriteBorder'
 import ChatBubbleEmpty from '@material-ui/icons/ChatBubbleOutline'
@@ -311,6 +312,7 @@ class UserProfile extends Component {
 							<div className={styles.minorInfo}><CakeIcon style={iconStyle}/> {age} years old</div>
 							<div className={styles.minorInfo}><LocationIcon style={iconStyle}/> {address}</div>
 							<div className={styles.minorInfo}><JobIcon style={iconStyle}/> {job} </div>
+							<div className={styles.minorInfo}><GenderIcon style={iconStyle}/>{gender === 'M' ? " Man" : " Woman"} </div>
 							<div className={styles.minorInfo}><EmptyHeart style={iconStyle}/> Looking for a {preference} </div>
 						</div>
 						{this.renderButton()}
