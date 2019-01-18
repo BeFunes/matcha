@@ -1,18 +1,18 @@
 .component {
-    /*margin-bottom: 20px;*/
     height: 100%;
     width: 90%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    align-items: stretch;
 }
 
 .upperPart {
     display: flex;
+    flex-grow: 3;
     flex-direction: column;
     justify-content: flex-start;
     align-items: stretch;
+    min-height: 420px;
 }
 
 .navigation {
@@ -20,27 +20,36 @@
     flex-direction: column;
     align-items: center;
     width: 100%;
-    margin-bottom: 20px;
+    height: 120px;
 }
 
 .buttons {
     display: flex;
     justify-content: flex-end;
     width: 95%;
+    height: 100px;
 }
 
 .progress {
     width: 95%;
     margin: 30px 0 ;
+    height: 30px;
 }
 
+.progressContainer {
+    height: 20px;
+    background-color: yellow;
+}
 .gender {
     display: flex;
     justify-content: space-around;
-
+    flex-grow: 2;
+    height: 180px;
+    margin-bottom: 40px;
 }
 
 .basicInfo {
     text-align: center;
     margin-bottom: 30px;
+    height: 230px;
 }

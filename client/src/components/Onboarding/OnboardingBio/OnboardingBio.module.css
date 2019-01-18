@@ -1,5 +1,4 @@
 .component {
-    /*margin-bottom: 20px;*/
     height: 100%;
     width: 90%;
     display: flex;
@@ -11,9 +10,9 @@
 .upperPart {
     display: flex;
     flex-direction: column;
-    /*justify-conte*/
     align-items: stretch;
-    /*width: 90%;*/
+    min-height: 500px;
+    flex-grow: 1;
 }
 
 .navigation {
@@ -47,6 +46,7 @@
     margin: 10px 15px;
     border: 1px solid #b7b7b7;
     border-radius: 4px;
+    min-height: 100px;
 }
 
 .interestsLabel {

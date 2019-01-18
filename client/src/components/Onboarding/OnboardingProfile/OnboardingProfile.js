@@ -127,8 +127,10 @@ class OnboardingProfile extends React.Component {
 							<NavigateNextIcon/>
 						</Fab>
 					</div>
+					{/*<div className={styles.progressContainer}>*/}
 					<LinearProgress color="primary" className={styles.progress} variant="determinate" value={this.props.completedProgress}/>
-				</div>
+					{/*</div>*/}
+					</div>
 			</ div>
 		)
 	}

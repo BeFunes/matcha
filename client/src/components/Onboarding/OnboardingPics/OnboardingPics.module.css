@@ -13,6 +13,8 @@
     flex-direction: column;
     justify-content: flex-start;
     align-items: stretch;
+    flex-grow: 3;
+    min-height: 200px;
 }
 
 .navigation {
@@ -21,28 +23,16 @@
     align-items: center;
     width: 100%;
     margin-bottom: 20px;
-    /*align-items: stretch;*/
-
 }
 
 .buttons {
     width: 95%;
     display: flex;
     justify-content: space-between;
+    height: 100px;
 }
 
 .progress {
     width: 95%;
     margin: 30px 0 ;
-}
-
-.gender {
-    display: flex;
-    justify-content: space-around;
-
-}
-
-.basicInfo {
-    text-align: center;
-    margin-bottom: 30px;
 }

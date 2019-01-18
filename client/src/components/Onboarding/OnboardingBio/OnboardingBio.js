@@ -72,7 +72,7 @@ class OnboardingBio extends React.Component {
 		}
 	}
 
-	componentWillMount () {
+	componentWillMount() {
 		this.setState({
 			job: {...this.state.job, value: this.props.job},
 			bio: {...this.state.bio, value: this.props.bio},
@@ -82,7 +82,7 @@ class OnboardingBio extends React.Component {
 
 	render() {
 		const allValid = this.state.job.value && this.state.job.valid && this.state.bio.value && this.state.bio.valid && this.state.tags.length
-		const interestBorderStyle = this.state.interestsSelected ? { border: "2px solid #3f51b5"} : { border: "1px solid #b7b7b7"}
+		const interestBorderStyle = this.state.interestsSelected ? {border: "2px solid #3f51b5"} : {border: "1px solid #b7b7b7"}
 		const data = {
 			job: sanitise(this.state.job.value),
 			bio: this.state.bio.value,
@@ -122,7 +122,9 @@ class OnboardingBio extends React.Component {
 								onBlur={this.interestsBlurHandler}
 								onKeyDown={e => {
 									if (e.key === 'Enter' || e.key === 'Tab') {
-										if (this.state.currentTag.value) { e.preventDefault() }
+										if (this.state.currentTag.value) {
+											e.preventDefault()
+										}
 										this.addTag()
 									}
 								}}
@@ -130,7 +132,10 @@ class OnboardingBio extends React.Component {
 						</div>
 					</div>
 					<TextInput
-						ref={(input) => { this.bioInpyt = input; }}
+						ref={(input) => {
+							this.bioInpyt = input;
+						}}
+						style={{height: 260}}
 						label={this.state.bio.label}
 						value={this.state.bio.value}
 						error={!this.state.bio.valid}
@@ -148,7 +153,8 @@ class OnboardingBio extends React.Component {
 							Create your profile
 						</Fab>
 					</div>
-					<LinearProgress color="primary" className={styles.progress} variant="determinate" value={this.props.completedProgress}/>
+					<LinearProgress color="primary" className={styles.progress} variant="determinate"
+					                value={this.props.completedProgress}/>
 				</div>
 			</ div>
 		)
