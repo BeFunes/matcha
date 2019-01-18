@@ -11,8 +11,6 @@ const moment = require("moment")
 
 const query = {
 	login: async function (_, {email, password}, {req}) {
-
-		console.log("LOGIN", email, password)
 		if (!validate(email, "email") || !validate(password, "password")) {
 			const error = new Error('Validation Error')
 			error.code = 422
@@ -41,7 +39,6 @@ const query = {
 			{expiresIn: '1h'}
 		)
 		await markUserOnline(user[0].id)
-		// pubsub.publish('userInfoChange', {userInfoChange: {onlineInfo: true, sender: req.userId, likeInfo: null}})
 		return {token: token, userId: user[0].id, isOnboarded: !!user[0].isOnboarded}
 	},
 
