@@ -252,7 +252,7 @@ class UserProfile extends Component {
 	}
 
 	render() {
-		const {firstName, lastName, dob, lastOnline, orientation, online, address, interests, job, bio, profilePic, picture2, picture3, picture4, picture5} = this.state.user
+		const {firstName, gender, lastName, dob, lastOnline, orientation, online, address, interests, job, bio, profilePic, picture2, picture3, picture4, picture5} = this.state.user
 		const formatPic = (pic) => pic && pic.substring(0, 7) === "images/" ? `${SERVER}/${pic}` : pic
 		const images = [picture2, picture3, picture4, picture5].filter(x => !!x && x !== 'undefined')
 		const imagesArray = [profilePic, ...images].map(x => ({src: formatPic(x)}))
@@ -278,6 +278,9 @@ class UserProfile extends Component {
 		const onlineIcon = isOnline ? <Online style={{...iconStyle, color: '#22a822'}}/> :
 			<OfflineIcon style={{...iconStyle, color: 'black'}}/>
 		const onlineText = isOnline ? 'Online' : `Last online: ${formatLastOnline(lastOnline)}`
+		const myGender = this.props.location.state.userAgent.gender
+		const myOrientation = this.props.location.state.userAgent.orientation
+		const canShowActions = this.state.user && !!myGender && !!myOrientation && orientation && gender && orientation.includes(myGender) && myOrientation.includes(gender)
 
 		return (
 
@@ -294,7 +297,7 @@ class UserProfile extends Component {
 								     alt={`${firstName}+${lastName}`}
 								/>
 							</div>
-							{!this.state.isMe ?
+							{!this.state.isMe && !!canShowActions ?
 								<div className={styles.actionBlocks}>
 									<div className={styles.iconBlock}> {renderLikeIcon()} Like</div>
 									<div className={styles.iconBlock}> {renderBlockIcon()} Block</div>

@@ -124,7 +124,7 @@ class ProfileCard extends Component {
 						     this.props.history.push({
 							     pathname: `/user_profile`,
 							     search: '',
-							     state: {id: id}
+							     state: {id: id, userAgent: this.props.user}
 						     })
 					     }}/>
 				</div>

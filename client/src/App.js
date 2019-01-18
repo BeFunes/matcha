@@ -465,7 +465,9 @@ class App extends Component {
 						                                                                                           markLoggedIn={this.loginHandler}/>}/>}
 						{!this.state.isAuth && <Route path="/reset_password/:token" component={ResetPassword}/>}
 						{hasAccess && <Route path="/user_profile" render={(props) => <UserProfile {...props}
-						                                                                          addNewConversation={this.addNewConversation}/>}/>}
+						                                                                          addNewConversation={this.addNewConversation}
+						                                                                          userAgent={this.state.user}
+						/>}/>}
 						{hasAccess && this.checkUser()}
 						{hasAccess && <Route path="/chat" render={(props) => <Chat {...props} token={this.state.token}
 						                                                           conversations={this.state.conversations}
